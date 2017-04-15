@@ -17,6 +17,13 @@ from __future__    import print_function
 from Qt            import QtGui
 #internal
 
+#!NOTE: this idea will not work, because you cannot nest
+#!      QAbstractItemModels. There is one QAbstractItemModel at the top,
+#!      and then everything under it is a QAbstractItem.
+#!
+#!      It is then the items that should have this interface?
+
+
 class DictModel( QtGui.QAbstractItemModel ):
     """
     A TreeModel, to facilitate nesting TreeModels.
@@ -69,7 +76,11 @@ class DictModel( QtGui.QAbstractItemModel ):
                 determines the rows that items will be assigned
                 in the Model.
         """
-        self._columns = columns
+        self._columns           = columns
+        self._defaultcolumnvals = {}      # all columns for new rows are initialized as ``None``
+
+        for key in self._columns:
+            self._defaultcolumnvals[ key ] = None
 
     def __getattribute__(self, key, attr):
         """
@@ -82,12 +93,17 @@ class DictModel( QtGui.QAbstractItemModel ):
             )
         return self.item( index.row(), self._columns.index(i)+1 )
 
-
     def __getitem__(self, key):
         pass
 
     def __setitem__(self, key, model=None ):
-        pass
+        try:
+            index = self.item( self._column_index(key), 0 ).index()
+        except:
+            self.appendRow([key])
+            index = self.set_columns( key, self._default_columnvals )
+
+
 
     def columns(self, key):
         """
@@ -117,6 +133,9 @@ class DictModel( QtGui.QAbstractItemModel ):
                 defined in :py:meth:`__init__` s argument
                 `columns`, but does not need to contain every
                 key from `columns`.
+
+        Returns:
+            Model-Index of the row we just added columns to
         """
         index = self._column_index(key)
 
@@ -130,13 +149,13 @@ class DictModel( QtGui.QAbstractItemModel ):
                 'Keys %s do not exist in `columns` set in __init__' % ','.join(bad_keys)
             )
 
-        for key in item_keys:
-            widget               = index.sibling(
-                index.row(), self._columns.index(key)
-            )
-            columnvals[ colkey ] = widget.text()
+        for colkey in item_keys:
+            column_index = self._columns.index( colkey )
+            widget       = QtGui.QStandardItem( str(items[colkey] )
+            self.setItem( index, column_index, widget )
 
-        return columnvals
+        return self.item(index,0).index()
+
 
     def _column_index(self,key):
         """
