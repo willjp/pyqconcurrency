@@ -25,7 +25,7 @@ from Qt            import QtGui, QtCore
 
 #! items by the model itself
 
-class DictModel( QtCore.QAbstractItemModel ):
+class DictModel( QtGui.QStandardItemModel ):
     """
     A TreeModel, to facilitate nesting TreeModels.
 
@@ -77,23 +77,12 @@ class DictModel( QtCore.QAbstractItemModel ):
                 determines the rows that items will be assigned
                 in the Model.
         """
-        QtCore.QAbstractItemModel.__init__(self)
+        QtGui.QStandardItemModel.__init__(self)
         self._columns           = columns
         self._defaultcolumnvals = {}      # all columns for new rows are initialized as ``None``
 
         for key in self._columns:
             self._defaultcolumnvals[ key ] = None
-
-    def __getattribute__(self, key, attr):
-        """
-        Returns one of the column-values
-        """
-        index = self._column_index(key)
-        if attr not in self._columns:
-            raise KeyError(
-                'attr "%s" not in :py:meth:`__init__` argument `columns`' % attr
-            )
-        return self.item( index.row(), self._columns.index(i)+1 )
 
     def __getitem__(self, key):
         pass
@@ -167,9 +156,45 @@ class DictModel( QtCore.QAbstractItemModel ):
             'key "%s" does not exist in DictModel' % key
         )
 
+    def appendItem(self, key):
+        item = DictModelItem( key=key )
+        QtGui.QStandardItemModel.appendItem( item )
+        item.set_columns( self._defaultcolumnvals )
+        return item
+
+    def set_child_columns(self, item, columnvals):
+
+        columnvals = {}
+        val_keys  = set(columnvals.keys())
+        col_keys   = set(self._columns)
+
+        if not val_keys.issubset( col_keys ):
+            bad_keys = val_keys.difference( col_keys )
+            raise KeyError(
+                'Keys %s do not exist in `columns` set in __init__' % ','.join(bad_keys)
+            )
+
+        for colkey in val_keys:
+            column_index = self._columns.index( colkey ) +1
+            widget       = QtGui.QStandardItem( str(columnvals[colkey] ) )
+            item.setChild(
+            self.setItem( index, column_index, widget )
+
+        return self.item(index,0).index()
 
 
+class Dummy(object):
+    def __getattribute__(self, attr):
+        """
+        Returns one of the column-values
+        """
 
+        index = self._column_index(key)
+        if attr not in self._columns:
+            raise KeyError(
+                'attr "%s" not in :py:meth:`__init__` argument `columns`' % attr
+            )
+        return self.item( index.row(), self._columns.index(i)+1 )
 
 
 
@@ -189,7 +214,7 @@ class DictModelItem( QtGui.QStandardItem ):
         index = self._column_index(key)
         self.child(index)
 
-    def __setitem__(self, key, modelitem, columnvals=None ):
+    def __setitem__(self, key, columnvals=None ):
         """
         Assign a :py:obj:`DictModelItem` to be a child of this
         :py:obj:`DictModelItem`.
@@ -197,13 +222,14 @@ class DictModelItem( QtGui.QStandardItem ):
         ## If key exists in table, replace the model it corresponds to
         try:
             index = self._column_index(key)
-            self.setChild( index.row(), 0, modelitem )
+            #self.setChild( index.row(), 0, modelitem )
+            #! update columns
 
         ## If key does not exist in table, create a new row
         except:
             self.appendRow([key])
-            index = self.child( self.columnCount()-1, 0 ).index()
-            self.setChild( self.columnCount(), 0, modelitem )
+            modelitem = DictModelItem(key)
+            self.setChild( self.columnCount()-1, 0, modelitem )
 
     def __getattribute__(self, key, attr):
         pass
@@ -222,18 +248,30 @@ class DictModelItem( QtGui.QStandardItem ):
             'key "%s" does not exist in DictModel' % key
         )
 
+    def set_columns(self, columnvals ):
+
+        if self.model() == None:
+            raise RuntimeError(
+                'Cannot set columns until `DictModelIem` has been '
+                'added to a `DictModel` '
+            )
+
+
+
 
 
 if __name__ == '__main__':
     from   qconcurrency import QApplication
     import sys
 
-    class Model(QtCore.QAbstractItemModel):
-        pass
-
     with QApplication():
-        model = Model()
-        model.setItem( DictModelItem(1) )
+        #model = QtGui.QStandardItemModel()
+        model = DictModel( ('a','b','c') )
+        #item  = DictModelItem( key=1)
+        #subitem = DictModelItem( key=2 )
+
+        #model.setItem( 0,0,  )
+        #item[ 2 ] =
 
 
 
