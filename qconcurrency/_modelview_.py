@@ -14,7 +14,7 @@ from __future__    import absolute_import
 from __future__    import division
 from __future__    import print_function
 #external
-from Qt            import QtGui
+from Qt            import QtGui, QtCore
 #internal
 
 #!NOTE: this idea will not work, because you cannot nest
@@ -23,8 +23,9 @@ from Qt            import QtGui
 #!
 #!      It is then the items that should have this interface?
 
+#! items by the model itself
 
-class DictModel( QtGui.QAbstractItemModel ):
+class DictModel( QtCore.QAbstractItemModel ):
     """
     A TreeModel, to facilitate nesting TreeModels.
 
@@ -76,6 +77,7 @@ class DictModel( QtGui.QAbstractItemModel ):
                 determines the rows that items will be assigned
                 in the Model.
         """
+        QtCore.QAbstractItemModel.__init__(self)
         self._columns           = columns
         self._defaultcolumnvals = {}      # all columns for new rows are initialized as ``None``
 
@@ -102,8 +104,6 @@ class DictModel( QtGui.QAbstractItemModel ):
         except:
             self.appendRow([key])
             index = self.set_columns( key, self._default_columnvals )
-
-
 
     def columns(self, key):
         """
@@ -151,11 +151,10 @@ class DictModel( QtGui.QAbstractItemModel ):
 
         for colkey in item_keys:
             column_index = self._columns.index( colkey )
-            widget       = QtGui.QStandardItem( str(items[colkey] )
+            widget       = QtGui.QStandardItem( str(items[colkey] ) )
             self.setItem( index, column_index, widget )
 
         return self.item(index,0).index()
-
 
     def _column_index(self,key):
         """
@@ -171,6 +170,70 @@ class DictModel( QtGui.QAbstractItemModel ):
 
 
 
+
+
+
+class DictModelItem( QtGui.QStandardItem ):
+    """
+    :py:obj:`QtGui.QAbstractItem` whose table is expressed
+    as a dictionary (using the first column as the Id).
+    """
+    def __init__(self, key):
+        QtGui.QStandardItem.__init__(self)
+        self._key = key
+
+    def __getitem__(self,key):
+        """
+        Returns another :py:obj:`DictModelItem`
+        """
+        index = self._column_index(key)
+        self.child(index)
+
+    def __setitem__(self, key, modelitem, columnvals=None ):
+        """
+        Assign a :py:obj:`DictModelItem` to be a child of this
+        :py:obj:`DictModelItem`.
+        """
+        ## If key exists in table, replace the model it corresponds to
+        try:
+            index = self._column_index(key)
+            self.setChild( index.row(), 0, modelitem )
+
+        ## If key does not exist in table, create a new row
+        except:
+            self.appendRow([key])
+            index = self.child( self.columnCount()-1, 0 ).index()
+            self.setChild( self.columnCount(), 0, modelitem )
+
+    def __getattribute__(self, key, attr):
+        pass
+
+    def __setattribute__(self, key, attr, val):
+        pass
+
+    def _column_index(self,key):
+        """
+        Returns Model Index for row containing key
+        """
+        for i in range(self.columnCount()):
+            if self.child(i,0).text() == str(key):
+                return self.child(i,0).index()
+        raise KeyError(
+            'key "%s" does not exist in DictModel' % key
+        )
+
+
+
 if __name__ == '__main__':
-    pass
+    from   qconcurrency import QApplication
+    import sys
+
+    class Model(QtCore.QAbstractItemModel):
+        pass
+
+    with QApplication():
+        model = Model()
+        model.setItem( DictModelItem(1) )
+
+
 

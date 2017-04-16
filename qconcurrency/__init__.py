@@ -103,8 +103,8 @@ class QApplication( QtWidgets.QApplication ):
         (killing maya's QApplication crashes maya!)
         """
         if err_type or err_val or err_tb:
-            if not _is_mayagui():
-                self.exit()
+            #if not _is_mayagui():
+            #    self.exit()
             six.reraise( err_type, err_val, err_tb )
 
         if self._created_qapp:
