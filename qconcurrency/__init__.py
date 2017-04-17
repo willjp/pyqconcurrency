@@ -23,7 +23,7 @@ import uuid
 from   Qt import QtCore, QtWidgets
 import six
 #internal
-from   exceptions_  import *
+from   qconcurrency.exceptions_  import *
 
 logger = logging.getLogger(__name__)
 loc    = locals
@@ -368,7 +368,7 @@ class SoloThreadedTask( QtCore.QObject ):
     This might be useful for loading tasks such as a method that loads or filters
     a widget's contents.
     """
-    def __init__(self, callback, signals=None, connections=None, mutex_expiry=5000 ):
+    def __init__(self, callback, signals=None, mutex_expiry=5000 ):
         QtCore.QObject.__init__(self)
 
         # Args
