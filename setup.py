@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from distutils.core import setup, Extension, Command
+from   distutils.core import setup, Extension, Command
 import setuptools
 
 setup(
