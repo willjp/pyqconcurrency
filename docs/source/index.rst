@@ -11,6 +11,8 @@ Welcome to pyqconcurrency's documentation!
    :caption: Contents:
 
 
+* :doc:`_api/modules`
+
 
 Indices and tables
 ==================
