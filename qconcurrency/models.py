@@ -219,9 +219,31 @@ class DictModel( QtGui.QStandardItemModel ):
         """
 
         if self._hierarchy:
+            if level == None:
+                raise RuntimeError(
+                    'This `DictModel` was created with different columns at '
+                    'different levels. You\'ll need to provide the `level` you are '
+                    'interested in to get the column-list '
+                )
             return self._columns[ level ]
         else:
             return self._columns
+
+    def column_index(self, level=None, column=None ):
+        """
+        Returns the column-index for a specific columnname
+        at a specific level.
+
+        Returns:
+
+            .. code-block:: python
+
+                3   # a column-index
+        """
+        if self._hierarchy:
+            return self._columns[ level ].index( column )
+        else:
+            return self._columns.index( column )
 
     def default_columnvals(self, level=None ):
         """
