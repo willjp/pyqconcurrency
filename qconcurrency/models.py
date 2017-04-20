@@ -189,9 +189,15 @@ class DictModel( QtGui.QStandardItemModel ):
         Returns:
             :py:obj:`DictModelRow`
         """
+
         set_columnvals = self._defaultcolumnvals.copy()
         set_columnvals.update( columnvals )
         item = DictModelRow( parent=self, key=key, columnvals=set_columnvals)
+
+        # NOTE: this step should not be necessary,
+        #       but it seems to be...
+        self.setItem( self.rowCount()-1, 0, item )
+
         return item
 
     def columns(self, level=None ):
@@ -333,6 +339,7 @@ class DictModelRow( QtGui.QStandardItem ):
                 A dictionary of columns, and assignments to store
                 in the view.
         """
+
         QtGui.QStandardItem.__init__(self, str(key))
 
         if not isinstance( parent, QtGui.QStandardItemModel ):
@@ -369,6 +376,7 @@ class DictModelRow( QtGui.QStandardItem ):
 
             parent.setChild( parent.rowCount(), 0, self )
 
+        self.setText( str(key) )
         self.set_columnvals( self.model().default_columnvals(self._level) )
         if columnvals:
             self.set_columnvals( columnvals )
