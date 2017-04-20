@@ -10,13 +10,13 @@ Description :   Generic models, and interfaces for models to be used
 ________________________________________________________________________________
 """
 #builtin
-from __future__    import unicode_literals
-from __future__    import absolute_import
-from __future__    import division
-from __future__    import print_function
-from collections   import Iterable, MutableMapping
+from __future__          import unicode_literals
+from __future__          import absolute_import
+from __future__          import division
+from __future__          import print_function
+from collections         import Iterable, MutableMapping
 #external
-from Qt            import QtGui, QtCore
+from Qt                  import QtGui, QtCore
 #internal
 
 
@@ -61,7 +61,7 @@ class DictModel( QtGui.QStandardItemModel ):
         .. code-block:: python
 
             model = DictModel(
-                    hierarchy = { 'jedi_class':{'user':None} },
+                    hierarchy = ('jedi_class','user'),
                     columns   = {
                         'jedi_class':  ('class'),
                         'user':        ('firstname','lastname','username')
@@ -516,6 +516,15 @@ class DictModelRow( QtGui.QStandardItem ):
         that this item is in.
         """
         return self._level
+
+    def delete(self):
+        """
+        Removes this *row* from the model.
+        """
+        if self.parent() is not None:
+            self.parent().removeRow( self.index().row() )
+        else:
+            self.model().removeRow( self.index().row() )
 
     def _get_sibling_row(self, key):
         """
