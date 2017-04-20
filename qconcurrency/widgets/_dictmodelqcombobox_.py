@@ -13,20 +13,22 @@ Description :   A QComboBox designed to work with a `DictModel`.
 ________________________________________________________________________________
 """
 #builtin
-from   __future__    import unicode_literals
-from   __future__    import absolute_import
-from   __future__    import division
-from   __future__    import print_function
-from   collections   import OrderedDict
+from   __future__        import unicode_literals
+from   __future__        import absolute_import
+from   __future__        import division
+from   __future__        import print_function
+from   collections       import OrderedDict, MutableMapping
 import functools
 import uuid
 #external
-from   Qt            import QtWidgets, QtGui, QtCore
-from   Qt.QtWidgets  import QSizePolicy
+from   Qt                import QtWidgets, QtGui, QtCore
+from   Qt.QtWidgets      import QSizePolicy
 #internal
+from qconcurrency.models import DictModel
 
 
 #!TODO: test updates to model update qcombobox
+#!TODO: allow different column for name/id for each different level
 
 class DictModelQComboBox( QtWidgets.QComboBox ):
     """
@@ -50,16 +52,51 @@ class DictModelQComboBox( QtWidgets.QComboBox ):
 
             indexinfo (dict, optional):
                 Stores information on where the following information
-                from thte model:
+                from the model:
 
                     * `name`: the name, as it appears in the QComboBox
                     * `id`:   the id, generally a databaseId that corresponds with the name
+
+
+                This can either be a single dict, if the id/name
+                will be the same column for every level of the dictmodel,
+                or it can be a dictionary with the level, and a dict of id/name
+                for that specific level.
+
+                .. code-block:: python
+
+                    # example 1:
+                    #    applies to all levels of table
+                    indexinfo = { 'id':'_id',  'name':'name' }
+
+
+                    # example 2:
+                    #    level-specific columns
+                    indexinfo = {
+                        'departmenttype':{'id':'_id', 'name':'departmenttype_name'},
+                        'department'    :{'id':'_id', 'name':'department_name'},
+                    }
+
         """
         QtWidgets.QComboBox.__init__(self)
 
-        self._dictmodel   = dictmodel
-        self._indexinfo   = indexinfo
-        self._modelindexes = {}       # QModelIndex of each item in QComboBox
+        if not isinstance( dictmodel, DictModel ):
+            raise TypeError(
+                '`dictmodel` argument expected to be of type DictModel. Received %s' % type(dictmodel)
+            )
+
+        self._dictmodel    = dictmodel
+        self._indexinfo    = indexinfo
+        self._modelindexes = {}               # {combobox_index : QModelIndex} QModelIndex of each item in QComboBox
+        self._level_specific_columns = False  # True    if self._indexinfo is in the format of  { level : {'_id':..., 'name':,..}, level : {...} }
+                                              # False   if self._indexinfo is in the format of  {'_id':..., 'name':...}
+
+
+
+        if len(dictmodel.keys()):
+            if isinstance( dictmodel[ dictmodel.keys()[0] ], MutableMapping ):
+                self._level_specific_columns = True
+
 
         # Connections (update combobox every time model changes )
         self._dictmodel.itemChanged.connect( self._handle_modelchange )
@@ -85,10 +122,18 @@ class DictModelQComboBox( QtWidgets.QComboBox ):
             modelitem = _baseitem[ key ]
 
             self._modelindexes[ self.count() ] = modelitem.index()
+
+            if self._level_specific_columns:
+                name = self._indexinfo[ modelitem.level() ]['name']
+            else:
+                name = self._indexinfo['name']
+
+
             self.addItem(
                   ' '*(3*_indent_lv)
-                + modelitem.columnval(  self._indexinfo['name'])
+                + modelitem.columnval( name )
             )
+
 
             # if modelitem has children
             if modelitem.rowCount():
@@ -140,6 +185,38 @@ class DictModelQComboBox( QtWidgets.QComboBox ):
             'Cannot find item in model with a modelindex of %s' % repr(_id)
         )
 
+    def get_item_indexinfo(self, modelitem):
+        """
+        Returns all keys from `indexinfo` for a particular item.
+        (taking into account item's nested-table-level, if `indexinfo` requires it)
+
+        Returns:
+
+            .. code-block:: python
+
+                # if modelitem exists in model
+                {
+                    'id':    123,
+                    'name': 'test name',
+                }
+
+                # if modelitem does not exist in model
+                {}
+        """
+        indexinfo = {}
+
+        if self._level_specific_columns:
+            for key in self._indexinfo[ modelitem.level() ]:
+                indexinfo[ key ] = modelitem.columnval( self._indexinfo[ modelitem.level() ][ key ] )
+        else:
+            for key in self._indexinfo:
+                indexinfo[ key ] = modelitem.columnval( self._indexinfo[ key ] )
+
+        return indexinfo
+
+    def get_modelindex_from_index(self, index):
+        return self._modelindexes[ index ]
+
 
 
 if __name__ == '__main__':
@@ -166,6 +243,7 @@ if __name__ == '__main__':
 
         combo.set_selected( model[1][11].index() )
         print( combo.get_selected().columnvals() )
+
 
 
 
