@@ -1,0 +1,356 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>DictModel &#8212; pyqconcurrency 0.0.a1 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/pyramid.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.0.a1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Neuton&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nobile:regular,italic,bold,bolditalic&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<!--[if lte IE 6]>
+<link rel="stylesheet" href="../_static/ie6.css" type="text/css" media="screen" charset="utf-8" />
+<![endif]-->
+
+  </head>
+  <body role="document">
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">pyqconcurrency 0.0.a1 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="dictmodel">
+<h1>DictModel<a class="headerlink" href="#dictmodel" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="attributes">
+<h2>Attributes<a class="headerlink" href="#attributes" title="Permalink to this headline">¶</a></h2>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#qconcurrency.models.DictModel.staticMetaObject" title="qconcurrency.models.DictModel.staticMetaObject"><code class="xref py py-obj docutils literal"><span class="pre">qconcurrency.models.DictModel.staticMetaObject</span></code></a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="methods">
+<h2>Methods<a class="headerlink" href="#methods" title="Permalink to this headline">¶</a></h2>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#qconcurrency.models.DictModel.__init__" title="qconcurrency.models.DictModel.__init__"><code class="xref py py-obj docutils literal"><span class="pre">qconcurrency.models.DictModel.__init__</span></code></a>(columns)</td>
+<td><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">param columns:</th><td class="field-body">Defines the available columns for the table/tree this <code class="xref py py-obj docutils literal"><span class="pre">QtGui.QStandardItemModel</span></code></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#qconcurrency.models.DictModel.add_row" title="qconcurrency.models.DictModel.add_row"><code class="xref py py-obj docutils literal"><span class="pre">qconcurrency.models.DictModel.add_row</span></code></a>(key[,&nbsp;...])</td>
+<td>Adds a new (toplevel) row to this DictModel, henceforth referred to by the key <cite>key</cite>.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#qconcurrency.models.DictModel.column_index" title="qconcurrency.models.DictModel.column_index"><code class="xref py py-obj docutils literal"><span class="pre">qconcurrency.models.DictModel.column_index</span></code></a>([...])</td>
+<td>Returns the column-index for a specific columnname at a specific level.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#qconcurrency.models.DictModel.columns" title="qconcurrency.models.DictModel.columns"><code class="xref py py-obj docutils literal"><span class="pre">qconcurrency.models.DictModel.columns</span></code></a>([level])</td>
+<td>Returns the columns for a particular level of nested-table within this <code class="xref py py-obj docutils literal"><span class="pre">DictModel</span></code>.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#qconcurrency.models.DictModel.default_columnvals" title="qconcurrency.models.DictModel.default_columnvals"><code class="xref py py-obj docutils literal"><span class="pre">qconcurrency.models.DictModel.default_columnvals</span></code></a>([level])</td>
+<td>Returns the default-columnvals for a particular level of nested-table.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#qconcurrency.models.DictModel.hierarchy" title="qconcurrency.models.DictModel.hierarchy"><code class="xref py py-obj docutils literal"><span class="pre">qconcurrency.models.DictModel.hierarchy</span></code></a>()</td>
+<td>Returns the model&#8217;s hierarchy tuple</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#qconcurrency.models.DictModel.keys" title="qconcurrency.models.DictModel.keys"><code class="xref py py-obj docutils literal"><span class="pre">qconcurrency.models.DictModel.keys</span></code></a>()</td>
+<td>Returns list containig keys for every</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#qconcurrency.models.DictModel.staticMetaObject" title="qconcurrency.models.DictModel.staticMetaObject"><code class="xref py py-obj docutils literal"><span class="pre">qconcurrency.models.DictModel.staticMetaObject</span></code></a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="documentation">
+<h2>Documentation<a class="headerlink" href="#documentation" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="qconcurrency.models.DictModel">
+<em class="property">class </em><code class="descclassname">qconcurrency.models.</code><code class="descname">DictModel</code><span class="sig-paren">(</span><em>columns</em>, <em>hierarchy=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qconcurrency/models.html#DictModel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qconcurrency.models.DictModel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">PySide.QtGui.QStandardItemModel</span></code></p>
+<p>Customized python interface for <code class="xref py py-obj docutils literal"><span class="pre">QtGui.QStandardItemModel</span></code> so that it&#8217;s
+values, and nested tables can be accessed like a python dictionary.</p>
+<p class="rubric">Example</p>
+<p>Simple Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="n">DictModel</span><span class="p">(</span> <span class="n">columns</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;firstname&#39;</span><span class="p">,</span><span class="s1">&#39;lastname&#39;</span><span class="p">,</span><span class="s1">&#39;username&#39;</span><span class="p">)</span> <span class="p">)</span>
+
+<span class="n">model</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span> <span class="mi">101</span><span class="p">,</span> <span class="n">columnvals</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;firstname&#39;</span><span class="p">:</span><span class="s1">&#39;luke&#39;</span>      <span class="p">,</span>
+        <span class="s1">&#39;lastname&#39;</span> <span class="p">:</span><span class="s1">&#39;skywalker&#39;</span> <span class="p">,</span>
+        <span class="s1">&#39;username&#39;</span> <span class="p">:</span><span class="s1">&#39;lukes&#39;</span>     <span class="p">,</span>
+    <span class="p">}</span>
+<span class="p">)</span>
+
+<span class="n">userId</span> <span class="o">=</span> <span class="mi">101</span>
+<span class="k">print</span><span class="p">(</span> <span class="n">model</span><span class="p">[</span><span class="n">userId</span><span class="p">]</span><span class="o">.</span><span class="n">column</span><span class="p">(</span><span class="s1">&#39;firstname&#39;</span><span class="p">)</span> <span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="s1">&#39;luke&#39;</span>
+
+<span class="k">print</span><span class="p">(</span> <span class="n">model</span><span class="p">[</span><span class="n">userId</span><span class="p">]</span><span class="o">.</span><span class="n">columnvals</span><span class="p">()</span> <span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="p">{</span><span class="s1">&#39;firstname&#39;</span><span class="p">:</span><span class="s1">&#39;luke&#39;</span><span class="p">,</span> <span class="s1">&#39;lastname&#39;</span><span class="p">:</span><span class="s1">&#39;skywalker&#39;</span><span class="p">,</span> <span class="s1">&#39;username&#39;</span><span class="p">:</span><span class="s1">&#39;lukes&#39;</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>Nested-Table Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="n">DictModel</span><span class="p">(</span>
+        <span class="n">hierarchy</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;jedi_class&#39;</span><span class="p">,</span><span class="s1">&#39;user&#39;</span><span class="p">),</span>
+        <span class="n">columns</span>   <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;jedi_class&#39;</span><span class="p">:</span>  <span class="p">(</span><span class="s1">&#39;class&#39;</span><span class="p">),</span>
+            <span class="s1">&#39;user&#39;</span><span class="p">:</span>        <span class="p">(</span><span class="s1">&#39;firstname&#39;</span><span class="p">,</span><span class="s1">&#39;lastname&#39;</span><span class="p">,</span><span class="s1">&#39;username&#39;</span><span class="p">)</span>
+        <span class="p">},</span>
+    <span class="p">)</span>
+
+<span class="n">sith_row</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span> <span class="mi">101</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;class&#39;</span><span class="p">:</span><span class="s1">&#39;sith&#39;</span><span class="p">}</span> <span class="p">)</span>
+<span class="n">jedi_row</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span> <span class="mi">102</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;class&#39;</span><span class="p">:</span><span class="s1">&#39;jedi&#39;</span><span class="p">}</span> <span class="p">)</span>
+<span class="n">sith_row</span><span class="o">.</span><span class="n">add_child</span><span class="p">(</span> <span class="mi">56</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;firstname&#39;</span><span class="p">:</span><span class="s1">&#39;Darth&#39;</span><span class="p">,</span> <span class="s1">&#39;lastname&#39;</span><span class="p">:</span><span class="s1">&#39;Vader&#39;</span><span class="p">,</span> <span class="s1">&#39;username&#39;</span><span class="p">:</span><span class="s1">&#39;anakins&#39;</span><span class="p">}</span> <span class="p">)</span>
+<span class="n">sith_row</span><span class="o">.</span><span class="n">add_child</span><span class="p">(</span> <span class="mi">57</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;firstname&#39;</span><span class="p">:</span><span class="s1">&#39;Darth&#39;</span><span class="p">,</span> <span class="s1">&#39;lastname&#39;</span><span class="p">:</span><span class="s1">&#39;Maul&#39;</span><span class="p">,</span>  <span class="s1">&#39;username&#39;</span><span class="p">:</span><span class="s1">&#39;darthm&#39;</span><span class="p">}</span> <span class="p">)</span>
+
+<span class="n">jediclassId</span> <span class="o">=</span> <span class="mi">101</span>
+<span class="n">userId</span>      <span class="o">=</span>  <span class="mi">56</span>
+<span class="k">print</span><span class="p">(</span> <span class="n">model</span><span class="p">[</span><span class="n">jediclassId</span><span class="p">][</span><span class="n">userId</span><span class="p">]</span><span class="o">.</span><span class="n">column</span><span class="p">(</span><span class="s1">&#39;username&#39;</span><span class="p">)</span> <span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="s1">&#39;anakins&#39;</span>
+</pre></div>
+</div>
+<dl class="method">
+<dt id="qconcurrency.models.DictModel.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>columns</em>, <em>hierarchy=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qconcurrency/models.html#DictModel.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qconcurrency.models.DictModel.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>columns</strong> (<em>list</em><em>, </em><em>dict</em>) &#8211; <p>Defines the available columns for the table/tree this <code class="xref py py-obj docutils literal"><span class="pre">QtGui.QStandardItemModel</span></code>
+(the <cite>key</cite>, generally referring to the databaseId, is always the first column)</p>
+<p>If <cite>hierarchy</cite> argument is set, you have two options:</p>
+<blockquote>
+<div><ul>
+<li>This can be a list of column-names, that will be
+created in all levels of nested table.</li>
+<li>This can be a dictionary in the form of <code class="docutils literal"><span class="pre">{'level_name':(column,column,column,...),</span> <span class="pre">...}</span></code>
+that indicates specific-columns for each level of table-nesting.</li>
+</ul>
+</div></blockquote>
+<p>If <cite>hierarchy</cite> is not set, this must be a list of column-names,
+and they will be applicable to any level of table-nesting.</p>
+</li>
+<li><strong>hierarchy</strong> (<em>list</em><em>, </em><em>optional</em>) &#8211; <code class="docutils literal"><span class="pre">(ex:</span>&#160; <span class="pre">('department_type','department')</span>&#160; <span class="pre">)</span></code>
+A list that labels what type of data is stored at each
+level of table-nesting in this <code class="xref py py-obj docutils literal"><span class="pre">DictModel</span></code>. Each item
+indicates another level of nesting.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="qconcurrency.models.DictModel.add_row">
+<code class="descname">add_row</code><span class="sig-paren">(</span><em>key</em>, <em>columnvals=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qconcurrency/models.html#DictModel.add_row"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qconcurrency.models.DictModel.add_row" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds a new (toplevel) row to this DictModel, henceforth referred to by the key <cite>key</cite>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>key</strong> (<em>obj</em>) &#8211; Key is the id you will use to refer to this object.
+Generally it will be a databaseId. This object must be
+hashable.</li>
+<li><strong>columnvals</strong> (<em>dict</em><em>, </em><em>optional</em>) &#8211; Optionally, you may provide a dictionary of column-val assignments
+(appropriate to this item&#8217;s table-level) as determined by the <cite>columns</cite>
+argument to <code class="xref py py-meth docutils literal"><span class="pre">DictModel.__init__()</span></code></li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><code class="xref py py-obj docutils literal"><span class="pre">DictModelRow</span></code></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="qconcurrency.models.DictModel.column_index">
+<code class="descname">column_index</code><span class="sig-paren">(</span><em>level=None</em>, <em>column=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qconcurrency/models.html#DictModel.column_index"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qconcurrency.models.DictModel.column_index" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the column-index for a specific columnname
+at a specific level.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><div class="highlight-python"><div class="highlight"><pre><span></span><span class="mi">3</span>   <span class="c1"># a column-index</span>
+</pre></div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="qconcurrency.models.DictModel.columns">
+<code class="descname">columns</code><span class="sig-paren">(</span><em>level=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qconcurrency/models.html#DictModel.columns"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qconcurrency.models.DictModel.columns" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the columns for a particular level of nested-table
+within this <code class="xref py py-obj docutils literal"><span class="pre">DictModel</span></code>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>level</strong> (<em>obj</em>) &#8211; If a <cite>hierarchy</cite> was assigned to this <code class="xref py py-obj docutils literal"><span class="pre">DictModel</span></code>,
+this will be a label from it. Otherwise, this will be an integer
+indicating the level-of-nesting (and it will be ignored).</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><div class="highlight-python"><div class="highlight"><pre><span></span><span class="p">(</span><span class="s1">&#39;firstname&#39;</span><span class="p">,</span><span class="s1">&#39;lastname&#39;</span><span class="p">,</span><span class="s1">&#39;username&#39;</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>
+</pre></div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="qconcurrency.models.DictModel.default_columnvals">
+<code class="descname">default_columnvals</code><span class="sig-paren">(</span><em>level=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qconcurrency/models.html#DictModel.default_columnvals"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qconcurrency.models.DictModel.default_columnvals" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the default-columnvals for a particular level of nested-table.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>level</strong> (<em>obj</em>) &#8211; If a <cite>hierarchy</cite> was assigned to this <code class="xref py py-obj docutils literal"><span class="pre">DictModel</span></code>,
+this will be a label from it. Otherwise, this will be an integer
+indicating the level-of-nesting (and it will be ignored).</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><div class="highlight-python"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="s1">&#39;firstname&#39;</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span>
+    <span class="s1">&#39;lastname&#39;</span><span class="p">:</span>  <span class="bp">None</span><span class="p">,</span>
+    <span class="o">...</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="qconcurrency.models.DictModel.hierarchy">
+<code class="descname">hierarchy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qconcurrency/models.html#DictModel.hierarchy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qconcurrency.models.DictModel.hierarchy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the model&#8217;s hierarchy tuple
+(if one has been assigned in <code class="xref py py-obj docutils literal"><span class="pre">DictModel.__init__</span></code>)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="qconcurrency.models.DictModel.keys">
+<code class="descname">keys</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qconcurrency/models.html#DictModel.keys"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qconcurrency.models.DictModel.keys" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns list containig keys for every
+row that has been added to this <code class="xref py py-obj docutils literal"><span class="pre">DictModel</span></code> s root</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="qconcurrency.models.DictModel.staticMetaObject">
+<code class="descname">staticMetaObject</code><em class="property"> = &lt;PySide.QtCore.QMetaObject object&gt;</em><a class="headerlink" href="#qconcurrency.models.DictModel.staticMetaObject" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">DictModel</a><ul>
+<li><a class="reference internal" href="#attributes">Attributes</a></li>
+<li><a class="reference internal" href="#methods">Methods</a></li>
+<li><a class="reference internal" href="#documentation">Documentation</a></li>
+</ul>
+</li>
+</ul>
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">pyqconcurrency 0.0.a1 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2017, Will Pittman.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.5.
+    </div>
+  </body>
+</html>

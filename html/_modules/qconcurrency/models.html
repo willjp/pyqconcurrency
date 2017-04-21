@@ -1,0 +1,818 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>qconcurrency.models &#8212; pyqconcurrency 0.0.a1 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/pyramid.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.0.a1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Neuton&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nobile:regular,italic,bold,bolditalic&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<!--[if lte IE 6]>
+<link rel="stylesheet" href="../../_static/ie6.css" type="text/css" media="screen" charset="utf-8" />
+<![endif]-->
+
+  </head>
+  <body role="document">
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">pyqconcurrency 0.0.a1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../qconcurrency.html" accesskey="U">qconcurrency</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for qconcurrency.models</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Name :          qconcurrency/models.py</span>
+<span class="sd">Created :       Apr 14, 2017</span>
+<span class="sd">Author :        Will Pittman</span>
+<span class="sd">Contact :       willjpittman@gmail.com</span>
+<span class="sd">________________________________________________________________________________</span>
+<span class="sd">Description :   Generic models, and interfaces for models to be used</span>
+<span class="sd">                in various Qt `View` widgets (ex: QTableView, QListView, QTableView, QComboBox, ...)</span>
+<span class="sd">________________________________________________________________________________</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="c1">#builtin</span>
+<span class="kn">from</span> <span class="nn">__future__</span>          <span class="k">import</span> <span class="n">unicode_literals</span>
+<span class="kn">from</span> <span class="nn">__future__</span>          <span class="k">import</span> <span class="n">absolute_import</span>
+<span class="kn">from</span> <span class="nn">__future__</span>          <span class="k">import</span> <span class="n">division</span>
+<span class="kn">from</span> <span class="nn">__future__</span>          <span class="k">import</span> <span class="n">print_function</span>
+<span class="kn">from</span> <span class="nn">collections</span>         <span class="k">import</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">MutableMapping</span>
+<span class="c1">#external</span>
+<span class="kn">from</span> <span class="nn">Qt</span>                  <span class="k">import</span> <span class="n">QtGui</span><span class="p">,</span> <span class="n">QtCore</span>
+<span class="c1">#internal</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s1">&#39;DictModel&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;DictModelRow&#39;</span><span class="p">,</span>
+<span class="p">]</span>
+
+
+<span class="c1">#!TODO: test using delattr unecessary, (and potentially harmful)</span>
+<span class="c1">#!      QStandardItemModel methods (like appendRow, setItem, ...)</span>
+
+<span class="c1">#!TODO: validation based on `hierarchy`, preventing nesting below defined</span>
+<span class="c1">#!TODO: validation of column-names when setting columnvals</span>
+
+<div class="viewcode-block" id="DictModel"><a class="viewcode-back" href="../../_api/qconcurrency.models.DictModel.html#qconcurrency.models.DictModel">[docs]</a><span class="k">class</span> <span class="nc">DictModel</span><span class="p">(</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QStandardItemModel</span> <span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Customized python interface for :py:obj:`QtGui.QStandardItemModel` so that it&#39;s</span>
+<span class="sd">    values, and nested tables can be accessed like a python dictionary.</span>
+
+<span class="sd">    Example:</span>
+
+
+<span class="sd">        Simple Example:</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            model = DictModel( columns=(&#39;firstname&#39;,&#39;lastname&#39;,&#39;username&#39;) )</span>
+
+<span class="sd">            model.add_row( 101, columnvals = {</span>
+<span class="sd">                    &#39;firstname&#39;:&#39;luke&#39;      ,</span>
+<span class="sd">                    &#39;lastname&#39; :&#39;skywalker&#39; ,</span>
+<span class="sd">                    &#39;username&#39; :&#39;lukes&#39;     ,</span>
+<span class="sd">                }</span>
+<span class="sd">            )</span>
+
+<span class="sd">            userId = 101</span>
+<span class="sd">            print( model[userId].column(&#39;firstname&#39;) )</span>
+<span class="sd">            &gt;&gt;&gt; &#39;luke&#39;</span>
+
+<span class="sd">            print( model[userId].columnvals() )</span>
+<span class="sd">            &gt;&gt;&gt; {&#39;firstname&#39;:&#39;luke&#39;, &#39;lastname&#39;:&#39;skywalker&#39;, &#39;username&#39;:&#39;lukes&#39;}</span>
+
+
+
+<span class="sd">        Nested-Table Example:</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            model = DictModel(</span>
+<span class="sd">                    hierarchy = (&#39;jedi_class&#39;,&#39;user&#39;),</span>
+<span class="sd">                    columns   = {</span>
+<span class="sd">                        &#39;jedi_class&#39;:  (&#39;class&#39;),</span>
+<span class="sd">                        &#39;user&#39;:        (&#39;firstname&#39;,&#39;lastname&#39;,&#39;username&#39;)</span>
+<span class="sd">                    },</span>
+<span class="sd">                )</span>
+
+<span class="sd">            sith_row = model.add_row( 101, {&#39;class&#39;:&#39;sith&#39;} )</span>
+<span class="sd">            jedi_row = model.add_row( 102, {&#39;class&#39;:&#39;jedi&#39;} )</span>
+<span class="sd">            sith_row.add_child( 56, {&#39;firstname&#39;:&#39;Darth&#39;, &#39;lastname&#39;:&#39;Vader&#39;, &#39;username&#39;:&#39;anakins&#39;} )</span>
+<span class="sd">            sith_row.add_child( 57, {&#39;firstname&#39;:&#39;Darth&#39;, &#39;lastname&#39;:&#39;Maul&#39;,  &#39;username&#39;:&#39;darthm&#39;} )</span>
+
+<span class="sd">            jediclassId = 101</span>
+<span class="sd">            userId      =  56</span>
+<span class="sd">            print( model[jediclassId][userId].column(&#39;username&#39;) )</span>
+<span class="sd">            &gt;&gt;&gt; &#39;anakins&#39;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="DictModel.__init__"><a class="viewcode-back" href="../../_api/qconcurrency.models.DictModel.html#qconcurrency.models.DictModel.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">columns</span><span class="p">,</span> <span class="n">hierarchy</span><span class="o">=</span><span class="kc">None</span> <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            columns (list, dict):</span>
+<span class="sd">                Defines the available columns for the table/tree this :py:obj:`QtGui.QStandardItemModel`</span>
+<span class="sd">                (the `key`, generally referring to the databaseId, is always the first column)</span>
+
+<span class="sd">                If `hierarchy` argument is set, you have two options:</span>
+
+<span class="sd">                    * This can be a list of column-names, that will be</span>
+<span class="sd">                      created in all levels of nested table.</span>
+
+<span class="sd">                    * This can be a dictionary in the form of ``{&#39;level_name&#39;:(column,column,column,...), ...}``</span>
+<span class="sd">                      that indicates specific-columns for each level of table-nesting.</span>
+
+<span class="sd">                If `hierarchy` is not set, this must be a list of column-names,</span>
+<span class="sd">                and they will be applicable to any level of table-nesting.</span>
+
+
+<span class="sd">            hierarchy (list, optional):  ``(ex:  (&#39;department_type&#39;,&#39;department&#39;)  )``</span>
+<span class="sd">                A list that labels what type of data is stored at each</span>
+<span class="sd">                level of table-nesting in this :py:obj:`DictModel`. Each item</span>
+<span class="sd">                indicates another level of nesting.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">QtGui</span><span class="o">.</span><span class="n">QStandardItemModel</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+        <span class="c1"># Attributes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_defaultcolumnvals</span> <span class="o">=</span> <span class="p">{}</span>      <span class="c1"># all columns for new rows are initialized as ``None``</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_columns</span>           <span class="o">=</span> <span class="kc">None</span>    <span class="c1"># either a list of columns, or a dict of hierarchy-keys and their columns</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_hierarchy</span>         <span class="o">=</span> <span class="kc">None</span>    <span class="c1"># either ``None``, or a list, indicating the level of each</span>
+
+
+        <span class="c1"># Validation</span>
+        <span class="c1"># ==========</span>
+
+        <span class="c1"># If imposing hierarchy restrictions</span>
+        <span class="k">if</span> <span class="n">hierarchy</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_hierarchy</span> <span class="o">=</span> <span class="n">hierarchy</span>
+
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span> <span class="n">columns</span><span class="p">,</span> <span class="n">MutableMapping</span> <span class="p">):</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">set</span><span class="p">(</span><span class="n">hierarchy</span><span class="p">)</span><span class="o">.</span><span class="n">issubset</span><span class="p">(</span> <span class="nb">set</span><span class="p">(</span><span class="n">columns</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="p">):</span>
+                    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">((</span>
+                        <span class="s1">&#39;`columns` argument is missing keys represented in`hierarchy` </span><span class="se">\n</span><span class="s1">&#39;</span>
+                        <span class="s1">&#39;columns:   </span><span class="si">%s</span><span class="s1"> </span><span class="se">\n</span><span class="s1">&#39;</span>
+                        <span class="s1">&#39;hierarchy: </span><span class="si">%s</span><span class="s1"> </span><span class="se">\n</span><span class="s1">&#39;</span>
+                        <span class="p">)</span> <span class="o">%</span> <span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="n">columns</span><span class="o">.</span><span class="n">keys</span><span class="p">()),</span> <span class="nb">repr</span><span class="p">(</span><span class="n">hierarchy</span><span class="p">))</span>
+                    <span class="p">)</span>
+
+            <span class="c1"># so that hierarchy can always be handled the same,</span>
+            <span class="c1"># create `columns` as a dict, if a list was passed</span>
+            <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span> <span class="n">columns</span><span class="p">,</span> <span class="n">Iterable</span> <span class="p">):</span>
+                <span class="n">new_columns</span> <span class="o">=</span> <span class="p">{}</span>
+                <span class="k">for</span> <span class="n">level</span> <span class="ow">in</span> <span class="n">hierarchy</span><span class="p">:</span>
+                    <span class="n">new_columns</span><span class="p">[</span> <span class="n">level</span> <span class="p">]</span> <span class="o">=</span> <span class="n">columns</span><span class="p">[:]</span>
+
+                <span class="n">columns</span> <span class="o">=</span> <span class="n">new_columns</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                    <span class="s1">&#39;When `hierarchy` argument is set, `columns` must be either: </span><span class="se">\n</span><span class="s1">&#39;</span>
+                    <span class="s1">&#39;   * a list of columns (applicable to all hierarchy levels) </span><span class="se">\n</span><span class="s1">&#39;</span>
+                    <span class="s1">&#39;   * a dict of hierarchy-keys, and the columns associated with them </span><span class="se">\n</span><span class="s1">&#39;</span>
+                <span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">level</span> <span class="ow">in</span> <span class="n">hierarchy</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_defaultcolumnvals</span><span class="p">[</span> <span class="n">level</span> <span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+                <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">columns</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_defaultcolumnvals</span><span class="p">[</span> <span class="n">level</span> <span class="p">][</span> <span class="n">key</span> <span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+
+
+        <span class="c1"># If not imposing hierarchy restrictions</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span> <span class="n">columns</span><span class="p">,</span> <span class="n">MutableMapping</span> <span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                    <span class="s1">&#39;When `hierarchy` argument is *not* set, `columns` should always </span><span class="se">\n</span><span class="s1">&#39;</span>
+                    <span class="s1">&#39;be a list of column-names. This set of columns will be reused by all </span><span class="se">\n</span><span class="s1">&#39;</span>
+                    <span class="s1">&#39;levels of nested tables. &#39;</span>
+                <span class="p">)</span>
+            <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">columns</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_defaultcolumnvals</span><span class="p">[</span> <span class="n">key</span> <span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_columns</span>   <span class="o">=</span> <span class="n">columns</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_hierarchy</span> <span class="o">=</span> <span class="n">hierarchy</span></div>
+
+    <span class="k">def</span> <span class="nf">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a :py:obj:`DictModelRow` object representing</span>
+<span class="sd">        a row from this :py:obj:`DictModel`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_rowitem</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+
+<div class="viewcode-block" id="DictModel.add_row"><a class="viewcode-back" href="../../_api/qconcurrency.models.DictModel.html#qconcurrency.models.DictModel.add_row">[docs]</a>    <span class="k">def</span> <span class="nf">add_row</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">columnvals</span><span class="o">=</span><span class="kc">None</span> <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adds a new (toplevel) row to this DictModel, henceforth referred to by the key `key`.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            key (obj):</span>
+<span class="sd">                Key is the id you will use to refer to this object.</span>
+<span class="sd">                Generally it will be a databaseId. This object must be</span>
+<span class="sd">                hashable.</span>
+
+<span class="sd">            columnvals (dict, optional):</span>
+<span class="sd">                Optionally, you may provide a dictionary of column-val assignments</span>
+<span class="sd">                (appropriate to this item&#39;s table-level) as determined by the `columns`</span>
+<span class="sd">                argument to :py:meth:`DictModel.__init__`</span>
+
+
+<span class="sd">        Returns:</span>
+<span class="sd">            :py:obj:`DictModelRow`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">set_columnvals</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_defaultcolumnvals</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">set_columnvals</span><span class="o">.</span><span class="n">update</span><span class="p">(</span> <span class="n">columnvals</span> <span class="p">)</span>
+        <span class="n">item</span> <span class="o">=</span> <span class="n">DictModelRow</span><span class="p">(</span> <span class="n">parent</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">key</span><span class="p">,</span> <span class="n">columnvals</span><span class="o">=</span><span class="n">set_columnvals</span><span class="p">)</span>
+
+        <span class="c1"># NOTE: this step should not be necessary,</span>
+        <span class="c1">#       but it seems to be...</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setItem</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">rowCount</span><span class="p">()</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">item</span> <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">item</span></div>
+
+<div class="viewcode-block" id="DictModel.columns"><a class="viewcode-back" href="../../_api/qconcurrency.models.DictModel.html#qconcurrency.models.DictModel.columns">[docs]</a>    <span class="k">def</span> <span class="nf">columns</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="kc">None</span> <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the columns for a particular level of nested-table</span>
+<span class="sd">        within this :py:obj:`DictModel`.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            level (obj):</span>
+<span class="sd">                If a `hierarchy` was assigned to this :py:obj:`DictModel`,</span>
+<span class="sd">                this will be a label from it. Otherwise, this will be an integer</span>
+<span class="sd">                indicating the level-of-nesting (and it will be ignored).</span>
+
+<span class="sd">        Returns:</span>
+
+<span class="sd">            .. code-block:: python</span>
+
+<span class="sd">                (&#39;firstname&#39;,&#39;lastname&#39;,&#39;username&#39;, ...)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hierarchy</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">level</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                    <span class="s1">&#39;This `DictModel` was created with different columns at &#39;</span>
+                    <span class="s1">&#39;different levels. You</span><span class="se">\&#39;</span><span class="s1">ll need to provide the `level` you are &#39;</span>
+                    <span class="s1">&#39;interested in to get the column-list &#39;</span>
+                <span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_columns</span><span class="p">[</span> <span class="n">level</span> <span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_columns</span></div>
+
+<div class="viewcode-block" id="DictModel.column_index"><a class="viewcode-back" href="../../_api/qconcurrency.models.DictModel.html#qconcurrency.models.DictModel.column_index">[docs]</a>    <span class="k">def</span> <span class="nf">column_index</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="kc">None</span> <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the column-index for a specific columnname</span>
+<span class="sd">        at a specific level.</span>
+
+<span class="sd">        Returns:</span>
+
+<span class="sd">            .. code-block:: python</span>
+
+<span class="sd">                3   # a column-index</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hierarchy</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_columns</span><span class="p">[</span> <span class="n">level</span> <span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">(</span> <span class="n">column</span> <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_columns</span><span class="o">.</span><span class="n">index</span><span class="p">(</span> <span class="n">column</span> <span class="p">)</span></div>
+
+<div class="viewcode-block" id="DictModel.default_columnvals"><a class="viewcode-back" href="../../_api/qconcurrency.models.DictModel.html#qconcurrency.models.DictModel.default_columnvals">[docs]</a>    <span class="k">def</span> <span class="nf">default_columnvals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="kc">None</span> <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the default-columnvals for a particular level of nested-table.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            level (obj):</span>
+<span class="sd">                If a `hierarchy` was assigned to this :py:obj:`DictModel`,</span>
+<span class="sd">                this will be a label from it. Otherwise, this will be an integer</span>
+<span class="sd">                indicating the level-of-nesting (and it will be ignored).</span>
+
+<span class="sd">        Returns:</span>
+
+<span class="sd">            .. code-block:: python</span>
+
+<span class="sd">                {</span>
+<span class="sd">                    &#39;firstname&#39;: None,</span>
+<span class="sd">                    &#39;lastname&#39;:  None,</span>
+<span class="sd">                    ...</span>
+<span class="sd">                }</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hierarchy</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_defaultcolumnvals</span><span class="p">[</span> <span class="n">level</span> <span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_defaultcolumnvals</span></div>
+
+<div class="viewcode-block" id="DictModel.hierarchy"><a class="viewcode-back" href="../../_api/qconcurrency.models.DictModel.html#qconcurrency.models.DictModel.hierarchy">[docs]</a>    <span class="k">def</span> <span class="nf">hierarchy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the model&#39;s hierarchy tuple</span>
+<span class="sd">        (if one has been assigned in :py:obj:`DictModel.__init__`)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hierarchy</span></div>
+
+    <span class="k">def</span> <span class="nf">_get_rowitem</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the item in the first column of this :py:obj:`QtGui.QStandardItemModel`</span>
+<span class="sd">        for the row with the key indicated by `key`.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            key (obj):</span>
+<span class="sd">                A key assigned to a row within this Model. Generally,</span>
+<span class="sd">                this would be a database-Id.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            QtGui.QStandardItem</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rowCount</span><span class="p">()):</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">item</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">text</span><span class="p">()</span> <span class="o">==</span> <span class="nb">str</span><span class="p">(</span><span class="n">key</span><span class="p">):</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">item</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_get_colindex</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">column</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the column-index for a column within this :py:obj:`QtGui.QStandardItemModel`</span>
+<span class="sd">        by it&#39;s name.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            column (str):  ``(ex: &#39;name&#39; )``</span>
+<span class="sd">                Any item from the :py:meth:`__init__` argument `columns`.</span>
+
+<span class="sd">        Returns:</span>
+
+<span class="sd">            .. code-block:: python</span>
+
+<span class="sd">                4   # integer, representing the 0-based index of this column</span>
+<span class="sd">                    # in the table</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            KeyError: if column does not exist in table</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">column</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_columns</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_columns</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">column</span><span class="p">)</span> <span class="o">+</span><span class="mi">1</span>
+
+        <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span>
+            <span class="s1">&#39;Column &quot;</span><span class="si">%s</span><span class="s1">&quot; does not exist in this `DictModel` columns: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span>
+                <span class="n">column</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_columns</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+
+<div class="viewcode-block" id="DictModel.keys"><a class="viewcode-back" href="../../_api/qconcurrency.models.DictModel.html#qconcurrency.models.DictModel.keys">[docs]</a>    <span class="k">def</span> <span class="nf">keys</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns list containig keys for every</span>
+<span class="sd">        row that has been added to this :py:obj:`DictModel` s root</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">keys</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rowCount</span><span class="p">()):</span>
+            <span class="n">keys</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">item</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">text</span><span class="p">()</span> <span class="p">)</span>
+        <span class="k">return</span> <span class="n">keys</span></div></div>
+
+
+
+<div class="viewcode-block" id="DictModelRow"><a class="viewcode-back" href="../../_api/qconcurrency.models.DictModelRow.html#qconcurrency.models.DictModelRow">[docs]</a><span class="k">class</span> <span class="nc">DictModelRow</span><span class="p">(</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QStandardItem</span> <span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A DictModelRow is a :py:obj:`QtGui.QStandardItem` that holds</span>
+<span class="sd">    an item&#39;s key (usually database-Id). It is always added to</span>
+<span class="sd">    a :py:obj:`DictModel` at the column-index ``0``. When setting</span>
+<span class="sd">    columnvals, they are added to the same parent, but at different</span>
+<span class="sd">    column-indexes.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="DictModelRow.__init__"><a class="viewcode-back" href="../../_api/qconcurrency.models.DictModelRow.html#qconcurrency.models.DictModelRow.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">columnvals</span><span class="o">=</span><span class="kc">None</span> <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            parent (QtGui.QStandardItem, QtGui.QStandardItemModel ):</span>
+<span class="sd">                Another QStandardItem that has already</span>
+<span class="sd">                been added to the model, or a model itself.</span>
+
+<span class="sd">                It will be used to access the model&#39;s info,</span>
+<span class="sd">                and this widget will be added to it.</span>
+
+<span class="sd">            key (obj):</span>
+<span class="sd">                A hashable python object that will be</span>
+<span class="sd">                used to represent this object&#39;s databaseId.</span>
+
+<span class="sd">            columnvals (dict, optional):</span>
+<span class="sd">                A dictionary of columns, and assignments to store</span>
+<span class="sd">                in the view.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">QtGui</span><span class="o">.</span><span class="n">QStandardItem</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">key</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span> <span class="n">parent</span><span class="p">,</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QStandardItemModel</span> <span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">parent</span><span class="o">.</span><span class="n">model</span><span class="p">():</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                    <span class="s1">&#39;`parent` </span><span class="si">%s</span><span class="s1"> QStandardItem must have already been added to a QStandardItemModel&#39;</span> <span class="o">%</span> <span class="nb">repr</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span>
+                <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_key</span>   <span class="o">=</span> <span class="n">key</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_level</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># if `hierarchy` argument was set in `DictModel`, this will be</span>
+                            <span class="c1"># a label indicating the type of information this</span>
+                            <span class="c1"># table represents.</span>
+                            <span class="c1">#</span>
+                            <span class="c1"># otherwise, this will be an incremented integer</span>
+                            <span class="c1"># (starting from 0)</span>
+
+
+
+        <span class="c1"># append this item to the parent&#39;s list of children</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span> <span class="n">parent</span><span class="p">,</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QStandardItemModel</span> <span class="p">):</span>
+            <span class="k">if</span> <span class="n">parent</span><span class="o">.</span><span class="n">hierarchy</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_level</span> <span class="o">=</span> <span class="n">parent</span><span class="o">.</span><span class="n">hierarchy</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_level</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">parent</span><span class="o">.</span><span class="n">setItem</span><span class="p">(</span> <span class="n">parent</span><span class="o">.</span><span class="n">rowCount</span><span class="p">(),</span> <span class="mi">0</span><span class="p">,</span> <span class="bp">self</span> <span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">hierarchy</span> <span class="o">=</span> <span class="n">parent</span><span class="o">.</span><span class="n">model</span><span class="p">()</span><span class="o">.</span><span class="n">hierarchy</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">hierarchy</span><span class="p">:</span>
+                <span class="n">index</span> <span class="o">=</span> <span class="n">hierarchy</span><span class="o">.</span><span class="n">index</span><span class="p">(</span> <span class="n">parent</span><span class="o">.</span><span class="n">level</span><span class="p">()</span> <span class="p">)</span> <span class="o">+</span><span class="mi">1</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_level</span> <span class="o">=</span> <span class="n">hierarchy</span><span class="p">[</span> <span class="n">index</span> <span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_level</span> <span class="o">=</span> <span class="n">parent</span><span class="o">.</span><span class="n">level</span><span class="p">()</span> <span class="o">+</span><span class="mi">1</span>
+
+            <span class="n">parent</span><span class="o">.</span><span class="n">setChild</span><span class="p">(</span> <span class="n">parent</span><span class="o">.</span><span class="n">rowCount</span><span class="p">(),</span> <span class="mi">0</span><span class="p">,</span> <span class="bp">self</span> <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span> <span class="nb">str</span><span class="p">(</span><span class="n">key</span><span class="p">)</span> <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_columnvals</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">()</span><span class="o">.</span><span class="n">default_columnvals</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_level</span><span class="p">)</span> <span class="p">)</span>
+        <span class="k">if</span> <span class="n">columnvals</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_columnvals</span><span class="p">(</span> <span class="n">columnvals</span> <span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_child_row</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+
+<div class="viewcode-block" id="DictModelRow.add_child"><a class="viewcode-back" href="../../_api/qconcurrency.models.DictModelRow.html#qconcurrency.models.DictModelRow.add_child">[docs]</a>    <span class="k">def</span> <span class="nf">add_child</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">columnvals</span><span class="o">=</span><span class="kc">None</span> <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adds a new row to this DictModel, at a new level of nesting</span>
+<span class="sd">        henceforth referred to by the key `key`.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            key (obj):</span>
+<span class="sd">                Key is the id you will use to refer to this object.</span>
+<span class="sd">                Generally it will be a databaseId. This object must be</span>
+<span class="sd">                hashable.</span>
+
+<span class="sd">            columnvals (dict, optional):</span>
+<span class="sd">                Optionally, you may provide a dictionary of column-val assignments</span>
+<span class="sd">                (appropriate to this item&#39;s table-level) as determined by the `columns`</span>
+<span class="sd">                argument to :py:meth:`DictModel.__init__`</span>
+
+
+<span class="sd">        Returns:</span>
+<span class="sd">            :py:obj:`DictModelRow`</span>
+
+<span class="sd">        See Also:</span>
+<span class="sd">            * :py:meth:`DictModelRow.add_row`</span>
+<span class="sd">            * :py:meth:`DictModel.add_row`</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">item</span> <span class="o">=</span> <span class="n">DictModelRow</span><span class="p">(</span> <span class="n">parent</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">key</span><span class="p">,</span> <span class="n">columnvals</span><span class="o">=</span><span class="n">columnvals</span> <span class="p">)</span>
+        <span class="k">return</span> <span class="n">item</span></div>
+
+<div class="viewcode-block" id="DictModelRow.add_row"><a class="viewcode-back" href="../../_api/qconcurrency.models.DictModelRow.html#qconcurrency.models.DictModelRow.add_row">[docs]</a>    <span class="k">def</span> <span class="nf">add_row</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">columnvals</span><span class="o">=</span><span class="kc">None</span> <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adds a new row to this DictModel, at the same level of nesting</span>
+<span class="sd">        henceforth referred to by the key `key`.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            key (obj):</span>
+<span class="sd">                Key is the id you will use to refer to this object.</span>
+<span class="sd">                Generally it will be a databaseId. This object must be</span>
+<span class="sd">                hashable.</span>
+
+<span class="sd">            columnvals (dict, optional):</span>
+<span class="sd">                Optionally, you may provide a dictionary of column-val assignments</span>
+<span class="sd">                (appropriate to this item&#39;s table-level) as determined by the `columns`</span>
+<span class="sd">                argument to :py:meth:`DictModel.__init__`</span>
+
+
+<span class="sd">        Returns:</span>
+<span class="sd">            :py:obj:`DictModelRow`</span>
+
+<span class="sd">        See Also:</span>
+<span class="sd">            * :py:meth:`DictModelRow.add_row`</span>
+<span class="sd">            * :py:meth:`DictModel.add_row`</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">():</span>
+            <span class="n">item</span> <span class="o">=</span> <span class="n">DictModelRow</span><span class="p">(</span> <span class="n">parent</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">(),</span> <span class="n">key</span><span class="o">=</span><span class="n">key</span><span class="p">,</span> <span class="n">columnvals</span><span class="o">=</span><span class="n">columnvals</span> <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">item</span> <span class="o">=</span> <span class="n">DictModelRow</span><span class="p">(</span> <span class="n">parent</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">(),</span> <span class="n">key</span><span class="o">=</span><span class="n">key</span><span class="p">,</span> <span class="n">columnvals</span><span class="o">=</span><span class="n">columnvals</span> <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">item</span></div>
+
+<div class="viewcode-block" id="DictModelRow.set_columnvals"><a class="viewcode-back" href="../../_api/qconcurrency.models.DictModelRow.html#qconcurrency.models.DictModelRow.set_columnvals">[docs]</a>    <span class="k">def</span> <span class="nf">set_columnvals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">columnvals</span> <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set columnvals on a key of this :py:obj:`DictModel`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># validation</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">()</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;Cannot set columnvals until item has been added to a model&#39;</span><span class="p">)</span>
+
+        <span class="n">columns</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">()</span><span class="o">.</span><span class="n">columns</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">_level</span> <span class="p">)</span>
+
+        <span class="c1"># set columnvals</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">columns</span><span class="p">)):</span>
+            <span class="n">column</span> <span class="o">=</span> <span class="n">columns</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+
+            <span class="k">if</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">columnvals</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">()</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">()</span><span class="o">.</span><span class="n">setChild</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">()</span><span class="o">.</span><span class="n">row</span><span class="p">(),</span>                       <span class="c1"># row</span>
+                        <span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span>                                      <span class="c1"># column</span>
+                        <span class="n">QtGui</span><span class="o">.</span><span class="n">QStandardItem</span><span class="p">(</span> <span class="n">columnvals</span><span class="p">[</span><span class="n">column</span><span class="p">]</span> <span class="p">)</span> <span class="c1"># item</span>
+                    <span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">()</span><span class="o">.</span><span class="n">setItem</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">()</span><span class="o">.</span><span class="n">row</span><span class="p">(),</span>                       <span class="c1"># row</span>
+                        <span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span>                                      <span class="c1"># column</span>
+                        <span class="n">QtGui</span><span class="o">.</span><span class="n">QStandardItem</span><span class="p">(</span> <span class="n">columnvals</span><span class="p">[</span><span class="n">column</span><span class="p">]</span> <span class="p">)</span> <span class="c1"># item</span>
+                    <span class="p">)</span></div>
+
+<div class="viewcode-block" id="DictModelRow.columnvals"><a class="viewcode-back" href="../../_api/qconcurrency.models.DictModelRow.html#qconcurrency.models.DictModelRow.columnvals">[docs]</a>    <span class="k">def</span> <span class="nf">columnvals</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a dictionary of this item&#39;s columnvals from the Model.</span>
+<span class="sd">        A column `_id` will be added to the list of columns, which will</span>
+<span class="sd">        be the `key` value of this row.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">columnvals</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">columns</span>    <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">()</span><span class="o">.</span><span class="n">columns</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_level</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">columns</span><span class="p">)):</span>
+            <span class="n">column</span> <span class="o">=</span> <span class="n">columns</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">()</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">columnvals</span><span class="p">[</span> <span class="n">column</span> <span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">()</span><span class="o">.</span><span class="n">child</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">row</span><span class="p">(),</span> <span class="n">i</span><span class="o">+</span><span class="mi">1</span> <span class="p">)</span><span class="o">.</span><span class="n">text</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">columnvals</span><span class="p">[</span> <span class="n">column</span> <span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">row</span><span class="p">(),</span> <span class="n">i</span><span class="o">+</span><span class="mi">1</span> <span class="p">)</span><span class="o">.</span><span class="n">text</span><span class="p">()</span>
+        <span class="n">columnvals</span><span class="p">[</span><span class="s1">&#39;_id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_key</span>
+
+        <span class="k">return</span> <span class="n">columnvals</span></div>
+
+<div class="viewcode-block" id="DictModelRow.columnval"><a class="viewcode-back" href="../../_api/qconcurrency.models.DictModelRow.html#qconcurrency.models.DictModelRow.columnval">[docs]</a>    <span class="k">def</span> <span class="nf">columnval</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Retrieve a single column-value only.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s1">&#39;_id&#39;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">()</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">()</span><span class="o">.</span><span class="n">child</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">row</span><span class="p">(),</span> <span class="mi">0</span> <span class="p">)</span><span class="o">.</span><span class="n">text</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">row</span><span class="p">(),</span> <span class="mi">0</span> <span class="p">)</span><span class="o">.</span><span class="n">text</span><span class="p">()</span>
+
+        <span class="n">columns</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">()</span><span class="o">.</span><span class="n">columns</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_level</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">columns</span><span class="p">)):</span>
+            <span class="n">column</span> <span class="o">=</span> <span class="n">columns</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">column</span> <span class="o">==</span> <span class="n">name</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">()</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">()</span><span class="o">.</span><span class="n">child</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">row</span><span class="p">(),</span> <span class="n">i</span><span class="o">+</span><span class="mi">1</span> <span class="p">)</span><span class="o">.</span><span class="n">text</span><span class="p">()</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">row</span><span class="p">(),</span> <span class="n">i</span><span class="o">+</span><span class="mi">1</span> <span class="p">)</span><span class="o">.</span><span class="n">text</span><span class="p">()</span>
+
+        <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span>
+            <span class="s1">&#39;Unable to find a column named: &quot;</span><span class="si">%s</span><span class="s1">&quot; in </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">columns</span><span class="p">))</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="DictModelRow.level"><a class="viewcode-back" href="../../_api/qconcurrency.models.DictModelRow.html#qconcurrency.models.DictModelRow.level">[docs]</a>    <span class="k">def</span> <span class="nf">level</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns either a label (if :py:meth:`DictModel.__init__` was passed a</span>
+<span class="sd">        `hierarchy` argument), or an integer representing the nesting-depth.</span>
+<span class="sd">        Either way, level is used to indicate the level-of-nesting of the table</span>
+<span class="sd">        that this item is in.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_level</span></div>
+
+<div class="viewcode-block" id="DictModelRow.delete"><a class="viewcode-back" href="../../_api/qconcurrency.models.DictModelRow.html#qconcurrency.models.DictModelRow.delete">[docs]</a>    <span class="k">def</span> <span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Removes this *row* from the model.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">()</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">()</span><span class="o">.</span><span class="n">removeRow</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">()</span><span class="o">.</span><span class="n">row</span><span class="p">()</span> <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">()</span><span class="o">.</span><span class="n">removeRow</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">()</span><span class="o">.</span><span class="n">row</span><span class="p">()</span> <span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_get_sibling_row</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a sibling with a different key at the same level.</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">            .. code-block:: bash</span>
+
+<span class="sd">                ----------------------------------------------------</span>
+<span class="sd">                key          | name            | path              |</span>
+<span class="sd">                ----------------------------------------------------</span>
+<span class="sd">                100          | &#39;mnt&#39;           | &#39;/mnt&#39;            |</span>
+<span class="sd">                   100.1     | &#39;mntusb&#39;        | &#39;/mnt/usb&#39;        |</span>
+<span class="sd">                     100.1.a | &#39;mntusbbackup&#39;  | &#39;/mnt/usb/backup&#39; |</span>
+<span class="sd">                   100.2     | &#39;mntcd&#39;         | &#39;/mnt/cd&#39;         |</span>
+<span class="sd">                             |                 |                   |</span>
+<span class="sd">                200          | &#39;home&#39;          | &#39;/home&#39;           |</span>
+<span class="sd">                   200.1     | &#39;will&#39;          | &#39;/home/will&#39;      |</span>
+
+<span class="sd">            In the above diagram representing the :py:obj:`QStandardItemModel`,</span>
+<span class="sd">            from `100.1` you would be able retrieve `100.2`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">()</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">()</span><span class="o">.</span><span class="n">rowCount</span><span class="p">()):</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">text</span><span class="p">()</span> <span class="o">==</span> <span class="nb">str</span><span class="p">(</span><span class="n">key</span><span class="p">):</span>
+                    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">()</span><span class="o">.</span><span class="n">rowCount</span><span class="p">()):</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">()</span><span class="o">.</span><span class="n">child</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">text</span><span class="p">()</span> <span class="o">==</span> <span class="nb">str</span><span class="p">(</span><span class="n">key</span><span class="p">):</span>
+                    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">()</span><span class="o">.</span><span class="n">child</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span>
+            <span class="s1">&#39;Unable to find key </span><span class="si">%s</span><span class="s1"> in table containing </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_get_child_row</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a child with a particular key.</span>
+
+
+<span class="sd">        Example:</span>
+
+<span class="sd">            .. code-block:: bash</span>
+
+<span class="sd">                ----------------------------------------------------</span>
+<span class="sd">                key          | name            | path              |</span>
+<span class="sd">                ----------------------------------------------------</span>
+<span class="sd">                100          | &#39;mnt&#39;           | &#39;/mnt&#39;            |</span>
+<span class="sd">                   100.1     | &#39;mntusb&#39;        | &#39;/mnt/usb&#39;        |</span>
+<span class="sd">                     100.1.a | &#39;mntusbbackup&#39;  | &#39;/mnt/usb/backup&#39; |</span>
+<span class="sd">                   100.2     | &#39;mntcd&#39;         | &#39;/mnt/cd&#39;         |</span>
+<span class="sd">                             |                 |                   |</span>
+<span class="sd">                200          | &#39;home&#39;          | &#39;/home&#39;           |</span>
+<span class="sd">                   200.1     | &#39;will&#39;          | &#39;/home/will&#39;      |</span>
+
+<span class="sd">            In the above diagram representing the :py:obj:`QStandardItemModel`,</span>
+<span class="sd">            from `100.1` you would be able retrieve `100.1.a`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">rowCount</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                <span class="s1">&#39;</span><span class="si">%s</span><span class="s1"> has no children. Cannot retrieve child at key </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span> <span class="n">key</span><span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rowCount</span><span class="p">()):</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">child</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">text</span><span class="p">()</span> <span class="o">==</span> <span class="nb">str</span><span class="p">(</span><span class="n">key</span><span class="p">):</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">child</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span>
+            <span class="s1">&#39;Cannot find child identified by key &quot;</span><span class="si">%s</span><span class="s1">&quot; in </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span><span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_get_colindex</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">column</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">()</span><span class="o">.</span><span class="n">_get_colindex</span><span class="p">(</span><span class="n">column</span><span class="p">)</span>
+
+<div class="viewcode-block" id="DictModelRow.keys"><a class="viewcode-back" href="../../_api/qconcurrency.models.DictModelRow.html#qconcurrency.models.DictModelRow.keys">[docs]</a>    <span class="k">def</span> <span class="nf">keys</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns list containig keys for every</span>
+<span class="sd">        child-row that has been added to this :py:obj:`DictModelRow`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">keys</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rowCount</span><span class="p">()):</span>
+            <span class="n">keys</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">child</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">text</span><span class="p">()</span> <span class="p">)</span>
+        <span class="k">return</span> <span class="n">keys</span></div>
+
+<div class="viewcode-block" id="DictModelRow.id"><a class="viewcode-back" href="../../_api/qconcurrency.models.DictModelRow.html#qconcurrency.models.DictModelRow.id">[docs]</a>    <span class="k">def</span> <span class="nf">id</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the `key` this row represents.</span>
+<span class="sd">        (It&#39;s value depends on the value passed to :py:meth:`DictModelRow.add_row`</span>
+<span class="sd">        or :py:meth:`DictModelRow.add_child` ).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_key</span></div></div>
+
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="kn">from</span>   <span class="nn">qconcurrency</span> <span class="k">import</span> <span class="n">QApplication</span>
+    <span class="kn">from</span>   <span class="nn">Qt</span>           <span class="k">import</span> <span class="n">QtWidgets</span>
+    <span class="kn">import</span> <span class="nn">sys</span>
+
+    <span class="k">def</span> <span class="nf">test_simple</span><span class="p">():</span>
+
+        <span class="k">with</span> <span class="n">QApplication</span><span class="p">():</span>
+            <span class="n">model</span> <span class="o">=</span> <span class="n">DictModel</span><span class="p">(</span> <span class="n">columns</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;a&#39;</span><span class="p">,</span><span class="s1">&#39;b&#39;</span><span class="p">,</span><span class="s1">&#39;c&#39;</span><span class="p">)</span> <span class="p">)</span>
+
+            <span class="c1"># add toplevel rows</span>
+            <span class="n">model</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span> <span class="mi">100</span><span class="p">,</span> <span class="n">columnvals</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;a&#39;</span><span class="p">:</span><span class="s1">&#39;AAA&#39;</span><span class="p">,</span> <span class="s1">&#39;b&#39;</span><span class="p">:</span><span class="s1">&#39;BBB&#39;</span><span class="p">}</span> <span class="p">)</span>
+            <span class="n">model</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span> <span class="mi">200</span><span class="p">,</span> <span class="n">columnvals</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;a&#39;</span><span class="p">:</span><span class="s1">&#39;ZZZ&#39;</span><span class="p">,</span> <span class="s1">&#39;b&#39;</span><span class="p">:</span><span class="s1">&#39;XXX&#39;</span><span class="p">}</span> <span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span> <span class="n">model</span><span class="p">[</span><span class="mi">100</span><span class="p">]</span><span class="o">.</span><span class="n">columnvals</span><span class="p">()</span> <span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span> <span class="n">model</span><span class="p">[</span><span class="mi">200</span><span class="p">]</span><span class="o">.</span><span class="n">columnvals</span><span class="p">()</span> <span class="p">)</span>
+
+            <span class="c1"># add child-rows (and nested children)</span>
+            <span class="n">model</span><span class="p">[</span><span class="mi">100</span><span class="p">]</span><span class="o">.</span><span class="n">add_child</span><span class="p">(</span>     <span class="mi">10</span><span class="p">,</span> <span class="n">columnvals</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;c&#39;</span><span class="p">:</span><span class="s1">&#39;CCC&#39;</span><span class="p">}</span>    <span class="p">)</span>
+            <span class="n">model</span><span class="p">[</span><span class="mi">100</span><span class="p">][</span><span class="mi">10</span><span class="p">]</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span> <span class="mi">11</span> <span class="p">)</span>
+            <span class="n">model</span><span class="p">[</span><span class="mi">100</span><span class="p">][</span><span class="mi">10</span><span class="p">]</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span> <span class="mi">12</span> <span class="p">)</span>
+            <span class="n">model</span><span class="p">[</span><span class="mi">100</span><span class="p">][</span><span class="mi">10</span><span class="p">]</span><span class="o">.</span><span class="n">add_child</span><span class="p">(</span> <span class="mi">1</span> <span class="p">,</span> <span class="n">columnvals</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;c&#39;</span><span class="p">:</span><span class="s1">&#39;DDD&#39;</span><span class="p">}</span> <span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span> <span class="n">model</span><span class="p">[</span><span class="mi">100</span><span class="p">][</span><span class="mi">10</span><span class="p">]</span><span class="o">.</span><span class="n">columnvals</span><span class="p">()</span> <span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span> <span class="n">model</span><span class="p">[</span><span class="mi">100</span><span class="p">][</span><span class="mi">10</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">columnvals</span><span class="p">()</span> <span class="p">)</span>
+
+            <span class="c1"># add model to tree (so it is visible)</span>
+            <span class="n">tree</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QTreeView</span><span class="p">()</span>
+            <span class="n">tree</span><span class="o">.</span><span class="n">setModel</span><span class="p">(</span> <span class="n">model</span> <span class="p">)</span>
+            <span class="n">tree</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">test_hierarchy_fixedcols</span><span class="p">():</span>
+        <span class="k">with</span> <span class="n">QApplication</span><span class="p">():</span>
+
+            <span class="n">model</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QStandardItemModel</span><span class="p">()</span>
+            <span class="n">model</span> <span class="o">=</span> <span class="n">DictModel</span><span class="p">(</span>
+                <span class="n">hierarchy</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;jedi_class&#39;</span><span class="p">,</span><span class="s1">&#39;user&#39;</span><span class="p">),</span>
+                <span class="n">columns</span>   <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;jedi_class&#39;</span><span class="p">:[</span><span class="s1">&#39;class&#39;</span><span class="p">],</span>  <span class="s1">&#39;user&#39;</span><span class="p">:(</span><span class="s1">&#39;username&#39;</span><span class="p">,</span><span class="s1">&#39;firstname&#39;</span><span class="p">,</span><span class="s1">&#39;lastname&#39;</span><span class="p">)}</span>
+            <span class="p">)</span>
+
+            <span class="n">model</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="n">columnvals</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;class&#39;</span><span class="p">:</span><span class="s1">&#39;sith&#39;</span><span class="p">}</span> <span class="p">)</span>
+            <span class="n">model</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span><span class="mi">11</span><span class="p">,</span> <span class="n">columnvals</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;class&#39;</span><span class="p">:</span><span class="s1">&#39;jedi&#39;</span><span class="p">}</span> <span class="p">)</span>
+
+            <span class="n">model</span><span class="p">[</span><span class="mi">10</span><span class="p">]</span><span class="o">.</span><span class="n">add_child</span><span class="p">(</span> <span class="mi">101</span><span class="p">,</span> <span class="n">columnvals</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;username&#39;</span><span class="p">:</span><span class="s1">&#39;anakins&#39;</span><span class="p">,</span> <span class="s1">&#39;firstname&#39;</span><span class="p">:</span><span class="s1">&#39;anakin&#39;</span><span class="p">,</span> <span class="s1">&#39;lastname&#39;</span><span class="p">:</span><span class="s1">&#39;skywalker&#39;</span><span class="p">}</span> <span class="p">)</span>
+            <span class="n">model</span><span class="p">[</span><span class="mi">10</span><span class="p">]</span><span class="o">.</span><span class="n">add_child</span><span class="p">(</span> <span class="mi">102</span><span class="p">,</span> <span class="n">columnvals</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;username&#39;</span><span class="p">:</span><span class="s1">&#39;epalpatine&#39;</span><span class="p">}</span> <span class="p">)</span>
+            <span class="n">model</span><span class="p">[</span><span class="mi">10</span><span class="p">]</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span> <span class="mi">12</span><span class="p">,</span> <span class="n">columnvals</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;class&#39;</span><span class="p">:</span><span class="s1">&#39;other&#39;</span><span class="p">}</span> <span class="p">)</span>
+
+            <span class="n">jediclassId</span> <span class="o">=</span> <span class="mi">10</span>
+            <span class="n">userId</span>      <span class="o">=</span> <span class="mi">101</span>
+            <span class="nb">print</span><span class="p">(</span> <span class="n">model</span><span class="p">[</span><span class="n">jediclassId</span><span class="p">][</span><span class="n">userId</span><span class="p">]</span><span class="o">.</span><span class="n">columnvals</span><span class="p">()</span> <span class="p">)</span>
+
+            <span class="c1"># add model to tree (so it is visible)</span>
+            <span class="n">tree</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QTreeView</span><span class="p">()</span>
+            <span class="n">tree</span><span class="o">.</span><span class="n">setModel</span><span class="p">(</span> <span class="n">model</span> <span class="p">)</span>
+            <span class="n">tree</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">runtests</span><span class="p">():</span>
+        <span class="c1">#test_simple()</span>
+        <span class="n">test_hierarchy_fixedcols</span><span class="p">()</span>
+
+
+    <span class="n">runtests</span><span class="p">()</span>
+
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">pyqconcurrency 0.0.a1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../qconcurrency.html" >qconcurrency</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2017, Will Pittman.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.5.
+    </div>
+  </body>
+</html>

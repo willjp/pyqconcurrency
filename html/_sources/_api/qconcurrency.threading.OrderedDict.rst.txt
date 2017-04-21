@@ -1,0 +1,34 @@
+
+OrderedDict
+===========
+
+Methods
+-------
+
+.. autosummary::
+
+   qconcurrency.threading.OrderedDict.__init__
+   qconcurrency.threading.OrderedDict.__new__
+   qconcurrency.threading.OrderedDict.clear
+   qconcurrency.threading.OrderedDict.copy
+   qconcurrency.threading.OrderedDict.fromkeys
+   qconcurrency.threading.OrderedDict.items
+   qconcurrency.threading.OrderedDict.keys
+   qconcurrency.threading.OrderedDict.move_to_end
+   qconcurrency.threading.OrderedDict.pop
+   qconcurrency.threading.OrderedDict.popitem
+   qconcurrency.threading.OrderedDict.setdefault
+   qconcurrency.threading.OrderedDict.update
+   qconcurrency.threading.OrderedDict.values
+
+
+Documentation
+-------------
+
+
+.. autoclass:: qconcurrency.threading.OrderedDict
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+

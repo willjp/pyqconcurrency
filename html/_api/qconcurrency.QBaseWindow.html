@@ -1,0 +1,176 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>QBaseWindow &#8212; pyqconcurrency 0.0.a1 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/pyramid.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.0.a1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Neuton&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nobile:regular,italic,bold,bolditalic&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<!--[if lte IE 6]>
+<link rel="stylesheet" href="../_static/ie6.css" type="text/css" media="screen" charset="utf-8" />
+<![endif]-->
+
+  </head>
+  <body role="document">
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">pyqconcurrency 0.0.a1 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="qbasewindow">
+<h1>QBaseWindow<a class="headerlink" href="#qbasewindow" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="attributes">
+<h2>Attributes<a class="headerlink" href="#attributes" title="Permalink to this headline">¶</a></h2>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#qconcurrency.QBaseWindow.staticMetaObject" title="qconcurrency.QBaseWindow.staticMetaObject"><code class="xref py py-obj docutils literal"><span class="pre">qconcurrency.QBaseWindow.staticMetaObject</span></code></a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="methods">
+<h2>Methods<a class="headerlink" href="#methods" title="Permalink to this headline">¶</a></h2>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">qconcurrency.QBaseWindow.__init__</span></code>([title])</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#qconcurrency.QBaseWindow.new_solotask" title="qconcurrency.QBaseWindow.new_solotask"><code class="xref py py-obj docutils literal"><span class="pre">qconcurrency.QBaseWindow.new_solotask</span></code></a>(callback)</td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#qconcurrency.QBaseWindow.new_task" title="qconcurrency.QBaseWindow.new_task"><code class="xref py py-obj docutils literal"><span class="pre">qconcurrency.QBaseWindow.new_task</span></code></a>(callback)</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#qconcurrency.QBaseWindow.setLayout" title="qconcurrency.QBaseWindow.setLayout"><code class="xref py py-obj docutils literal"><span class="pre">qconcurrency.QBaseWindow.setLayout</span></code></a>(layout)</td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#qconcurrency.QBaseWindow.staticMetaObject" title="qconcurrency.QBaseWindow.staticMetaObject"><code class="xref py py-obj docutils literal"><span class="pre">qconcurrency.QBaseWindow.staticMetaObject</span></code></a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="documentation">
+<h2>Documentation<a class="headerlink" href="#documentation" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="qconcurrency.QBaseWindow">
+<em class="property">class </em><code class="descclassname">qconcurrency.</code><code class="descname">QBaseWindow</code><span class="sig-paren">(</span><em>title=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qconcurrency/_qbasewindow_.html#QBaseWindow"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qconcurrency.QBaseWindow" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">PySide.QtGui.QWidget</span></code></p>
+<dl class="method">
+<dt id="qconcurrency.QBaseWindow.new_solotask">
+<code class="descname">new_solotask</code><span class="sig-paren">(</span><em>callback</em>, <em>signals=None</em>, <em>mutex_expiry=5000</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qconcurrency/_qbasewindow_.html#QBaseWindow.new_solotask"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qconcurrency.QBaseWindow.new_solotask" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="qconcurrency.QBaseWindow.new_task">
+<code class="descname">new_task</code><span class="sig-paren">(</span><em>callback</em>, <em>signals=None</em>, <em>*args</em>, <em>**kwds</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qconcurrency/_qbasewindow_.html#QBaseWindow.new_task"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qconcurrency.QBaseWindow.new_task" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="qconcurrency.QBaseWindow.setLayout">
+<code class="descname">setLayout</code><span class="sig-paren">(</span><em>layout</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qconcurrency/_qbasewindow_.html#QBaseWindow.setLayout"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qconcurrency.QBaseWindow.setLayout" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="qconcurrency.QBaseWindow.staticMetaObject">
+<code class="descname">staticMetaObject</code><em class="property"> = &lt;PySide.QtCore.QMetaObject object&gt;</em><a class="headerlink" href="#qconcurrency.QBaseWindow.staticMetaObject" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">QBaseWindow</a><ul>
+<li><a class="reference internal" href="#attributes">Attributes</a></li>
+<li><a class="reference internal" href="#methods">Methods</a></li>
+<li><a class="reference internal" href="#documentation">Documentation</a></li>
+</ul>
+</li>
+</ul>
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">pyqconcurrency 0.0.a1 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2017, Will Pittman.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.5.
+    </div>
+  </body>
+</html>

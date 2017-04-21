@@ -1,0 +1,225 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>qconcurrency._qbasewindow_ &#8212; pyqconcurrency 0.0.a1 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/pyramid.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.0.a1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Neuton&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nobile:regular,italic,bold,bolditalic&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<!--[if lte IE 6]>
+<link rel="stylesheet" href="../../_static/ie6.css" type="text/css" media="screen" charset="utf-8" />
+<![endif]-->
+
+  </head>
+  <body role="document">
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">pyqconcurrency 0.0.a1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../qconcurrency.html" accesskey="U">qconcurrency</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for qconcurrency._qbasewindow_</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Name :          qconcurrency._qbasewindow_.py</span>
+<span class="sd">Created :       Apr 17, 2017</span>
+<span class="sd">Author :        Will Pittman</span>
+<span class="sd">Contact :       willjpittman@gmail.com</span>
+<span class="sd">________________________________________________________________________________</span>
+<span class="sd">Description :   Window that comes packaged with a progressbar,</span>
+<span class="sd">                and a way of creating ThreadedTasks.</span>
+<span class="sd">________________________________________________________________________________</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="c1">#builtin</span>
+<span class="kn">from</span> <span class="nn">__future__</span>    <span class="k">import</span> <span class="n">unicode_literals</span>
+<span class="kn">from</span> <span class="nn">__future__</span>    <span class="k">import</span> <span class="n">absolute_import</span>
+<span class="kn">from</span> <span class="nn">__future__</span>    <span class="k">import</span> <span class="n">division</span>
+<span class="kn">from</span> <span class="nn">__future__</span>    <span class="k">import</span> <span class="n">print_function</span>
+<span class="c1">#external</span>
+<span class="kn">from</span>   <span class="nn">Qt</span> <span class="k">import</span> <span class="n">QtCore</span><span class="p">,</span> <span class="n">QtWidgets</span>
+<span class="kn">import</span> <span class="nn">six</span>
+<span class="c1">#internal</span>
+<span class="kn">from</span>   <span class="nn">qconcurrency.exceptions_</span>  <span class="k">import</span> <span class="o">*</span>
+<span class="kn">from</span>   <span class="nn">qconcurrency.threading</span>    <span class="k">import</span> <span class="n">ThreadedTask</span><span class="p">,</span> <span class="n">SoloThreadedTask</span>
+<span class="kn">from</span>   <span class="nn">qconcurrency.widgets</span>      <span class="k">import</span> <span class="n">ProgressBar</span>
+
+<span class="c1">#!TODO: handle request-abort</span>
+
+<div class="viewcode-block" id="QBaseWindow"><a class="viewcode-back" href="../../_api/qconcurrency.QBaseWindow.html#qconcurrency.QBaseWindow">[docs]</a><span class="k">class</span> <span class="nc">QBaseWindow</span><span class="p">(</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QWidget</span> <span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span> <span class="p">):</span>
+        <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QWidget</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_title</span>  <span class="o">=</span> <span class="n">title</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_layout</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_initui</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_initui</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Build Widgets</span>
+        <span class="c1"># =============</span>
+        <span class="n">layout</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QVBoxLayout</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_mainlayout_container</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QVBoxLayout</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_mainwidget</span>           <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QWidget</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_progressbar</span>          <span class="o">=</span> <span class="n">ProgressBar</span><span class="p">()</span>
+
+
+        <span class="c1"># Position Widgets</span>
+        <span class="c1"># ================</span>
+        <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QWidget</span><span class="o">.</span><span class="n">setLayout</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layout</span><span class="p">)</span>
+        <span class="n">layout</span><span class="o">.</span><span class="n">addLayout</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mainlayout_container</span> <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_mainlayout_container</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mainwidget</span> <span class="p">)</span>
+        <span class="n">layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">_progressbar</span> <span class="p">)</span>
+
+        <span class="c1"># Widget Attrs</span>
+        <span class="c1"># ============</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_title</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">setWindowTitle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_title</span><span class="p">)</span>
+
+<div class="viewcode-block" id="QBaseWindow.setLayout"><a class="viewcode-back" href="../../_api/qconcurrency.QBaseWindow.html#qconcurrency.QBaseWindow.setLayout">[docs]</a>    <span class="k">def</span> <span class="nf">setLayout</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layout</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_mainwidget</span><span class="o">.</span><span class="n">setLayout</span><span class="p">(</span> <span class="n">layout</span> <span class="p">)</span></div>
+
+<div class="viewcode-block" id="QBaseWindow.new_task"><a class="viewcode-back" href="../../_api/qconcurrency.QBaseWindow.html#qconcurrency.QBaseWindow.new_task">[docs]</a>    <span class="k">def</span> <span class="nf">new_task</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">,</span> <span class="n">signals</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span><span class="p">):</span>
+        <span class="n">task</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_progressbar</span><span class="o">.</span><span class="n">new_task</span><span class="p">(</span>
+            <span class="n">callback</span> <span class="o">=</span> <span class="n">callback</span><span class="p">,</span>
+            <span class="n">signals</span>  <span class="o">=</span> <span class="n">signals</span><span class="p">,</span>
+            <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">task</span></div>
+
+<div class="viewcode-block" id="QBaseWindow.new_solotask"><a class="viewcode-back" href="../../_api/qconcurrency.QBaseWindow.html#qconcurrency.QBaseWindow.new_solotask">[docs]</a>    <span class="k">def</span> <span class="nf">new_solotask</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">,</span> <span class="n">signals</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mutex_expiry</span><span class="o">=</span><span class="mi">5000</span><span class="p">):</span>
+        <span class="n">solotask</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_progressbar</span><span class="o">.</span><span class="n">new_solotask</span><span class="p">(</span>
+            <span class="n">callback</span>     <span class="o">=</span> <span class="n">callback</span><span class="p">,</span>
+            <span class="n">signals</span>      <span class="o">=</span> <span class="n">signals</span><span class="p">,</span>
+            <span class="n">mutex_expiry</span> <span class="o">=</span> <span class="n">mutex_expiry</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">solotask</span></div></div>
+
+
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="c1">#internal</span>
+    <span class="kn">import</span> <span class="nn">functools</span>
+    <span class="kn">import</span> <span class="nn">time</span>
+    <span class="c1">#external</span>
+    <span class="kn">from</span>   <span class="nn">Qt</span>    <span class="k">import</span> <span class="n">QtWidgets</span>
+    <span class="kn">import</span> <span class="nn">supercli.logging</span>
+    <span class="c1">#internal</span>
+    <span class="kn">from</span>   <span class="nn">qconcurrency</span> <span class="k">import</span> <span class="n">QApplication</span><span class="p">,</span> <span class="n">Fake</span>
+    <span class="n">supercli</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">SetLog</span><span class="p">(</span><span class="n">lv</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">test_qbasewindow</span><span class="p">():</span>
+
+        <span class="k">def</span> <span class="nf">long_job</span><span class="p">(</span> <span class="n">signalmgr</span><span class="o">=</span><span class="kc">None</span> <span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">signalmgr</span><span class="p">:</span>
+                <span class="n">signalmgr</span> <span class="o">=</span> <span class="n">Fake</span><span class="p">()</span>
+
+            <span class="n">signalmgr</span><span class="o">.</span><span class="n">add_progress</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">):</span>
+                <span class="n">signalmgr</span><span class="o">.</span><span class="n">handle_if_abort</span><span class="p">()</span>
+                <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.3</span><span class="p">)</span>
+                <span class="n">signalmgr</span><span class="o">.</span><span class="n">incr_progress</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+
+
+        <span class="k">with</span> <span class="n">QApplication</span><span class="p">():</span>
+            <span class="n">win</span> <span class="o">=</span> <span class="n">QBaseWindow</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s1">&#39;test title&#39;</span><span class="p">)</span>
+
+            <span class="c1"># add arbitrary widget</span>
+            <span class="n">layout</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QVBoxLayout</span><span class="p">()</span>
+            <span class="n">btn</span>    <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QPushButton</span><span class="p">(</span><span class="s1">&#39;test button&#39;</span><span class="p">)</span>
+            <span class="n">win</span><span class="o">.</span><span class="n">setLayout</span><span class="p">(</span><span class="n">layout</span><span class="p">)</span>
+            <span class="n">layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">btn</span><span class="p">)</span>
+
+            <span class="k">def</span> <span class="nf">run_long_job</span><span class="p">(</span><span class="n">win</span><span class="p">):</span>
+                <span class="n">task</span> <span class="o">=</span> <span class="n">win</span><span class="o">.</span><span class="n">new_task</span><span class="p">(</span> <span class="n">long_job</span> <span class="p">)</span>
+                <span class="n">task</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+
+            <span class="n">win</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+            <span class="c1"># connections</span>
+            <span class="n">btn</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span> <span class="n">functools</span><span class="o">.</span><span class="n">partial</span><span class="p">(</span> <span class="n">run_long_job</span><span class="p">,</span> <span class="n">win</span> <span class="p">)</span> <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">runtests</span><span class="p">():</span>
+        <span class="n">test_qbasewindow</span><span class="p">()</span>
+
+    <span class="n">runtests</span><span class="p">()</span>
+
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">pyqconcurrency 0.0.a1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../qconcurrency.html" >qconcurrency</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2017, Will Pittman.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.5.
+    </div>
+  </body>
+</html>

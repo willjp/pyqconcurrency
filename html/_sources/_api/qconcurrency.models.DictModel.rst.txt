@@ -1,0 +1,37 @@
+
+DictModel
+=========
+
+Attributes
+----------
+
+.. autosummary::
+
+   qconcurrency.models.DictModel.staticMetaObject
+
+
+Methods
+-------
+
+.. autosummary::
+
+   qconcurrency.models.DictModel.__init__
+   qconcurrency.models.DictModel.add_row
+   qconcurrency.models.DictModel.column_index
+   qconcurrency.models.DictModel.columns
+   qconcurrency.models.DictModel.default_columnvals
+   qconcurrency.models.DictModel.hierarchy
+   qconcurrency.models.DictModel.keys
+   qconcurrency.models.DictModel.staticMetaObject
+
+
+Documentation
+-------------
+
+
+.. autoclass:: qconcurrency.models.DictModel
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+

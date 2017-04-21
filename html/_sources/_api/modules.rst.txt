@@ -1,0 +1,8 @@
+pyqconcurrency
+==============
+
+.. toctree::
+   :maxdepth: 5
+
+   qconcurrency
+

@@ -1,0 +1,22 @@
+
+Fake
+====
+
+Methods
+-------
+
+.. autosummary::
+
+   qconcurrency.Fake.__init__
+
+
+Documentation
+-------------
+
+
+.. autoclass:: qconcurrency.Fake
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+

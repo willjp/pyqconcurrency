@@ -1,0 +1,21 @@
+
+UserCancelledOperation
+======================
+
+Methods
+-------
+
+.. autosummary::
+
+
+
+Documentation
+-------------
+
+
+.. autoclass:: qconcurrency.exceptions_.UserCancelledOperation
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+

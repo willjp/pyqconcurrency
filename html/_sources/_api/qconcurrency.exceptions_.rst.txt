@@ -1,0 +1,11 @@
+
+qconcurrency.exceptions_
+========================
+
+.. module:: qconcurrency.exceptions_
+classes
+-------
+
+   * :doc:`qconcurrency.exceptions_.UserCancelledOperation`
+
+

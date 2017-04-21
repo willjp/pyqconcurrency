@@ -1,0 +1,26 @@
+
+GenerateAPI
+===========
+
+Methods
+-------
+
+.. autosummary::
+
+   docs.apigen.GenerateAPI.__init__
+   docs.apigen.GenerateAPI.find_modules
+   docs.apigen.GenerateAPI.get_callable_type
+   docs.apigen.GenerateAPI.write_module_page
+   docs.apigen.GenerateAPI.write_root_modules_page
+
+
+Documentation
+-------------
+
+
+.. autoclass:: docs.apigen.GenerateAPI
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+
