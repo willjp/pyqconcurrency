@@ -26,6 +26,8 @@ from   Qt.QtWidgets      import QSizePolicy
 #internal
 from qconcurrency.models import DictModel
 
+__all__ = 'DictModelQComboBox'
+
 
 #!TODO: test updates to model update qcombobox
 #!TODO: allow different column for name/id for each different level

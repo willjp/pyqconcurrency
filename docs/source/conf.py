@@ -31,11 +31,15 @@
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = ['sphinx.ext.autodoc',
+extensions = [
+    'sphinx.ext.autodoc',
     'sphinx.ext.todo',
     'sphinx.ext.imgmath',
     'sphinx.ext.viewcode',
-    'sphinx.ext.githubpages']
+    'sphinx.ext.githubpages',
+    'sphinx.ext.autosummary',
+    'sphinx.ext.napoleon',
+]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -89,8 +93,10 @@ todo_include_todos = True
 # a list of builtin themes.
 #
 #html_theme = 'alabaster'
-#html_theme = 'classic'
-html_theme = 'bizstyle'
+html_theme = 'classic'
+#html_theme = 'bizstyle'
+#html_theme = 'nature'
+
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
@@ -161,5 +167,21 @@ texinfo_documents = [
 ]
 
 #modindex_common_prefix = ['qconcurrency.']
+napoleon_include_init_with_doc = True
+napoleon_use_ivar = False
+
+
+#import guzzle_sphinx_theme
+#html_theme_path = guzzle_sphinx_theme.html_theme_path()
+#html_theme = 'guzzle_sphinx_theme'
+#
+## Register the theme as an extension to generate a sitemap.xml
+#extensions.append("guzzle_sphinx_theme")
+#
+## Guzzle theme options (see theme.conf for more information)
+#html_theme_options = {
+#    # Set the name of the project to appear in the sidebar
+#    "project_nav_name": "PyQConcurrency",
+#}
 
 

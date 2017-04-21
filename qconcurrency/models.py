@@ -19,6 +19,11 @@ from collections         import Iterable, MutableMapping
 from Qt                  import QtGui, QtCore
 #internal
 
+__all__ = [
+    'DictModel',
+    'DictModelRow',
+]
+
 
 #!TODO: test using delattr unecessary, (and potentially harmful)
 #!      QStandardItemModel methods (like appendRow, setItem, ...)
@@ -80,6 +85,7 @@ class DictModel( QtGui.QStandardItemModel ):
     """
     def __init__(self, columns, hierarchy=None ):
         """
+
         Args:
             columns (list, dict):
                 Defines the available columns for the table/tree this :py:obj:`QtGui.QStandardItemModel`

@@ -1,7 +1,3 @@
-.. pyqconcurrency documentation master file, created by
-   sphinx-quickstart on Mon Apr 17 20:24:13 2017.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
 
 Welcome to pyqconcurrency's documentation!
 ==========================================
@@ -11,12 +7,6 @@ Welcome to pyqconcurrency's documentation!
    :caption: Contents:
 
 
-* :doc:`_api/modules`
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
 * :ref:`modindex`
+* :ref:`genindex`
 * :ref:`search`
