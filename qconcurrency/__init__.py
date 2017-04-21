@@ -37,17 +37,42 @@ __all__ = [
 
 class Fake( object ):
     """
-    A fake object, that will allow you to call attributes (at any level)
-    as functions with any number of args/kwds without errors.
+    A fake standin object, that allows you to get/call non-existant
+    attributes on it. Like :py:obj:`mock.Mock`, but more portable
+    and less utilitarian (this will work, for example in cx_freeze_).
 
-    You can use this in place of a signalmgr (see :py:obj:`SignalManagerFactory`)
-    if you want the ability to run methods inside or outside of threads.
+    .. _cx_freeze: https://anthony-tuininga.github.io/cx_Freeze/
+
+    This exists in this library so that you may define
+    methods that can be used within :py:obj:`ThreadedTask` ,
+    but can also be called outside of a thread (simply ignoring all signals)
+
+    Example:
+
+        .. code-block:: python
+
+            Fake()
+            >>> <qconcurrency.Fake object at 0x7fef27891c10>
+
+            Fake().fake.fake.fake
+            >>> <qconcurrency.Fake object at 0x7fef27774450>
+
+            Fake().fake.fake.fake( 'cool', 'you get the point' )
+            >>> <qconcurrency.Fake object at 0x7fef277123c0>
+
+
     """
     def __init__(self, *args, **kwds ):
         """
         Accepts/ignores any number of parameters
         """
-        pass
+        object.__init__(self)
+
+    def __call__(self,*args,**kwds):
+        return Fake()
+
+    def __iter__(self):
+        yield Fake()
 
     def __getattribute__(self, attr):
         """
