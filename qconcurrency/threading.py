@@ -28,6 +28,11 @@ from   qconcurrency.exceptions_  import *
 logger = logging.getLogger(__name__)
 loc    = locals
 
+__all__ = [
+    'SignalManagerFactory',
+    'ThreadedTask',
+    'SoloThreadedTask',
+]
 
 def SignalManagerFactory( signals, queue_stop=None ):
     """
