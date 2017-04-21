@@ -12,6 +12,12 @@ I am building this with the intention of it being a personal library,
 but if you find it useful, please feel free to use and modify :).
 
 
+See Sphinx documentation_ for more details.
+
+.. _documentation: https://github.com/willjp/pyqconcurrency/
+
+
+
 
 .. _Qt: https://www.qt.io/
 
