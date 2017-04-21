@@ -93,9 +93,13 @@ todo_include_todos = True
 # a list of builtin themes.
 #
 #html_theme = 'alabaster'
-html_theme = 'classic'
+#html_theme = 'classic'
 #html_theme = 'bizstyle'
 #html_theme = 'nature'
+#html_theme = 'haiku'
+#html_theme = 'agogo'
+#html_theme = 'sphinxdoc'
+html_theme = 'pyramid'
 
 
 # Theme options are theme-specific and customize the look and feel of a theme

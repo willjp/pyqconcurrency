@@ -82,12 +82,11 @@ class GenerateAPI( object ):
 
 
         for pymodule in pymodules:
-            if pymodule != 'qconcurrency.threading':
-                try:
-                    self.write_module_page( pymodule )
-                except:
-                    logger.error('Error occurred while working on module: %s' % pymodule)
-                    six.reraise( *sys.exc_info() )
+            try:
+                self.write_module_page( pymodule )
+            except:
+                logger.error('Error occurred while working on module: %s' % pymodule)
+                six.reraise( *sys.exc_info() )
 
     def find_modules(self):
         """
@@ -300,48 +299,51 @@ class GenerateAPI( object ):
         conts += '\n\n'
 
 
-        # TODO:
-        # custom table of contents
-        #
-        # * attrs
-        # * special-methods
-        # * inherited-methods
-        # * methods
-        # (try writing using :summary: instead of :autosummary: )
-        # (so that item names are less long)
 
-        conts += self._get_callable_toc( pymodule, module, callable_ )
-
-        conts += (
-            'Documentation\n'
-            '-------------\n'
-            '\n\n'
-        )
-
-        # autoclass
-        # =========
-
-        conts += (
-            '.. autoclass:: %s\n'
-            '   :members:\n'          # documented methods
-            '   :undoc-members:\n'    # undocumented methods
-            '   :show-inheritance:\n' # show base-classes
-        ) %  callable_importpath
-
-        if 'private' not in self._exclude_types:
-            conts +='   :private-members:\n'
-
-        if 'special' not in self._exclude_types:
-            conts +='   :special-members:\n'
-
-        if 'inherited' not in self._exclude_types:
-            conts +='   :inherited-members:\n'
-
-        conts += '\n\n'
+        if inspect.isfunction( getattr(module, callable_) ):
+            conts += (
+                'Documentation\n'
+                '-------------\n'
+                '\n\n'
+                '.. autofunction:: %s\n'
+                '\n\n'
+            ) % callable_importpath
 
 
-        with open( rstpath, 'w' ) as fw:
-            fw.write( conts )
+        elif inspect.isclass( getattr(module, callable_) ):
+
+            conts += self._get_callable_toc( pymodule, module, callable_ )
+
+            conts += (
+                'Documentation\n'
+                '-------------\n'
+                '\n\n'
+            )
+
+            # autoclass
+            # =========
+
+            conts += (
+                '.. autoclass:: %s\n'
+                '   :members:\n'          # documented methods
+                '   :undoc-members:\n'    # undocumented methods
+                '   :show-inheritance:\n' # show base-classes
+            ) %  callable_importpath
+
+            if 'private' not in self._exclude_types:
+                conts +='   :private-members:\n'
+
+            if 'special' not in self._exclude_types:
+                conts +='   :special-members:\n'
+
+            if 'inherited' not in self._exclude_types:
+                conts +='   :inherited-members:\n'
+
+            conts += '\n\n'
+
+
+            with open( rstpath, 'w' ) as fw:
+                fw.write( conts )
 
     def _get_callable_toc(self, pymodule, module, callable_ ):
         """
