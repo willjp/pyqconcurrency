@@ -14,7 +14,7 @@ but if you find it useful, please feel free to use and modify :).
 
 See Sphinx documentation_ for more details.
 
-.. _documentation: https://github.com/willjp/pyqconcurrency/
+.. _documentation: https://willjp.github.io/pyqconcurrency/
 
 
 
