@@ -85,19 +85,14 @@ class Fake( object ):
 class QApplication( QtWidgets.QApplication ):
     """
     QApplication that can be used in a `with` statement, automatically
-    exits when the last widget is deleted, at the occurrence of an unhandled
+    exits when the last widget is deleted, or at the occurrence of an unhandled
     exception.
 
     Does nothing if a QApplication already exists
-    ( Such as from within programs like Autodesk Maya, who are
-     already running their own QApplication instance ).
+    ( Such as from within programs like Autodesk_Maya_, that will have already
+    created a QApplication for you )
 
-
-    Args:
-        PySequence (tuple, optional):
-            An optional tuple of arguments to pass to your
-            QApplication's `__init__` method. ( uses :py:obj:`sys.argv`
-            by default. )
+    .. _Autodesk_Maya: http://www.autodesk.com/products/maya/overview
 
     Example:
 
@@ -108,9 +103,16 @@ class QApplication( QtWidgets.QApplication ):
                 btn.show()
 
             # ...
-            # when window is closed by user, QApp exits
+            # when window is closed by user, QApplication exits
     """
     def __init__(self, PySequence=None, *args, **kwds):
+        """
+        Args:
+            PySequence (tuple, optional):
+                An optional tuple of arguments to pass to your
+                QApplication's `__init__` method. ( uses :py:obj:`sys.argv`
+                by default. )
+        """
         qapp               = QtWidgets.QApplication.instance()
         self._created_qapp = False
 
