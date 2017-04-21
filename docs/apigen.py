@@ -342,8 +342,8 @@ class GenerateAPI( object ):
             conts += '\n\n'
 
 
-            with open( rstpath, 'w' ) as fw:
-                fw.write( conts )
+        with open( rstpath, 'w' ) as fw:
+            fw.write( conts )
 
     def _get_callable_toc(self, pymodule, module, callable_ ):
         """
