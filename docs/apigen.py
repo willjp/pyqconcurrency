@@ -99,7 +99,22 @@ class GenerateAPI( object ):
         pymodules = set() # ['file.doc', 'file.doc.something']
         logger.info('gathering python modules...')
 
-        for (root,dirnames,filenames) in os.walk( self._projectroot ):
+        non_package_rootdirs = set()
+
+
+        for (root,dirnames,filenames) in os.walk( self._projectroot, topdown=True ):
+
+            # only document modules directly toplevel-accessible python packages
+            if not os.path.isfile( '{root}/__init__.py'.format(**loc()) ):
+                if root != self._projectroot:
+                    non_package_rootdirs.add( root )
+                    continue
+
+            # do not document directories
+            # beneath non-packages
+            if any([ x in root for x in non_package_rootdirs ]):
+                continue
+
 
             # early exit
             if any([ x in root for x in self._ignore_dirs ]):
