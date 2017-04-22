@@ -37,7 +37,7 @@ __all__ = [
 def SignalManagerFactory( signals, queue_stop=None ):
     """
     Dynamically creates a :py:obj:`SignalManager` class
-    with all required signals.
+    with all requested signals.
 
 
     :py:obj:`SignalManager` objects are dynamically
@@ -57,6 +57,26 @@ def SignalManagerFactory( signals, queue_stop=None ):
                 def handle_if_abort(self):
                     if self._abort_requested:
                         raise UserCancelledOperation()
+
+    Args:
+        signals (dict, optional): ``(ex: {signal_name:emitted datatype(s)} )``
+
+            A dictionary of signal-names, and the datatypes
+            they will emit.
+
+            .. code-block:: python
+
+                {
+                    'update_status': None,        # update_status = QtCore.Signal()
+                    'log_message':  str,          # log_message   = QtCore.Signal(str)
+                    'add_item':     (int, str),   # add_item      = QtCore.Signal(int, str)
+                }
+
+        queue_stop (queue.Queue, optional):
+            A queue that handles request-aborts. When
+            :py:obj:`SignalManager.handle_if_abort` is run,
+            if the queue contains this thread's assigned id,
+            then this thread will be stopped.
 
     """
 
@@ -397,8 +417,8 @@ class SoloThreadedTask( QtCore.QObject ):
     this :py:obj:`SoloThreadedTask`) whenever a new thread is requested (and all must exit
     before the latest requested task is allowed to start ).
 
-    This might be useful for loading tasks such as a method that loads or filters
-    a widget's contents.
+    This might be useful for methods that load or filter the contents
+    of a widget.
 
     Example:
 
