@@ -34,16 +34,15 @@ __all__ = 'DictModelQComboBox'
 
 class DictModelQComboBox( QtWidgets.QComboBox ):
     """
-    ComboBox that displays nested-model structures.
+    ComboBox  whose contents are determined by the contents of a
+    :py:obj:`qconcurrency.models.DictModel`. The widget's contents are
+    updated whenever the modelchanges.
 
-    This widget does not directly use the modelview,
-    but it does get updated when the model changes.
 
-    .. warning::
+    Example:
 
-        In order to select an item in the combobox, you must
-        provide the model-index to the item you want, which is
-        a bit ackward.
+        .. image:: ../media/qconcurrency.widgets.DictModelQComboBox.png
+
     """
     def __init__(self, dictmodel, indexinfo={'id':'_id','name':'name'} ):
         """
@@ -217,6 +216,10 @@ class DictModelQComboBox( QtWidgets.QComboBox ):
         return indexinfo
 
     def get_modelindex_from_index(self, index):
+        """
+        Returns the :py:obj:`QtCore.QModelIndex` corresponding
+        to the item with a :py:obj:`QtWidgets.QComboBox` index.
+        """
         return self._modelindexes[ index ]
 
 

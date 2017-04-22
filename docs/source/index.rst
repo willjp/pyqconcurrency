@@ -14,3 +14,6 @@ pyqconcurrency documentation
 * :ref:`modindex`
 * :ref:`genindex`
 * :ref:`search`
+
+
+github page: https://github.com/willjp/pyqconcurrency

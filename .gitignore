@@ -3,3 +3,5 @@ docs/build/*
 docs/source/_api/*
 .tox/*
 *.egg-info/*
+build/*
+dist/*
