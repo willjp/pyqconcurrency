@@ -88,7 +88,6 @@ def SignalManagerFactory( signals, queue_stop=None ):
 
     class_ = (
         'from Qt import QtCore \n'
-        #'class SignalManager( SignalManager ):\n'
         'class SignalManager( QtCore.QObject ):\n'
     )
 
@@ -113,12 +112,13 @@ def SignalManagerFactory( signals, queue_stop=None ):
 
     # self._signals
     class_ += (
-        '    def __init__(self, _id=None, queue_stop=None ): \n'
+        '    def __init__(self, _id=None, signals=None, queue_stop=None ): \n'
         '        QtCore.QObject.__init__(self)               \n'
         '                                                    \n'
         '        self._id              = _id                 \n'
         '        self._queue_stop      = queue_stop          \n'
         '        self._abort_requested = False               \n'
+        '        self._signals_arg     = signals             \n'
         '        self._signals         = {                   \n'
     )
     for signal in signals:
@@ -127,50 +127,45 @@ def SignalManagerFactory( signals, queue_stop=None ):
 
     # methods
     class_ += (
-        '    def _request_abort(self):                                      \n'
-        '        """                                                        \n'
-        '        Private method that sets attr :py:attr:`_abort_requested`. \n'
-        '        Designed to be connected to a signal.                      \n'
-        '        """                                                        \n'
-        '        self._abort_requested = True                               \n'
-        '                                                                   \n'
-        '    def handle_if_abort(self):                                     \n'
-        '        """                                                        \n'
-        '        Checks if an abort has been requested. If so,              \n'
-        '        raises :py:obj:`UserCancelledOperation`                    \n'
-        '                                                                   \n'
-        '        Raises:                                                    \n'
-        '            :py:obj:`UserCancelledOperation`                       \n'
-        '        """                                                        \n'
-        '                                                                   \n'
-        '        # if self._request_abort() has been called                 \n'
-        '        if self._abort_requested:                                  \n'
-        '            raise UserCancelledOperation()                         \n'
-        '                                                                   \n'
-        '                                                                   \n'
-        '        # for SoloThreadedTask                                     \n'
-        '        if self._queue_stop and self._id:                          \n'
-        '            while not self._queue_stop.empty():                    \n'
-        '               stop_id = self._queue_stop.get()                    \n'
-        '               if stop_id == self._id:                             \n'
-        '                   raise UserCancelledOperation()                  \n'
-        '                                                                   \n'
-        '    def signals(self):                                             \n'
-        '        """                                                        \n'
-        '        Returns a dictionary of signal-names, and the signal       \n'
-        '        they represent.                                            \n'
-        '                                                                   \n'
-        '        Returns:                                                   \n'
-        '                                                                   \n'
-        '            .. code-block:: python                                 \n'
-        '                                                                   \n'
-        '                {                                                  \n'
-        '                    "returned":  QtCore.Signal(),                  \n'
-        '                    "exception": QtCore.Signal(tuple)              \n'
-        '                    ...                                            \n'
-        '                }                                                  \n'
-        '        """                                                        \n'
-        '        return self._signals                                       \n'
+        '    def _request_abort(self):                                              \n'
+        '        """                                                                \n'
+        '        Private method that sets attr :py:attr:`_abort_requested`.         \n'
+        '        Designed to be connected to a signal.                              \n'
+        '        """                                                                \n'
+        '        self._abort_requested = True                                       \n'
+        '                                                                           \n'
+        '    def handle_if_abort(self, msg=None):                                   \n'
+        '        """                                                                \n'
+        '        Checks if an abort has been requested. If so,                      \n'
+        '        raises :py:obj:`UserCancelledOperation`                            \n'
+        '                                                                           \n'
+        '        Raises:                                                            \n'
+        '            :py:obj:`UserCancelledOperation`                               \n'
+        '        """                                                                \n'
+        '        if not msg:                                                        \n'
+        '            msg = ""                                                       \n'
+        '                                                                           \n'
+        '        # if self._request_abort() has been called                         \n'
+        '        if self._abort_requested:                                          \n'
+        '            raise UserCancelledOperation( msg )                            \n'
+        '                                                                           \n'
+        '                                                                           \n'
+        '    def signals(self):                                                     \n'
+        '        """                                                                \n'
+        '        Returns a dictionary of signal-names, and the signal               \n'
+        '        they represent.                                                    \n'
+        '                                                                           \n'
+        '        Returns:                                                           \n'
+        '                                                                           \n'
+        '            .. code-block:: python                                         \n'
+        '                                                                           \n'
+        '                {                                                          \n'
+        '                    "returned":  QtCore.Signal(),                          \n'
+        '                    "exception": QtCore.Signal(tuple)                      \n'
+        '                    ...                                                    \n'
+        '                }                                                          \n'
+        '        """                                                                \n'
+        '        return self._signals                                               \n'
     )
 
 
@@ -323,11 +318,8 @@ class ThreadedTask( QtCore.QRunnable ):
             'returned':        None,
             'exception':       tuple,
             'abort_requested': None,
-            'add_progress':    int,
-            'incr_progress':   int,
         }
         self._signals.update( signals )
-
 
         self._signalmgr = SignalManagerFactory( self._signals )
 
@@ -427,9 +419,10 @@ class SoloThreadedTask( QtCore.QObject ):
             class MyList( QtWidgets.QListWidget ):
                 def __init__(self):
                     self._thread_loading = SoloThreadedTask(
-                        callback = self._find_list_items,
+                        callback    = self._find_list_items,
+                        signals     = {'add_item': str},
+                        connections = {'add_item': [self.addItem] },
                     )
-                    self._thread_loading.signal('add_item').connect( self.addItem )
 
                 def load(self):
                     #
@@ -452,7 +445,43 @@ class SoloThreadedTask( QtCore.QObject ):
         * :py:obj:`qconcurrency.threading.ThreadedTask`
 
     """
-    def __init__(self, callback, signals=None, mutex_expiry=5000 ):
+    def __init__(self, callback, signals=None, connections=None, mutex_expiry=5000 ):
+        """
+        Args:
+            callback (callable):
+                A function, method, or class that you would like to run in
+                a separate thread.
+
+            signals (dict, optional):
+                Dictionary of signal-names, and the datatypes they will emit.
+                Signals defined here will override any default signals.
+
+                .. code-block:: python
+
+                    {
+                        # signal-name #  # datatype #   # equivalent-to #
+
+                        'add_item':       (int,str),    #: QtCore.Signal(int,str)
+                        'add_progress':   int,          #: QtCore.Signal(int)
+                        'returned':       None,         #: QtCore.Signal()
+                    }
+
+            connections (dict, optional):
+                Dictionary of signal-names, and a list of python-collables you
+                would like to connect to the signal.
+
+                .. code-block:: python
+
+                    {
+                        'add_item':     [ printargs, mylist.addItem ],
+                        'add_progress': [ progbar.add_progress, ],
+                        ...
+                    }
+
+            *args/**kwds:
+                Any additional arguments/keyword-arguments are passed
+                to the callback in :py:meth:`run`
+        """
         QtCore.QObject.__init__(self)
 
         # Args
@@ -472,6 +501,8 @@ class SoloThreadedTask( QtCore.QObject ):
         if signals:
             self._signals.update( signals )
 
+        self._connections = connections
+
 
         # locks
         self._mutex_loading    = QtCore.QMutex()
@@ -487,16 +518,24 @@ class SoloThreadedTask( QtCore.QObject ):
 
         task = ThreadedTask(
             callback = self._run,
-            signals  = self._signals,
+            signals = self._signals,
 
             # args/kwds
             threadId = threadId,
             *args, **kwds
         )
+        self._active_threads[ threadId ] = task.request_abort
+
+
+        # setup all user-defined connections
+        if self._connections:
+            for signal_name in self._connections:
+                for callback in self._connections[ signal_name ]:
+                    task.signal( signal_name ).connect( callback, QtCore.Qt.DirectConnection )
+
+
         task.signal('thread_acquired_mutex').connect( self._set_active_threadId,   QtCore.Qt.DirectConnection )
         task.signal('_thread_exit_').connect(         self._set_complete_threadId, QtCore.Qt.DirectConnection )
-
-        self._active_threads[ threadId ] = task.request_abort
 
         task.start( expiryTimeout=expiryTimeout, threadpool=threadpool )
 
@@ -601,15 +640,20 @@ if __name__ == '__main__':
     def test_solo_threadedtask():
         def long_running_job( thread_num, signalmgr=None ):
             print( '[%s] thread started'  % thread_num )
+            signalmgr.print_txt.emit('test signal')
             for i in range(3):
                 print( '[%s] thread step %s/3' % (thread_num, i+1) )
                 signalmgr.handle_if_abort()
                 time.sleep(1)
             print( '[%s] thread finished' % thread_num )
 
+        def printtxt(msg):
+            print(msg)
 
         solotask = SoloThreadedTask(
-            callback = long_running_job,
+            callback    = long_running_job,
+            signals     = {'print_txt':str},
+            connections = {'print_txt':[printtxt]},
         )
 
         # every 1s, cancel current job with
