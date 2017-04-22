@@ -11,7 +11,6 @@ Description :   A QMenu, designed to work with a `DictModel`
                 with changes from the model it is representing.
 ________________________________________________________________________________
 """
-
 #builtin
 from   __future__           import unicode_literals
 from   __future__           import absolute_import
@@ -26,14 +25,34 @@ from   Qt.QtWidgets         import QSizePolicy
 #internal
 from   qconcurrency.models  import DictModel
 
-#!TODO: test updates to model update qmenu
+
 
 class DictModelQMenu( QtWidgets.QMenu ):
     """
-    QMenu, that dynamically gets rebuilt every time it is called.
-    It's contents are determined by a :py:obj:`DictModel`.
+    QMenu, whose actions/submenus are based/rebuilt from
+    a :py:obj:`DictModel`. There are 2x display methods:
 
-    :py:obj:`DictModel` sub-tables are represented as sub-menus.
+        * `indented`: every :py:obj:`DictModelRow` in the model is
+                      a action. Items in nested-tables are indented,
+                      and positioned under their parent.
+
+        * `submenu`:  :py:obj:`DictModelRow` s that contain
+                      child-tables are presented as submenus.
+                      Only bottom-level :py:obj:`DictModelRow`
+                      items are actions.
+
+
+    Example:
+
+        .. figure:: ../media/qconcurrency.widgets.DictModelQMenu_indented.png
+
+            ``menustyle='indented'``
+
+
+        .. figure:: ../media/qconcurrency.widgets.DictModelQMenu_submenu.png
+
+            ``menustyle='submenu'``
+
     """
     triggered_row = QtCore.Signal( QtCore.QModelIndex )
     def __init__(self, dictmodel, menustyle='submenu', indexinfo={'id':'_id','name':'name'} ):
@@ -80,6 +99,9 @@ class DictModelQMenu( QtWidgets.QMenu ):
         self._dictmodel = dictmodel
         self._indexinfo = indexinfo
         self._menustyle = menustyle
+        self._submenus  = {}         # { uuid : submenu-widget }
+                                     # (simply keeps references to qmenus so
+                                     # they are note deleted when scope ends)
 
         # Connections
         self._dictmodel.itemChanged.connect( self._handle_modelchange )
@@ -99,9 +121,11 @@ class DictModelQMenu( QtWidgets.QMenu ):
             )
 
     def _create_submenu_actions(self, baseitem=None, submenu_of=None ):
+
         if baseitem is None:
             self.clear()
-            baseitem = self._dictmodel
+            self._submenus = {}
+            baseitem       = self._dictmodel
 
 
         for key in baseitem.keys():
@@ -115,11 +139,14 @@ class DictModelQMenu( QtWidgets.QMenu ):
             menu = None
             if modelitem.rowCount():
                 menu = QtWidgets.QMenu( title=name )
+                self._submenus[ uuid.uuid4().hex ] = menu # keep reference on object, so not
+                                                          # deleted when method scope ends
             if menu:
                 if submenu_of:
                     submenu_of.addMenu( menu )
                 else:
                     self.addMenu( menu )
+
 
 
             # if modelitem does not have children,
@@ -231,7 +258,7 @@ if __name__ == '__main__':
 
 
 
-    #test_submenu_style()
-    test_indented_style()
+    test_submenu_style()
+    #test_indented_style()
 
 
