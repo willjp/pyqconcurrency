@@ -95,7 +95,7 @@
 <div class="viewcode-block" id="SignalManagerFactory"><a class="viewcode-back" href="../../_api/qconcurrency.threading.SignalManagerFactory.html#qconcurrency.threading.SignalManagerFactory">[docs]</a><span class="k">def</span> <span class="nf">SignalManagerFactory</span><span class="p">(</span> <span class="n">signals</span><span class="p">,</span> <span class="n">queue_stop</span><span class="o">=</span><span class="kc">None</span> <span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Dynamically creates a :py:obj:`SignalManager` class</span>
-<span class="sd">    with all required signals.</span>
+<span class="sd">    with all requested signals.</span>
 
 
 <span class="sd">    :py:obj:`SignalManager` objects are dynamically</span>
@@ -115,6 +115,26 @@
 <span class="sd">                def handle_if_abort(self):</span>
 <span class="sd">                    if self._abort_requested:</span>
 <span class="sd">                        raise UserCancelledOperation()</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        signals (dict, optional): ``(ex: {signal_name:emitted datatype(s)} )``</span>
+
+<span class="sd">            A dictionary of signal-names, and the datatypes</span>
+<span class="sd">            they will emit.</span>
+
+<span class="sd">            .. code-block:: python</span>
+
+<span class="sd">                {</span>
+<span class="sd">                    &#39;update_status&#39;: None,        # update_status = QtCore.Signal()</span>
+<span class="sd">                    &#39;log_message&#39;:  str,          # log_message   = QtCore.Signal(str)</span>
+<span class="sd">                    &#39;add_item&#39;:     (int, str),   # add_item      = QtCore.Signal(int, str)</span>
+<span class="sd">                }</span>
+
+<span class="sd">        queue_stop (queue.Queue, optional):</span>
+<span class="sd">            A queue that handles request-aborts. When</span>
+<span class="sd">            :py:obj:`SignalManager.handle_if_abort` is run,</span>
+<span class="sd">            if the queue contains this thread&#39;s assigned id,</span>
+<span class="sd">            then this thread will be stopped.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -455,8 +475,8 @@
 <span class="sd">    this :py:obj:`SoloThreadedTask`) whenever a new thread is requested (and all must exit</span>
 <span class="sd">    before the latest requested task is allowed to start ).</span>
 
-<span class="sd">    This might be useful for loading tasks such as a method that loads or filters</span>
-<span class="sd">    a widget&#39;s contents.</span>
+<span class="sd">    This might be useful for methods that load or filter the contents</span>
+<span class="sd">    of a widget.</span>
 
 <span class="sd">    Example:</span>
 

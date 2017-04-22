@@ -99,6 +99,15 @@
 
 <span class="sd">        Simple Example:</span>
 
+
+<span class="sd">        .. code-block:: bash</span>
+
+<span class="sd">            | _id | firstname | lastname  | username |</span>
+<span class="sd">            |========================================|</span>
+<span class="sd">            | 101 | luke      | skywalker | lukes    |</span>
+<span class="sd">            | 102 | leia      | skywalker | leias    |</span>
+<span class="sd">            |========================================|</span>
+
 <span class="sd">        .. code-block:: python</span>
 
 <span class="sd">            model = DictModel( columns=(&#39;firstname&#39;,&#39;lastname&#39;,&#39;username&#39;) )</span>
@@ -115,11 +124,34 @@
 <span class="sd">            &gt;&gt;&gt; &#39;luke&#39;</span>
 
 <span class="sd">            print( model[userId].columnvals() )</span>
-<span class="sd">            &gt;&gt;&gt; {&#39;firstname&#39;:&#39;luke&#39;, &#39;lastname&#39;:&#39;skywalker&#39;, &#39;username&#39;:&#39;lukes&#39;}</span>
+<span class="sd">            &gt;&gt;&gt; {&#39;_id&#39;:101, &#39;firstname&#39;:&#39;luke&#39;, &#39;lastname&#39;:&#39;skywalker&#39;, &#39;username&#39;:&#39;lukes&#39;}</span>
 
 
 
 <span class="sd">        Nested-Table Example:</span>
+
+<span class="sd">        .. code-block:: bash</span>
+
+<span class="sd">            |=============|</span>
+<span class="sd">            | _id | class |  # level: &#39;jedi_class&#39;</span>
+<span class="sd">            |=============|</span>
+<span class="sd">            | 101 | sith  |</span>
+<span class="sd">            |  |===========================================|</span>
+<span class="sd">            |  | _id | firstname  | lastname   | username  | # level: &#39;user&#39;</span>
+<span class="sd">            |  |===========================================|</span>
+<span class="sd">            |  | 56  | Darth      | Vader      | anakins   |</span>
+<span class="sd">            |  | 57  | Darth      | Maul       | darthm    |</span>
+<span class="sd">            |  |===========================================|</span>
+<span class="sd">            |             |</span>
+<span class="sd">            | 102 | jedi  |</span>
+<span class="sd">            |  |===========================================|</span>
+<span class="sd">            |  | _id | firstname  | lastname   | username  | # level: &#39;user&#39;</span>
+<span class="sd">            |  |===========================================|</span>
+<span class="sd">            |  | 58  | Mace       | Windu      | macew     |</span>
+<span class="sd">            |  | 59  | Ben        | Kenobi     | benk      |</span>
+<span class="sd">            |  |===========================================|</span>
+<span class="sd">            |             |</span>
+<span class="sd">            |=============|</span>
 
 <span class="sd">        .. code-block:: python</span>
 
@@ -140,6 +172,30 @@
 <span class="sd">            userId      =  56</span>
 <span class="sd">            print( model[jediclassId][userId].column(&#39;username&#39;) )</span>
 <span class="sd">            &gt;&gt;&gt; &#39;anakins&#39;</span>
+
+<span class="sd">            print( model[jediclassId].level() )</span>
+<span class="sd">            &gt;&gt;&gt; &#39;jedi_class&#39;</span>
+
+<span class="sd">            print( model[jediclassId][userId].level() )</span>
+<span class="sd">            &gt;&gt;&gt; &#39;user&#39;</span>
+
+
+<span class="sd">        :py:obj:`qconcurrency.models.DictModel`  column datatypes</span>
+
+<span class="sd">        .. code-block:: bash</span>
+
+<span class="sd">            |===============================================|</span>
+<span class="sd">            | _id          | columnA        | columnB       |</span>
+<span class="sd">            |===============================================|</span>
+<span class="sd">            | DictModelRow |  QStandardItem | QStandardItem |</span>
+<span class="sd">            |   |===============================================|</span>
+<span class="sd">            |   | _id          | columnA        | columnB       |</span>
+<span class="sd">            |   |===============================================|</span>
+<span class="sd">            |   | DictModelRow |  QStandardItem | QStandardItem |</span>
+<span class="sd">            |   |===============================================|</span>
+<span class="sd">            |                                               |</span>
+<span class="sd">            |===============================================|</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
 <div class="viewcode-block" id="DictModel.__init__"><a class="viewcode-back" href="../../_api/qconcurrency.models.DictModel.html#qconcurrency.models.DictModel.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">columns</span><span class="p">,</span> <span class="n">hierarchy</span><span class="o">=</span><span class="kc">None</span> <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -163,7 +219,7 @@
 
 <span class="sd">            hierarchy (list, optional):  ``(ex:  (&#39;department_type&#39;,&#39;department&#39;)  )``</span>
 <span class="sd">                A list that labels what type of data is stored at each</span>
-<span class="sd">                level of table-nesting in this :py:obj:`DictModel`. Each item</span>
+<span class="sd">                level of table-nesting in this :py:obj:`qconcurrency.models.DictModel`. Each item</span>
 <span class="sd">                indicates another level of nesting.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -229,8 +285,8 @@
 
     <span class="k">def</span> <span class="nf">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Returns a :py:obj:`DictModelRow` object representing</span>
-<span class="sd">        a row from this :py:obj:`DictModel`.</span>
+<span class="sd">        Returns a :py:obj:`qconcurrency.models.DictModelRow` object representing</span>
+<span class="sd">        a row from this :py:obj:`qconcurrency.models.DictModel`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_rowitem</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
 
@@ -246,12 +302,12 @@
 
 <span class="sd">            columnvals (dict, optional):</span>
 <span class="sd">                Optionally, you may provide a dictionary of column-val assignments</span>
-<span class="sd">                (appropriate to this item&#39;s table-level) as determined by the `columns`</span>
-<span class="sd">                argument to :py:meth:`DictModel.__init__`</span>
+<span class="sd">                (appropriate to this item&#39;s table-level). All columns, not</span>
+<span class="sd">                assigned in `columnvals` will be initialized with a value of &#39;&#39;.</span>
 
 
 <span class="sd">        Returns:</span>
-<span class="sd">            :py:obj:`DictModelRow`</span>
+<span class="sd">            :py:obj:`qconcurrency.models.DictModelRow`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">set_columnvals</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_defaultcolumnvals</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
@@ -267,11 +323,11 @@
 <div class="viewcode-block" id="DictModel.columns"><a class="viewcode-back" href="../../_api/qconcurrency.models.DictModel.html#qconcurrency.models.DictModel.columns">[docs]</a>    <span class="k">def</span> <span class="nf">columns</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="kc">None</span> <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns the columns for a particular level of nested-table</span>
-<span class="sd">        within this :py:obj:`DictModel`.</span>
+<span class="sd">        within this :py:obj:`qconcurrency.models.DictModel`.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            level (obj):</span>
-<span class="sd">                If a `hierarchy` was assigned to this :py:obj:`DictModel`,</span>
+<span class="sd">                If a `hierarchy` was assigned to this :py:obj:`qconcurrency.models.DictModel`,</span>
 <span class="sd">                this will be a label from it. Otherwise, this will be an integer</span>
 <span class="sd">                indicating the level-of-nesting (and it will be ignored).</span>
 
@@ -285,7 +341,7 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hierarchy</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">level</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
-                    <span class="s1">&#39;This `DictModel` was created with different columns at &#39;</span>
+                    <span class="s1">&#39;This `qconcurrency.models.DictModel` was created with different columns at &#39;</span>
                     <span class="s1">&#39;different levels. You</span><span class="se">\&#39;</span><span class="s1">ll need to provide the `level` you are &#39;</span>
                     <span class="s1">&#39;interested in to get the column-list &#39;</span>
                 <span class="p">)</span>
@@ -312,10 +368,11 @@
 <div class="viewcode-block" id="DictModel.default_columnvals"><a class="viewcode-back" href="../../_api/qconcurrency.models.DictModel.html#qconcurrency.models.DictModel.default_columnvals">[docs]</a>    <span class="k">def</span> <span class="nf">default_columnvals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="kc">None</span> <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns the default-columnvals for a particular level of nested-table.</span>
+<span class="sd">        See :py:meth:`qconcurrency.models.DictModelRow.level`</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            level (obj):</span>
-<span class="sd">                If a `hierarchy` was assigned to this :py:obj:`DictModel`,</span>
+<span class="sd">                If a `hierarchy` was assigned to this :py:obj:`qconcurrency.models.DictModel`,</span>
 <span class="sd">                this will be a label from it. Otherwise, this will be an integer</span>
 <span class="sd">                indicating the level-of-nesting (and it will be ignored).</span>
 
@@ -338,7 +395,14 @@
 <div class="viewcode-block" id="DictModel.hierarchy"><a class="viewcode-back" href="../../_api/qconcurrency.models.DictModel.html#qconcurrency.models.DictModel.hierarchy">[docs]</a>    <span class="k">def</span> <span class="nf">hierarchy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns the model&#39;s hierarchy tuple</span>
-<span class="sd">        (if one has been assigned in :py:obj:`DictModel.__init__`)</span>
+<span class="sd">        (if one has been assigned in :py:obj:`qconcurrency.models.DictModel.__init__`)</span>
+
+<span class="sd">        Returns:</span>
+
+<span class="sd">            .. code-block:: python</span>
+
+<span class="sd">                (&#39;jedi_class&#39;, &#39;user&#39;) # if assigned a hierarchy</span>
+<span class="sd">                None                   # if no hierarchy is assigned</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hierarchy</span></div>
 
@@ -382,19 +446,26 @@
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_columns</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">column</span><span class="p">)</span> <span class="o">+</span><span class="mi">1</span>
 
         <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span>
-            <span class="s1">&#39;Column &quot;</span><span class="si">%s</span><span class="s1">&quot; does not exist in this `DictModel` columns: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span>
+            <span class="s1">&#39;Column &quot;</span><span class="si">%s</span><span class="s1">&quot; does not exist in this `qconcurrency.models.DictModel` columns: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span>
                 <span class="n">column</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_columns</span><span class="p">)</span>
             <span class="p">)</span>
         <span class="p">)</span>
 
 <div class="viewcode-block" id="DictModel.keys"><a class="viewcode-back" href="../../_api/qconcurrency.models.DictModel.html#qconcurrency.models.DictModel.keys">[docs]</a>    <span class="k">def</span> <span class="nf">keys</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Returns list containig keys for every</span>
-<span class="sd">        row that has been added to this :py:obj:`DictModel` s root</span>
+<span class="sd">        Returns list containing keys for every</span>
+<span class="sd">        row that has been added to this :py:obj:`qconcurrency.models.DictModel` s root</span>
+
+<span class="sd">        Returns:</span>
+
+<span class="sd">            .. code-block:: python</span>
+
+<span class="sd">                [ 1, 2, 3, 5, 8, ... ]</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">keys</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rowCount</span><span class="p">()):</span>
-            <span class="n">keys</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">item</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">text</span><span class="p">()</span> <span class="p">)</span>
+            <span class="n">keys</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">item</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">id</span><span class="p">()</span> <span class="p">)</span>
         <span class="k">return</span> <span class="n">keys</span></div></div>
 
 
@@ -402,10 +473,30 @@
 <div class="viewcode-block" id="DictModelRow"><a class="viewcode-back" href="../../_api/qconcurrency.models.DictModelRow.html#qconcurrency.models.DictModelRow">[docs]</a><span class="k">class</span> <span class="nc">DictModelRow</span><span class="p">(</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QStandardItem</span> <span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A DictModelRow is a :py:obj:`QtGui.QStandardItem` that holds</span>
-<span class="sd">    an item&#39;s key (usually database-Id). It is always added to</span>
-<span class="sd">    a :py:obj:`DictModel` at the column-index ``0``. When setting</span>
-<span class="sd">    columnvals, they are added to the same parent, but at different</span>
-<span class="sd">    column-indexes.</span>
+<span class="sd">    an item&#39;s key (usually database-Id) within a :py:obj:`qconcurrency.models.DictModel`.</span>
+<span class="sd">    It is always added to a :py:obj:`qconcurrency.models.DictModel` at the column-index ``0``.</span>
+<span class="sd">    When setting columnvals, they are added to the same parent :py:obj:`qconcurrency.models.DictModel`</span>
+<span class="sd">    or :py:obj:`qconcurrency.models.DictModelRow`, but at different column-indexes.</span>
+
+
+<span class="sd">    Example:</span>
+
+<span class="sd">        .. code-block:: bash</span>
+
+<span class="sd">                            ===== ========|</span>
+<span class="sd">            DictModelRow     _id  | class |  # level: &#39;jedi_class&#39;</span>
+<span class="sd">                 |          ===== ========|</span>
+<span class="sd">                 +---------&gt; 101  | sith  |</span>
+<span class="sd">                 |            |============================================|</span>
+<span class="sd">                 |            |  _id | firstname  | lastname   | username  | # level: &#39;user&#39;</span>
+<span class="sd">                 |            |============================================|</span>
+<span class="sd">                 +-------------&gt; 56  | Darth      | Vader      | anakins   |</span>
+<span class="sd">                 +-------------&gt; 57  | Darth      | Maul       | darthm    |</span>
+<span class="sd">                              |============================================|</span>
+<span class="sd">                                        /\\           /\\            /\\</span>
+<span class="sd">                                        |            |             |</span>
+<span class="sd">               QtGui.QStandardItem  ----+------------+-------------+</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
 <div class="viewcode-block" id="DictModelRow.__init__"><a class="viewcode-back" href="../../_api/qconcurrency.models.DictModelRow.html#qconcurrency.models.DictModelRow.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">columnvals</span><span class="o">=</span><span class="kc">None</span> <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -475,6 +566,23 @@
 <span class="sd">        Adds a new row to this DictModel, at a new level of nesting</span>
 <span class="sd">        henceforth referred to by the key `key`.</span>
 
+<span class="sd">        Example:</span>
+
+<span class="sd">            .. code-block:: bash</span>
+
+<span class="sd">                |==============|</span>
+<span class="sd">                | _id | column |</span>
+<span class="sd">                |==============|</span>
+<span class="sd">                | 100 | &#39;A&#39;    |     # add_child( 102, {&#39;column&#39;:&#39;A1&#39;} )</span>
+<span class="sd">                |   |==============|</span>
+<span class="sd">                |   | _id | column | # added child:  model[100][102]</span>
+<span class="sd">                |   |==============|</span>
+<span class="sd">                |   | 102 | &#39;A1&#39;   |</span>
+<span class="sd">                |   |==============|</span>
+<span class="sd">                |              |</span>
+<span class="sd">                | 101 | &#39;B&#39;    |</span>
+<span class="sd">                |==============|</span>
+
 <span class="sd">        Args:</span>
 <span class="sd">            key (obj):</span>
 <span class="sd">                Key is the id you will use to refer to this object.</span>
@@ -484,15 +592,15 @@
 <span class="sd">            columnvals (dict, optional):</span>
 <span class="sd">                Optionally, you may provide a dictionary of column-val assignments</span>
 <span class="sd">                (appropriate to this item&#39;s table-level) as determined by the `columns`</span>
-<span class="sd">                argument to :py:meth:`DictModel.__init__`</span>
+<span class="sd">                argument to :py:meth:`qconcurrency.models.DictModel.__init__`</span>
 
 
 <span class="sd">        Returns:</span>
-<span class="sd">            :py:obj:`DictModelRow`</span>
+<span class="sd">            :py:obj:`qconcurrency.models.DictModelRow`</span>
 
 <span class="sd">        See Also:</span>
-<span class="sd">            * :py:meth:`DictModelRow.add_row`</span>
-<span class="sd">            * :py:meth:`DictModel.add_row`</span>
+<span class="sd">            * :py:meth:`qconcurrency.models.DictModelRow.add_row`</span>
+<span class="sd">            * :py:meth:`qconcurrency.models.DictModel.add_row`</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">item</span> <span class="o">=</span> <span class="n">DictModelRow</span><span class="p">(</span> <span class="n">parent</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">key</span><span class="p">,</span> <span class="n">columnvals</span><span class="o">=</span><span class="n">columnvals</span> <span class="p">)</span>
@@ -503,6 +611,19 @@
 <span class="sd">        Adds a new row to this DictModel, at the same level of nesting</span>
 <span class="sd">        henceforth referred to by the key `key`.</span>
 
+<span class="sd">        Example:</span>
+
+<span class="sd">            .. code-block:: bash</span>
+
+<span class="sd">                |==============|</span>
+<span class="sd">                | _id | column |</span>
+<span class="sd">                |==============|</span>
+<span class="sd">                | 100 | &#39;A&#39;    | # add_row( 102, {&#39;column&#39;:&#39;C&#39;} )</span>
+<span class="sd">                | 101 | &#39;B&#39;    |</span>
+<span class="sd">                | 102 | &#39;C&#39;    | # added row: model[102]</span>
+<span class="sd">                |==============|</span>
+
+
 <span class="sd">        Args:</span>
 <span class="sd">            key (obj):</span>
 <span class="sd">                Key is the id you will use to refer to this object.</span>
@@ -512,15 +633,15 @@
 <span class="sd">            columnvals (dict, optional):</span>
 <span class="sd">                Optionally, you may provide a dictionary of column-val assignments</span>
 <span class="sd">                (appropriate to this item&#39;s table-level) as determined by the `columns`</span>
-<span class="sd">                argument to :py:meth:`DictModel.__init__`</span>
+<span class="sd">                argument to :py:meth:`qconcurrency.models.DictModel.__init__`</span>
 
 
 <span class="sd">        Returns:</span>
-<span class="sd">            :py:obj:`DictModelRow`</span>
+<span class="sd">            :py:obj:`qconcurrency.models.DictModelRow`</span>
 
 <span class="sd">        See Also:</span>
-<span class="sd">            * :py:meth:`DictModelRow.add_row`</span>
-<span class="sd">            * :py:meth:`DictModel.add_row`</span>
+<span class="sd">            * :py:meth:`qconcurrency.models.DictModelRow.add_row`</span>
+<span class="sd">            * :py:meth:`qconcurrency.models.DictModel.add_row`</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">():</span>
@@ -532,7 +653,7 @@
 
 <div class="viewcode-block" id="DictModelRow.set_columnvals"><a class="viewcode-back" href="../../_api/qconcurrency.models.DictModelRow.html#qconcurrency.models.DictModelRow.set_columnvals">[docs]</a>    <span class="k">def</span> <span class="nf">set_columnvals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">columnvals</span> <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Set columnvals on a key of this :py:obj:`DictModel`</span>
+<span class="sd">        Set columnvals on a key of this :py:obj:`qconcurrency.models.DictModel`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="c1"># validation</span>
@@ -604,7 +725,7 @@
 
 <div class="viewcode-block" id="DictModelRow.level"><a class="viewcode-back" href="../../_api/qconcurrency.models.DictModelRow.html#qconcurrency.models.DictModelRow.level">[docs]</a>    <span class="k">def</span> <span class="nf">level</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Returns either a label (if :py:meth:`DictModel.__init__` was passed a</span>
+<span class="sd">        Returns either a label (if :py:meth:`qconcurrency.models.DictModel.__init__` was passed a</span>
 <span class="sd">        `hierarchy` argument), or an integer representing the nesting-depth.</span>
 <span class="sd">        Either way, level is used to indicate the level-of-nesting of the table</span>
 <span class="sd">        that this item is in.</span>
@@ -697,7 +818,7 @@
 <div class="viewcode-block" id="DictModelRow.keys"><a class="viewcode-back" href="../../_api/qconcurrency.models.DictModelRow.html#qconcurrency.models.DictModelRow.keys">[docs]</a>    <span class="k">def</span> <span class="nf">keys</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns list containig keys for every</span>
-<span class="sd">        child-row that has been added to this :py:obj:`DictModelRow`</span>
+<span class="sd">        child-row that has been added to this :py:obj:`qconcurrency.models.DictModelRow`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">keys</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rowCount</span><span class="p">()):</span>
@@ -707,8 +828,8 @@
 <div class="viewcode-block" id="DictModelRow.id"><a class="viewcode-back" href="../../_api/qconcurrency.models.DictModelRow.html#qconcurrency.models.DictModelRow.id">[docs]</a>    <span class="k">def</span> <span class="nf">id</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns the `key` this row represents.</span>
-<span class="sd">        (It&#39;s value depends on the value passed to :py:meth:`DictModelRow.add_row`</span>
-<span class="sd">        or :py:meth:`DictModelRow.add_child` ).</span>
+<span class="sd">        (It&#39;s value depends on the value passed to :py:meth:`qconcurrency.models.DictModelRow.add_row`</span>
+<span class="sd">        or :py:meth:`qconcurrency.models.DictModelRow.add_child` ).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_key</span></div></div>
 

@@ -101,8 +101,8 @@
 <p><code class="xref py py-obj docutils literal"><span class="pre">ThreadedTask</span></code> that cancels all of it&#8217;s running/pending threads (started by
 this <code class="xref py py-obj docutils literal"><span class="pre">SoloThreadedTask</span></code>) whenever a new thread is requested (and all must exit
 before the latest requested task is allowed to start ).</p>
-<p>This might be useful for loading tasks such as a method that loads or filters
-a widget&#8217;s contents.</p>
+<p>This might be useful for methods that load or filter the contents
+of a widget.</p>
 <p class="rubric">Example</p>
 <div class="highlight-python"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">MyList</span><span class="p">(</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QListWidget</span> <span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>

@@ -96,10 +96,10 @@
 <td>Returns list containig keys for every</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="#qconcurrency.models.DictModelRow.level" title="qconcurrency.models.DictModelRow.level"><code class="xref py py-obj docutils literal"><span class="pre">qconcurrency.models.DictModelRow.level</span></code></a>()</td>
-<td>Returns either a label (if <code class="xref py py-meth docutils literal"><span class="pre">DictModel.__init__()</span></code> was passed a <cite>hierarchy</cite> argument), or an integer representing the nesting-depth.</td>
+<td>Returns either a label (if <a class="reference internal" href="qconcurrency.models.DictModel.html#qconcurrency.models.DictModel.__init__" title="qconcurrency.models.DictModel.__init__"><code class="xref py py-meth docutils literal"><span class="pre">qconcurrency.models.DictModel.__init__()</span></code></a> was passed a <cite>hierarchy</cite> argument), or an integer representing the nesting-depth.</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="#qconcurrency.models.DictModelRow.set_columnvals" title="qconcurrency.models.DictModelRow.set_columnvals"><code class="xref py py-obj docutils literal"><span class="pre">qconcurrency.models.DictModelRow.set_columnvals</span></code></a>(...)</td>
-<td>Set columnvals on a key of this <code class="xref py py-obj docutils literal"><span class="pre">DictModel</span></code></td>
+<td>Set columnvals on a key of this <a class="reference internal" href="qconcurrency.models.DictModel.html#qconcurrency.models.DictModel" title="qconcurrency.models.DictModel"><code class="xref py py-obj docutils literal"><span class="pre">qconcurrency.models.DictModel</span></code></a></td>
 </tr>
 </tbody>
 </table>
@@ -111,10 +111,26 @@
 <em class="property">class </em><code class="descclassname">qconcurrency.models.</code><code class="descname">DictModelRow</code><span class="sig-paren">(</span><em>parent</em>, <em>key</em>, <em>columnvals=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qconcurrency/models.html#DictModelRow"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qconcurrency.models.DictModelRow" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">PySide.QtGui.QStandardItem</span></code></p>
 <p>A DictModelRow is a <code class="xref py py-obj docutils literal"><span class="pre">QtGui.QStandardItem</span></code> that holds
-an item&#8217;s key (usually database-Id). It is always added to
-a <code class="xref py py-obj docutils literal"><span class="pre">DictModel</span></code> at the column-index <code class="docutils literal"><span class="pre">0</span></code>. When setting
-columnvals, they are added to the same parent, but at different
-column-indexes.</p>
+an item&#8217;s key (usually database-Id) within a <a class="reference internal" href="qconcurrency.models.DictModel.html#qconcurrency.models.DictModel" title="qconcurrency.models.DictModel"><code class="xref py py-obj docutils literal"><span class="pre">qconcurrency.models.DictModel</span></code></a>.
+It is always added to a <a class="reference internal" href="qconcurrency.models.DictModel.html#qconcurrency.models.DictModel" title="qconcurrency.models.DictModel"><code class="xref py py-obj docutils literal"><span class="pre">qconcurrency.models.DictModel</span></code></a> at the column-index <code class="docutils literal"><span class="pre">0</span></code>.
+When setting columnvals, they are added to the same parent <a class="reference internal" href="qconcurrency.models.DictModel.html#qconcurrency.models.DictModel" title="qconcurrency.models.DictModel"><code class="xref py py-obj docutils literal"><span class="pre">qconcurrency.models.DictModel</span></code></a>
+or <a class="reference internal" href="#qconcurrency.models.DictModelRow" title="qconcurrency.models.DictModelRow"><code class="xref py py-obj docutils literal"><span class="pre">qconcurrency.models.DictModelRow</span></code></a>, but at different column-indexes.</p>
+<p class="rubric">Example</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>                <span class="o">=====</span> <span class="o">========</span><span class="p">|</span>
+DictModelRow     _id  <span class="p">|</span> class <span class="p">|</span>  <span class="c1"># level: &#39;jedi_class&#39;</span>
+     <span class="p">|</span>          <span class="o">=====</span> <span class="o">========</span><span class="p">|</span>
+     +---------&gt; <span class="m">101</span>  <span class="p">|</span> sith  <span class="p">|</span>
+     <span class="p">|</span>            <span class="p">|</span><span class="o">============================================</span><span class="p">|</span>
+     <span class="p">|</span>            <span class="p">|</span>  _id <span class="p">|</span> firstname  <span class="p">|</span> lastname   <span class="p">|</span> username  <span class="p">|</span> <span class="c1"># level: &#39;user&#39;</span>
+     <span class="p">|</span>            <span class="p">|</span><span class="o">============================================</span><span class="p">|</span>
+     +-------------&gt; <span class="m">56</span>  <span class="p">|</span> Darth      <span class="p">|</span> Vader      <span class="p">|</span> anakins   <span class="p">|</span>
+     +-------------&gt; <span class="m">57</span>  <span class="p">|</span> Darth      <span class="p">|</span> Maul       <span class="p">|</span> darthm    <span class="p">|</span>
+                  <span class="p">|</span><span class="o">============================================</span><span class="p">|</span>
+                            /<span class="se">\ </span>          /<span class="se">\ </span>           /<span class="se">\</span>
+                            <span class="p">|</span>            <span class="p">|</span>             <span class="p">|</span>
+   QtGui.QStandardItem  ----+------------+-------------+
+</pre></div>
+</div>
 <dl class="method">
 <dt id="qconcurrency.models.DictModelRow.__init__">
 <code class="descname">__init__</code><span class="sig-paren">(</span><em>parent</em>, <em>key</em>, <em>columnvals=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qconcurrency/models.html#DictModelRow.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qconcurrency.models.DictModelRow.__init__" title="Permalink to this definition">¶</a></dt>
@@ -144,6 +160,21 @@ in the view.</li>
 <code class="descname">add_child</code><span class="sig-paren">(</span><em>key</em>, <em>columnvals=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qconcurrency/models.html#DictModelRow.add_child"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qconcurrency.models.DictModelRow.add_child" title="Permalink to this definition">¶</a></dt>
 <dd><p>Adds a new row to this DictModel, at a new level of nesting
 henceforth referred to by the key <cite>key</cite>.</p>
+<p class="rubric">Example</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span><span class="p">|</span><span class="o">==============</span><span class="p">|</span>
+<span class="p">|</span> _id <span class="p">|</span> column <span class="p">|</span>
+<span class="p">|</span><span class="o">==============</span><span class="p">|</span>
+<span class="p">|</span> <span class="m">100</span> <span class="p">|</span> <span class="s1">&#39;A&#39;</span>    <span class="p">|</span>     <span class="c1"># add_child( 102, {&#39;column&#39;:&#39;A1&#39;} )</span>
+<span class="p">|</span>   <span class="p">|</span><span class="o">==============</span><span class="p">|</span>
+<span class="p">|</span>   <span class="p">|</span> _id <span class="p">|</span> column <span class="p">|</span> <span class="c1"># added child:  model[100][102]</span>
+<span class="p">|</span>   <span class="p">|</span><span class="o">==============</span><span class="p">|</span>
+<span class="p">|</span>   <span class="p">|</span> <span class="m">102</span> <span class="p">|</span> <span class="s1">&#39;A1&#39;</span>   <span class="p">|</span>
+<span class="p">|</span>   <span class="p">|</span><span class="o">==============</span><span class="p">|</span>
+<span class="p">|</span>              <span class="p">|</span>
+<span class="p">|</span> <span class="m">101</span> <span class="p">|</span> <span class="s1">&#39;B&#39;</span>    <span class="p">|</span>
+<span class="p">|</span><span class="o">==============</span><span class="p">|</span>
+</pre></div>
+</div>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -154,11 +185,11 @@ Generally it will be a databaseId. This object must be
 hashable.</li>
 <li><strong>columnvals</strong> (<em>dict</em><em>, </em><em>optional</em>) &#8211; Optionally, you may provide a dictionary of column-val assignments
 (appropriate to this item&#8217;s table-level) as determined by the <cite>columns</cite>
-argument to <code class="xref py py-meth docutils literal"><span class="pre">DictModel.__init__()</span></code></li>
+argument to <a class="reference internal" href="qconcurrency.models.DictModel.html#qconcurrency.models.DictModel.__init__" title="qconcurrency.models.DictModel.__init__"><code class="xref py py-meth docutils literal"><span class="pre">qconcurrency.models.DictModel.__init__()</span></code></a></li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><code class="xref py py-obj docutils literal"><span class="pre">DictModelRow</span></code></p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#qconcurrency.models.DictModelRow" title="qconcurrency.models.DictModelRow"><code class="xref py py-obj docutils literal"><span class="pre">qconcurrency.models.DictModelRow</span></code></a></p>
 </td>
 </tr>
 </tbody>
@@ -166,8 +197,8 @@ argument to <code class="xref py py-meth docutils literal"><span class="pre">Dic
 <div class="admonition seealso">
 <p class="first admonition-title">See also</p>
 <ul class="last simple">
-<li><code class="xref py py-meth docutils literal"><span class="pre">DictModelRow.add_row()</span></code></li>
-<li><code class="xref py py-meth docutils literal"><span class="pre">DictModel.add_row()</span></code></li>
+<li><a class="reference internal" href="#qconcurrency.models.DictModelRow.add_row" title="qconcurrency.models.DictModelRow.add_row"><code class="xref py py-meth docutils literal"><span class="pre">qconcurrency.models.DictModelRow.add_row()</span></code></a></li>
+<li><a class="reference internal" href="qconcurrency.models.DictModel.html#qconcurrency.models.DictModel.add_row" title="qconcurrency.models.DictModel.add_row"><code class="xref py py-meth docutils literal"><span class="pre">qconcurrency.models.DictModel.add_row()</span></code></a></li>
 </ul>
 </div>
 </dd></dl>
@@ -177,6 +208,16 @@ argument to <code class="xref py py-meth docutils literal"><span class="pre">Dic
 <code class="descname">add_row</code><span class="sig-paren">(</span><em>key</em>, <em>columnvals=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qconcurrency/models.html#DictModelRow.add_row"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qconcurrency.models.DictModelRow.add_row" title="Permalink to this definition">¶</a></dt>
 <dd><p>Adds a new row to this DictModel, at the same level of nesting
 henceforth referred to by the key <cite>key</cite>.</p>
+<p class="rubric">Example</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span><span class="p">|</span><span class="o">==============</span><span class="p">|</span>
+<span class="p">|</span> _id <span class="p">|</span> column <span class="p">|</span>
+<span class="p">|</span><span class="o">==============</span><span class="p">|</span>
+<span class="p">|</span> <span class="m">100</span> <span class="p">|</span> <span class="s1">&#39;A&#39;</span>    <span class="p">|</span> <span class="c1"># add_row( 102, {&#39;column&#39;:&#39;C&#39;} )</span>
+<span class="p">|</span> <span class="m">101</span> <span class="p">|</span> <span class="s1">&#39;B&#39;</span>    <span class="p">|</span>
+<span class="p">|</span> <span class="m">102</span> <span class="p">|</span> <span class="s1">&#39;C&#39;</span>    <span class="p">|</span> <span class="c1"># added row: model[102]</span>
+<span class="p">|</span><span class="o">==============</span><span class="p">|</span>
+</pre></div>
+</div>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -187,11 +228,11 @@ Generally it will be a databaseId. This object must be
 hashable.</li>
 <li><strong>columnvals</strong> (<em>dict</em><em>, </em><em>optional</em>) &#8211; Optionally, you may provide a dictionary of column-val assignments
 (appropriate to this item&#8217;s table-level) as determined by the <cite>columns</cite>
-argument to <code class="xref py py-meth docutils literal"><span class="pre">DictModel.__init__()</span></code></li>
+argument to <a class="reference internal" href="qconcurrency.models.DictModel.html#qconcurrency.models.DictModel.__init__" title="qconcurrency.models.DictModel.__init__"><code class="xref py py-meth docutils literal"><span class="pre">qconcurrency.models.DictModel.__init__()</span></code></a></li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><code class="xref py py-obj docutils literal"><span class="pre">DictModelRow</span></code></p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#qconcurrency.models.DictModelRow" title="qconcurrency.models.DictModelRow"><code class="xref py py-obj docutils literal"><span class="pre">qconcurrency.models.DictModelRow</span></code></a></p>
 </td>
 </tr>
 </tbody>
@@ -199,8 +240,8 @@ argument to <code class="xref py py-meth docutils literal"><span class="pre">Dic
 <div class="admonition seealso">
 <p class="first admonition-title">See also</p>
 <ul class="last simple">
-<li><code class="xref py py-meth docutils literal"><span class="pre">DictModelRow.add_row()</span></code></li>
-<li><code class="xref py py-meth docutils literal"><span class="pre">DictModel.add_row()</span></code></li>
+<li><a class="reference internal" href="#qconcurrency.models.DictModelRow.add_row" title="qconcurrency.models.DictModelRow.add_row"><code class="xref py py-meth docutils literal"><span class="pre">qconcurrency.models.DictModelRow.add_row()</span></code></a></li>
+<li><a class="reference internal" href="qconcurrency.models.DictModel.html#qconcurrency.models.DictModel.add_row" title="qconcurrency.models.DictModel.add_row"><code class="xref py py-meth docutils literal"><span class="pre">qconcurrency.models.DictModel.add_row()</span></code></a></li>
 </ul>
 </div>
 </dd></dl>
@@ -229,21 +270,21 @@ be the <cite>key</cite> value of this row.</p>
 <dt id="qconcurrency.models.DictModelRow.id">
 <code class="descname">id</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qconcurrency/models.html#DictModelRow.id"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qconcurrency.models.DictModelRow.id" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the <cite>key</cite> this row represents.
-(It&#8217;s value depends on the value passed to <code class="xref py py-meth docutils literal"><span class="pre">DictModelRow.add_row()</span></code>
-or <code class="xref py py-meth docutils literal"><span class="pre">DictModelRow.add_child()</span></code> ).</p>
+(It&#8217;s value depends on the value passed to <a class="reference internal" href="#qconcurrency.models.DictModelRow.add_row" title="qconcurrency.models.DictModelRow.add_row"><code class="xref py py-meth docutils literal"><span class="pre">qconcurrency.models.DictModelRow.add_row()</span></code></a>
+or <a class="reference internal" href="#qconcurrency.models.DictModelRow.add_child" title="qconcurrency.models.DictModelRow.add_child"><code class="xref py py-meth docutils literal"><span class="pre">qconcurrency.models.DictModelRow.add_child()</span></code></a> ).</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="qconcurrency.models.DictModelRow.keys">
 <code class="descname">keys</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qconcurrency/models.html#DictModelRow.keys"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qconcurrency.models.DictModelRow.keys" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns list containig keys for every
-child-row that has been added to this <code class="xref py py-obj docutils literal"><span class="pre">DictModelRow</span></code></p>
+child-row that has been added to this <a class="reference internal" href="#qconcurrency.models.DictModelRow" title="qconcurrency.models.DictModelRow"><code class="xref py py-obj docutils literal"><span class="pre">qconcurrency.models.DictModelRow</span></code></a></p>
 </dd></dl>
 
 <dl class="method">
 <dt id="qconcurrency.models.DictModelRow.level">
 <code class="descname">level</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qconcurrency/models.html#DictModelRow.level"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qconcurrency.models.DictModelRow.level" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns either a label (if <code class="xref py py-meth docutils literal"><span class="pre">DictModel.__init__()</span></code> was passed a
+<dd><p>Returns either a label (if <a class="reference internal" href="qconcurrency.models.DictModel.html#qconcurrency.models.DictModel.__init__" title="qconcurrency.models.DictModel.__init__"><code class="xref py py-meth docutils literal"><span class="pre">qconcurrency.models.DictModel.__init__()</span></code></a> was passed a
 <cite>hierarchy</cite> argument), or an integer representing the nesting-depth.
 Either way, level is used to indicate the level-of-nesting of the table
 that this item is in.</p>
@@ -252,7 +293,7 @@ that this item is in.</p>
 <dl class="method">
 <dt id="qconcurrency.models.DictModelRow.set_columnvals">
 <code class="descname">set_columnvals</code><span class="sig-paren">(</span><em>columnvals</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qconcurrency/models.html#DictModelRow.set_columnvals"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qconcurrency.models.DictModelRow.set_columnvals" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set columnvals on a key of this <code class="xref py py-obj docutils literal"><span class="pre">DictModel</span></code></p>
+<dd><p>Set columnvals on a key of this <a class="reference internal" href="qconcurrency.models.DictModel.html#qconcurrency.models.DictModel" title="qconcurrency.models.DictModel"><code class="xref py py-obj docutils literal"><span class="pre">qconcurrency.models.DictModel</span></code></a></p>
 </dd></dl>
 
 </dd></dl>
