@@ -92,16 +92,15 @@
 
 <div class="viewcode-block" id="DictModelQComboBox"><a class="viewcode-back" href="../../../_api/qconcurrency.widgets.DictModelQComboBox.html#qconcurrency.widgets.DictModelQComboBox">[docs]</a><span class="k">class</span> <span class="nc">DictModelQComboBox</span><span class="p">(</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QComboBox</span> <span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    ComboBox that displays nested-model structures.</span>
+<span class="sd">    ComboBox  whose contents are determined by the contents of a</span>
+<span class="sd">    :py:obj:`qconcurrency.models.DictModel`. The widget&#39;s contents are</span>
+<span class="sd">    updated whenever the modelchanges.</span>
 
-<span class="sd">    This widget does not directly use the modelview,</span>
-<span class="sd">    but it does get updated when the model changes.</span>
 
-<span class="sd">    .. warning::</span>
+<span class="sd">    Example:</span>
 
-<span class="sd">        In order to select an item in the combobox, you must</span>
-<span class="sd">        provide the model-index to the item you want, which is</span>
-<span class="sd">        a bit ackward.</span>
+<span class="sd">        .. image:: ../media/qconcurrency.widgets.DictModelQComboBox.png</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
 <div class="viewcode-block" id="DictModelQComboBox.__init__"><a class="viewcode-back" href="../../../_api/qconcurrency.widgets.DictModelQComboBox.html#qconcurrency.widgets.DictModelQComboBox.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dictmodel</span><span class="p">,</span> <span class="n">indexinfo</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;id&#39;</span><span class="p">:</span><span class="s1">&#39;_id&#39;</span><span class="p">,</span><span class="s1">&#39;name&#39;</span><span class="p">:</span><span class="s1">&#39;name&#39;</span><span class="p">}</span> <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -275,6 +274,10 @@
         <span class="k">return</span> <span class="n">indexinfo</span></div>
 
 <div class="viewcode-block" id="DictModelQComboBox.get_modelindex_from_index"><a class="viewcode-back" href="../../../_api/qconcurrency.widgets.DictModelQComboBox.html#qconcurrency.widgets.DictModelQComboBox.get_modelindex_from_index">[docs]</a>    <span class="k">def</span> <span class="nf">get_modelindex_from_index</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the :py:obj:`QtCore.QModelIndex` corresponding</span>
+<span class="sd">        to the item with a :py:obj:`QtWidgets.QComboBox` index.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_modelindexes</span><span class="p">[</span> <span class="n">index</span> <span class="p">]</span></div></div>
 
 

@@ -146,7 +146,6 @@
 
     <span class="n">class_</span> <span class="o">=</span> <span class="p">(</span>
         <span class="s1">&#39;from Qt import QtCore </span><span class="se">\n</span><span class="s1">&#39;</span>
-        <span class="c1">#&#39;class SignalManager( SignalManager ):\n&#39;</span>
         <span class="s1">&#39;class SignalManager( QtCore.QObject ):</span><span class="se">\n</span><span class="s1">&#39;</span>
     <span class="p">)</span>
 
@@ -171,12 +170,13 @@
 
     <span class="c1"># self._signals</span>
     <span class="n">class_</span> <span class="o">+=</span> <span class="p">(</span>
-        <span class="s1">&#39;    def __init__(self, _id=None, queue_stop=None ): </span><span class="se">\n</span><span class="s1">&#39;</span>
+        <span class="s1">&#39;    def __init__(self, _id=None, signals=None, queue_stop=None ): </span><span class="se">\n</span><span class="s1">&#39;</span>
         <span class="s1">&#39;        QtCore.QObject.__init__(self)               </span><span class="se">\n</span><span class="s1">&#39;</span>
         <span class="s1">&#39;                                                    </span><span class="se">\n</span><span class="s1">&#39;</span>
         <span class="s1">&#39;        self._id              = _id                 </span><span class="se">\n</span><span class="s1">&#39;</span>
         <span class="s1">&#39;        self._queue_stop      = queue_stop          </span><span class="se">\n</span><span class="s1">&#39;</span>
         <span class="s1">&#39;        self._abort_requested = False               </span><span class="se">\n</span><span class="s1">&#39;</span>
+        <span class="s1">&#39;        self._signals_arg     = signals             </span><span class="se">\n</span><span class="s1">&#39;</span>
         <span class="s1">&#39;        self._signals         = {                   </span><span class="se">\n</span><span class="s1">&#39;</span>
     <span class="p">)</span>
     <span class="k">for</span> <span class="n">signal</span> <span class="ow">in</span> <span class="n">signals</span><span class="p">:</span>
@@ -185,50 +185,45 @@
 
     <span class="c1"># methods</span>
     <span class="n">class_</span> <span class="o">+=</span> <span class="p">(</span>
-        <span class="s1">&#39;    def _request_abort(self):                                      </span><span class="se">\n</span><span class="s1">&#39;</span>
-        <span class="s1">&#39;        &quot;&quot;&quot;                                                        </span><span class="se">\n</span><span class="s1">&#39;</span>
-        <span class="s1">&#39;        Private method that sets attr :py:attr:`_abort_requested`. </span><span class="se">\n</span><span class="s1">&#39;</span>
-        <span class="s1">&#39;        Designed to be connected to a signal.                      </span><span class="se">\n</span><span class="s1">&#39;</span>
-        <span class="s1">&#39;        &quot;&quot;&quot;                                                        </span><span class="se">\n</span><span class="s1">&#39;</span>
-        <span class="s1">&#39;        self._abort_requested = True                               </span><span class="se">\n</span><span class="s1">&#39;</span>
-        <span class="s1">&#39;                                                                   </span><span class="se">\n</span><span class="s1">&#39;</span>
-        <span class="s1">&#39;    def handle_if_abort(self):                                     </span><span class="se">\n</span><span class="s1">&#39;</span>
-        <span class="s1">&#39;        &quot;&quot;&quot;                                                        </span><span class="se">\n</span><span class="s1">&#39;</span>
-        <span class="s1">&#39;        Checks if an abort has been requested. If so,              </span><span class="se">\n</span><span class="s1">&#39;</span>
-        <span class="s1">&#39;        raises :py:obj:`UserCancelledOperation`                    </span><span class="se">\n</span><span class="s1">&#39;</span>
-        <span class="s1">&#39;                                                                   </span><span class="se">\n</span><span class="s1">&#39;</span>
-        <span class="s1">&#39;        Raises:                                                    </span><span class="se">\n</span><span class="s1">&#39;</span>
-        <span class="s1">&#39;            :py:obj:`UserCancelledOperation`                       </span><span class="se">\n</span><span class="s1">&#39;</span>
-        <span class="s1">&#39;        &quot;&quot;&quot;                                                        </span><span class="se">\n</span><span class="s1">&#39;</span>
-        <span class="s1">&#39;                                                                   </span><span class="se">\n</span><span class="s1">&#39;</span>
-        <span class="s1">&#39;        # if self._request_abort() has been called                 </span><span class="se">\n</span><span class="s1">&#39;</span>
-        <span class="s1">&#39;        if self._abort_requested:                                  </span><span class="se">\n</span><span class="s1">&#39;</span>
-        <span class="s1">&#39;            raise UserCancelledOperation()                         </span><span class="se">\n</span><span class="s1">&#39;</span>
-        <span class="s1">&#39;                                                                   </span><span class="se">\n</span><span class="s1">&#39;</span>
-        <span class="s1">&#39;                                                                   </span><span class="se">\n</span><span class="s1">&#39;</span>
-        <span class="s1">&#39;        # for SoloThreadedTask                                     </span><span class="se">\n</span><span class="s1">&#39;</span>
-        <span class="s1">&#39;        if self._queue_stop and self._id:                          </span><span class="se">\n</span><span class="s1">&#39;</span>
-        <span class="s1">&#39;            while not self._queue_stop.empty():                    </span><span class="se">\n</span><span class="s1">&#39;</span>
-        <span class="s1">&#39;               stop_id = self._queue_stop.get()                    </span><span class="se">\n</span><span class="s1">&#39;</span>
-        <span class="s1">&#39;               if stop_id == self._id:                             </span><span class="se">\n</span><span class="s1">&#39;</span>
-        <span class="s1">&#39;                   raise UserCancelledOperation()                  </span><span class="se">\n</span><span class="s1">&#39;</span>
-        <span class="s1">&#39;                                                                   </span><span class="se">\n</span><span class="s1">&#39;</span>
-        <span class="s1">&#39;    def signals(self):                                             </span><span class="se">\n</span><span class="s1">&#39;</span>
-        <span class="s1">&#39;        &quot;&quot;&quot;                                                        </span><span class="se">\n</span><span class="s1">&#39;</span>
-        <span class="s1">&#39;        Returns a dictionary of signal-names, and the signal       </span><span class="se">\n</span><span class="s1">&#39;</span>
-        <span class="s1">&#39;        they represent.                                            </span><span class="se">\n</span><span class="s1">&#39;</span>
-        <span class="s1">&#39;                                                                   </span><span class="se">\n</span><span class="s1">&#39;</span>
-        <span class="s1">&#39;        Returns:                                                   </span><span class="se">\n</span><span class="s1">&#39;</span>
-        <span class="s1">&#39;                                                                   </span><span class="se">\n</span><span class="s1">&#39;</span>
-        <span class="s1">&#39;            .. code-block:: python                                 </span><span class="se">\n</span><span class="s1">&#39;</span>
-        <span class="s1">&#39;                                                                   </span><span class="se">\n</span><span class="s1">&#39;</span>
-        <span class="s1">&#39;                {                                                  </span><span class="se">\n</span><span class="s1">&#39;</span>
-        <span class="s1">&#39;                    &quot;returned&quot;:  QtCore.Signal(),                  </span><span class="se">\n</span><span class="s1">&#39;</span>
-        <span class="s1">&#39;                    &quot;exception&quot;: QtCore.Signal(tuple)              </span><span class="se">\n</span><span class="s1">&#39;</span>
-        <span class="s1">&#39;                    ...                                            </span><span class="se">\n</span><span class="s1">&#39;</span>
-        <span class="s1">&#39;                }                                                  </span><span class="se">\n</span><span class="s1">&#39;</span>
-        <span class="s1">&#39;        &quot;&quot;&quot;                                                        </span><span class="se">\n</span><span class="s1">&#39;</span>
-        <span class="s1">&#39;        return self._signals                                       </span><span class="se">\n</span><span class="s1">&#39;</span>
+        <span class="s1">&#39;    def _request_abort(self):                                              </span><span class="se">\n</span><span class="s1">&#39;</span>
+        <span class="s1">&#39;        &quot;&quot;&quot;                                                                </span><span class="se">\n</span><span class="s1">&#39;</span>
+        <span class="s1">&#39;        Private method that sets attr :py:attr:`_abort_requested`.         </span><span class="se">\n</span><span class="s1">&#39;</span>
+        <span class="s1">&#39;        Designed to be connected to a signal.                              </span><span class="se">\n</span><span class="s1">&#39;</span>
+        <span class="s1">&#39;        &quot;&quot;&quot;                                                                </span><span class="se">\n</span><span class="s1">&#39;</span>
+        <span class="s1">&#39;        self._abort_requested = True                                       </span><span class="se">\n</span><span class="s1">&#39;</span>
+        <span class="s1">&#39;                                                                           </span><span class="se">\n</span><span class="s1">&#39;</span>
+        <span class="s1">&#39;    def handle_if_abort(self, msg=None):                                   </span><span class="se">\n</span><span class="s1">&#39;</span>
+        <span class="s1">&#39;        &quot;&quot;&quot;                                                                </span><span class="se">\n</span><span class="s1">&#39;</span>
+        <span class="s1">&#39;        Checks if an abort has been requested. If so,                      </span><span class="se">\n</span><span class="s1">&#39;</span>
+        <span class="s1">&#39;        raises :py:obj:`UserCancelledOperation`                            </span><span class="se">\n</span><span class="s1">&#39;</span>
+        <span class="s1">&#39;                                                                           </span><span class="se">\n</span><span class="s1">&#39;</span>
+        <span class="s1">&#39;        Raises:                                                            </span><span class="se">\n</span><span class="s1">&#39;</span>
+        <span class="s1">&#39;            :py:obj:`UserCancelledOperation`                               </span><span class="se">\n</span><span class="s1">&#39;</span>
+        <span class="s1">&#39;        &quot;&quot;&quot;                                                                </span><span class="se">\n</span><span class="s1">&#39;</span>
+        <span class="s1">&#39;        if not msg:                                                        </span><span class="se">\n</span><span class="s1">&#39;</span>
+        <span class="s1">&#39;            msg = &quot;&quot;                                                       </span><span class="se">\n</span><span class="s1">&#39;</span>
+        <span class="s1">&#39;                                                                           </span><span class="se">\n</span><span class="s1">&#39;</span>
+        <span class="s1">&#39;        # if self._request_abort() has been called                         </span><span class="se">\n</span><span class="s1">&#39;</span>
+        <span class="s1">&#39;        if self._abort_requested:                                          </span><span class="se">\n</span><span class="s1">&#39;</span>
+        <span class="s1">&#39;            raise UserCancelledOperation( msg )                            </span><span class="se">\n</span><span class="s1">&#39;</span>
+        <span class="s1">&#39;                                                                           </span><span class="se">\n</span><span class="s1">&#39;</span>
+        <span class="s1">&#39;                                                                           </span><span class="se">\n</span><span class="s1">&#39;</span>
+        <span class="s1">&#39;    def signals(self):                                                     </span><span class="se">\n</span><span class="s1">&#39;</span>
+        <span class="s1">&#39;        &quot;&quot;&quot;                                                                </span><span class="se">\n</span><span class="s1">&#39;</span>
+        <span class="s1">&#39;        Returns a dictionary of signal-names, and the signal               </span><span class="se">\n</span><span class="s1">&#39;</span>
+        <span class="s1">&#39;        they represent.                                                    </span><span class="se">\n</span><span class="s1">&#39;</span>
+        <span class="s1">&#39;                                                                           </span><span class="se">\n</span><span class="s1">&#39;</span>
+        <span class="s1">&#39;        Returns:                                                           </span><span class="se">\n</span><span class="s1">&#39;</span>
+        <span class="s1">&#39;                                                                           </span><span class="se">\n</span><span class="s1">&#39;</span>
+        <span class="s1">&#39;            .. code-block:: python                                         </span><span class="se">\n</span><span class="s1">&#39;</span>
+        <span class="s1">&#39;                                                                           </span><span class="se">\n</span><span class="s1">&#39;</span>
+        <span class="s1">&#39;                {                                                          </span><span class="se">\n</span><span class="s1">&#39;</span>
+        <span class="s1">&#39;                    &quot;returned&quot;:  QtCore.Signal(),                          </span><span class="se">\n</span><span class="s1">&#39;</span>
+        <span class="s1">&#39;                    &quot;exception&quot;: QtCore.Signal(tuple)                      </span><span class="se">\n</span><span class="s1">&#39;</span>
+        <span class="s1">&#39;                    ...                                                    </span><span class="se">\n</span><span class="s1">&#39;</span>
+        <span class="s1">&#39;                }                                                          </span><span class="se">\n</span><span class="s1">&#39;</span>
+        <span class="s1">&#39;        &quot;&quot;&quot;                                                                </span><span class="se">\n</span><span class="s1">&#39;</span>
+        <span class="s1">&#39;        return self._signals                                               </span><span class="se">\n</span><span class="s1">&#39;</span>
     <span class="p">)</span>
 
 
@@ -381,11 +376,8 @@
             <span class="s1">&#39;returned&#39;</span><span class="p">:</span>        <span class="kc">None</span><span class="p">,</span>
             <span class="s1">&#39;exception&#39;</span><span class="p">:</span>       <span class="nb">tuple</span><span class="p">,</span>
             <span class="s1">&#39;abort_requested&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="s1">&#39;add_progress&#39;</span><span class="p">:</span>    <span class="nb">int</span><span class="p">,</span>
-            <span class="s1">&#39;incr_progress&#39;</span><span class="p">:</span>   <span class="nb">int</span><span class="p">,</span>
         <span class="p">}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_signals</span><span class="o">.</span><span class="n">update</span><span class="p">(</span> <span class="n">signals</span> <span class="p">)</span>
-
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_signalmgr</span> <span class="o">=</span> <span class="n">SignalManagerFactory</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">_signals</span> <span class="p">)</span></div>
 
@@ -485,9 +477,10 @@
 <span class="sd">            class MyList( QtWidgets.QListWidget ):</span>
 <span class="sd">                def __init__(self):</span>
 <span class="sd">                    self._thread_loading = SoloThreadedTask(</span>
-<span class="sd">                        callback = self._find_list_items,</span>
+<span class="sd">                        callback    = self._find_list_items,</span>
+<span class="sd">                        signals     = {&#39;add_item&#39;: str},</span>
+<span class="sd">                        connections = {&#39;add_item&#39;: [self.addItem] },</span>
 <span class="sd">                    )</span>
-<span class="sd">                    self._thread_loading.signal(&#39;add_item&#39;).connect( self.addItem )</span>
 
 <span class="sd">                def load(self):</span>
 <span class="sd">                    #</span>
@@ -510,7 +503,43 @@
 <span class="sd">        * :py:obj:`qconcurrency.threading.ThreadedTask`</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">,</span> <span class="n">signals</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mutex_expiry</span><span class="o">=</span><span class="mi">5000</span> <span class="p">):</span>
+<div class="viewcode-block" id="SoloThreadedTask.__init__"><a class="viewcode-back" href="../../_api/qconcurrency.threading.SoloThreadedTask.html#qconcurrency.threading.SoloThreadedTask.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">,</span> <span class="n">signals</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">connections</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mutex_expiry</span><span class="o">=</span><span class="mi">5000</span> <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            callback (callable):</span>
+<span class="sd">                A function, method, or class that you would like to run in</span>
+<span class="sd">                a separate thread.</span>
+
+<span class="sd">            signals (dict, optional):</span>
+<span class="sd">                Dictionary of signal-names, and the datatypes they will emit.</span>
+<span class="sd">                Signals defined here will override any default signals.</span>
+
+<span class="sd">                .. code-block:: python</span>
+
+<span class="sd">                    {</span>
+<span class="sd">                        # signal-name #  # datatype #   # equivalent-to #</span>
+
+<span class="sd">                        &#39;add_item&#39;:       (int,str),    #: QtCore.Signal(int,str)</span>
+<span class="sd">                        &#39;add_progress&#39;:   int,          #: QtCore.Signal(int)</span>
+<span class="sd">                        &#39;returned&#39;:       None,         #: QtCore.Signal()</span>
+<span class="sd">                    }</span>
+
+<span class="sd">            connections (dict, optional):</span>
+<span class="sd">                Dictionary of signal-names, and a list of python-collables you</span>
+<span class="sd">                would like to connect to the signal.</span>
+
+<span class="sd">                .. code-block:: python</span>
+
+<span class="sd">                    {</span>
+<span class="sd">                        &#39;add_item&#39;:     [ printargs, mylist.addItem ],</span>
+<span class="sd">                        &#39;add_progress&#39;: [ progbar.add_progress, ],</span>
+<span class="sd">                        ...</span>
+<span class="sd">                    }</span>
+
+<span class="sd">            *args/**kwds:</span>
+<span class="sd">                Any additional arguments/keyword-arguments are passed</span>
+<span class="sd">                to the callback in :py:meth:`run`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">QtCore</span><span class="o">.</span><span class="n">QObject</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
         <span class="c1"># Args</span>
@@ -530,9 +559,11 @@
         <span class="k">if</span> <span class="n">signals</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_signals</span><span class="o">.</span><span class="n">update</span><span class="p">(</span> <span class="n">signals</span> <span class="p">)</span>
 
+        <span class="bp">self</span><span class="o">.</span><span class="n">_connections</span> <span class="o">=</span> <span class="n">connections</span>
+
 
         <span class="c1"># locks</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_mutex_loading</span>    <span class="o">=</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">QMutex</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_mutex_loading</span>    <span class="o">=</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">QMutex</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="SoloThreadedTask.start"><a class="viewcode-back" href="../../_api/qconcurrency.threading.SoloThreadedTask.html#qconcurrency.threading.SoloThreadedTask.start">[docs]</a>    <span class="k">def</span> <span class="nf">start</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">expiryTimeout</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">threadpool</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span><span class="o">**</span><span class="n">kwds</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -545,16 +576,24 @@
 
         <span class="n">task</span> <span class="o">=</span> <span class="n">ThreadedTask</span><span class="p">(</span>
             <span class="n">callback</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_run</span><span class="p">,</span>
-            <span class="n">signals</span>  <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_signals</span><span class="p">,</span>
+            <span class="n">signals</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_signals</span><span class="p">,</span>
 
             <span class="c1"># args/kwds</span>
             <span class="n">threadId</span> <span class="o">=</span> <span class="n">threadId</span><span class="p">,</span>
             <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span>
         <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_active_threads</span><span class="p">[</span> <span class="n">threadId</span> <span class="p">]</span> <span class="o">=</span> <span class="n">task</span><span class="o">.</span><span class="n">request_abort</span>
+
+
+        <span class="c1"># setup all user-defined connections</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_connections</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">signal_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_connections</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">callback</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_connections</span><span class="p">[</span> <span class="n">signal_name</span> <span class="p">]:</span>
+                    <span class="n">task</span><span class="o">.</span><span class="n">signal</span><span class="p">(</span> <span class="n">signal_name</span> <span class="p">)</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span> <span class="n">callback</span><span class="p">,</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">DirectConnection</span> <span class="p">)</span>
+
+
         <span class="n">task</span><span class="o">.</span><span class="n">signal</span><span class="p">(</span><span class="s1">&#39;thread_acquired_mutex&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set_active_threadId</span><span class="p">,</span>   <span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">DirectConnection</span> <span class="p">)</span>
         <span class="n">task</span><span class="o">.</span><span class="n">signal</span><span class="p">(</span><span class="s1">&#39;_thread_exit_&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span>         <span class="bp">self</span><span class="o">.</span><span class="n">_set_complete_threadId</span><span class="p">,</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">DirectConnection</span> <span class="p">)</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">_active_threads</span><span class="p">[</span> <span class="n">threadId</span> <span class="p">]</span> <span class="o">=</span> <span class="n">task</span><span class="o">.</span><span class="n">request_abort</span>
 
         <span class="n">task</span><span class="o">.</span><span class="n">start</span><span class="p">(</span> <span class="n">expiryTimeout</span><span class="o">=</span><span class="n">expiryTimeout</span><span class="p">,</span> <span class="n">threadpool</span><span class="o">=</span><span class="n">threadpool</span> <span class="p">)</span></div>
 
@@ -659,15 +698,20 @@
     <span class="k">def</span> <span class="nf">test_solo_threadedtask</span><span class="p">():</span>
         <span class="k">def</span> <span class="nf">long_running_job</span><span class="p">(</span> <span class="n">thread_num</span><span class="p">,</span> <span class="n">signalmgr</span><span class="o">=</span><span class="kc">None</span> <span class="p">):</span>
             <span class="nb">print</span><span class="p">(</span> <span class="s1">&#39;[</span><span class="si">%s</span><span class="s1">] thread started&#39;</span>  <span class="o">%</span> <span class="n">thread_num</span> <span class="p">)</span>
+            <span class="n">signalmgr</span><span class="o">.</span><span class="n">print_txt</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="s1">&#39;test signal&#39;</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
                 <span class="nb">print</span><span class="p">(</span> <span class="s1">&#39;[</span><span class="si">%s</span><span class="s1">] thread step </span><span class="si">%s</span><span class="s1">/3&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">thread_num</span><span class="p">,</span> <span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="p">)</span>
                 <span class="n">signalmgr</span><span class="o">.</span><span class="n">handle_if_abort</span><span class="p">()</span>
                 <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
             <span class="nb">print</span><span class="p">(</span> <span class="s1">&#39;[</span><span class="si">%s</span><span class="s1">] thread finished&#39;</span> <span class="o">%</span> <span class="n">thread_num</span> <span class="p">)</span>
 
+        <span class="k">def</span> <span class="nf">printtxt</span><span class="p">(</span><span class="n">msg</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
 
         <span class="n">solotask</span> <span class="o">=</span> <span class="n">SoloThreadedTask</span><span class="p">(</span>
-            <span class="n">callback</span> <span class="o">=</span> <span class="n">long_running_job</span><span class="p">,</span>
+            <span class="n">callback</span>    <span class="o">=</span> <span class="n">long_running_job</span><span class="p">,</span>
+            <span class="n">signals</span>     <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;print_txt&#39;</span><span class="p">:</span><span class="nb">str</span><span class="p">},</span>
+            <span class="n">connections</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;print_txt&#39;</span><span class="p">:[</span><span class="n">printtxt</span><span class="p">]},</span>
         <span class="p">)</span>
 
         <span class="c1"># every 1s, cancel current job with</span>

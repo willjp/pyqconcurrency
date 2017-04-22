@@ -69,7 +69,6 @@
 <span class="sd">                with changes from the model it is representing.</span>
 <span class="sd">________________________________________________________________________________</span>
 <span class="sd">&quot;&quot;&quot;</span>
-
 <span class="c1">#builtin</span>
 <span class="kn">from</span>   <span class="nn">__future__</span>           <span class="k">import</span> <span class="n">unicode_literals</span>
 <span class="kn">from</span>   <span class="nn">__future__</span>           <span class="k">import</span> <span class="n">absolute_import</span>
@@ -84,14 +83,34 @@
 <span class="c1">#internal</span>
 <span class="kn">from</span>   <span class="nn">qconcurrency.models</span>  <span class="k">import</span> <span class="n">DictModel</span>
 
-<span class="c1">#!TODO: test updates to model update qmenu</span>
+
 
 <div class="viewcode-block" id="DictModelQMenu"><a class="viewcode-back" href="../../../_api/qconcurrency.widgets.DictModelQMenu.html#qconcurrency.widgets.DictModelQMenu">[docs]</a><span class="k">class</span> <span class="nc">DictModelQMenu</span><span class="p">(</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QMenu</span> <span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    QMenu, that dynamically gets rebuilt every time it is called.</span>
-<span class="sd">    It&#39;s contents are determined by a :py:obj:`DictModel`.</span>
+<span class="sd">    QMenu, whose actions/submenus are based/rebuilt from</span>
+<span class="sd">    a :py:obj:`DictModel`. There are 2x display methods:</span>
 
-<span class="sd">    :py:obj:`DictModel` sub-tables are represented as sub-menus.</span>
+<span class="sd">        * `indented`: every :py:obj:`DictModelRow` in the model is</span>
+<span class="sd">                      a action. Items in nested-tables are indented,</span>
+<span class="sd">                      and positioned under their parent.</span>
+
+<span class="sd">        * `submenu`:  :py:obj:`DictModelRow` s that contain</span>
+<span class="sd">                      child-tables are presented as submenus.</span>
+<span class="sd">                      Only bottom-level :py:obj:`DictModelRow`</span>
+<span class="sd">                      items are actions.</span>
+
+
+<span class="sd">    Example:</span>
+
+<span class="sd">        .. figure:: ../media/qconcurrency.widgets.DictModelQMenu_indented.png</span>
+
+<span class="sd">            ``menustyle=&#39;indented&#39;``</span>
+
+
+<span class="sd">        .. figure:: ../media/qconcurrency.widgets.DictModelQMenu_submenu.png</span>
+
+<span class="sd">            ``menustyle=&#39;submenu&#39;``</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">triggered_row</span> <span class="o">=</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">Signal</span><span class="p">(</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">QModelIndex</span> <span class="p">)</span>
 <div class="viewcode-block" id="DictModelQMenu.__init__"><a class="viewcode-back" href="../../../_api/qconcurrency.widgets.DictModelQMenu.html#qconcurrency.widgets.DictModelQMenu.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dictmodel</span><span class="p">,</span> <span class="n">menustyle</span><span class="o">=</span><span class="s1">&#39;submenu&#39;</span><span class="p">,</span> <span class="n">indexinfo</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;id&#39;</span><span class="p">:</span><span class="s1">&#39;_id&#39;</span><span class="p">,</span><span class="s1">&#39;name&#39;</span><span class="p">:</span><span class="s1">&#39;name&#39;</span><span class="p">}</span> <span class="p">):</span>
@@ -138,6 +157,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_dictmodel</span> <span class="o">=</span> <span class="n">dictmodel</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_indexinfo</span> <span class="o">=</span> <span class="n">indexinfo</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_menustyle</span> <span class="o">=</span> <span class="n">menustyle</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_submenus</span>  <span class="o">=</span> <span class="p">{}</span>         <span class="c1"># { uuid : submenu-widget }</span>
+                                     <span class="c1"># (simply keeps references to qmenus so</span>
+                                     <span class="c1"># they are note deleted when scope ends)</span>
 
         <span class="c1"># Connections</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_dictmodel</span><span class="o">.</span><span class="n">itemChanged</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">_handle_modelchange</span> <span class="p">)</span>
@@ -157,9 +179,11 @@
             <span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_create_submenu_actions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">baseitem</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">submenu_of</span><span class="o">=</span><span class="kc">None</span> <span class="p">):</span>
+
         <span class="k">if</span> <span class="n">baseitem</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
-            <span class="n">baseitem</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dictmodel</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_submenus</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="n">baseitem</span>       <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dictmodel</span>
 
 
         <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">baseitem</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
@@ -173,11 +197,14 @@
             <span class="n">menu</span> <span class="o">=</span> <span class="kc">None</span>
             <span class="k">if</span> <span class="n">modelitem</span><span class="o">.</span><span class="n">rowCount</span><span class="p">():</span>
                 <span class="n">menu</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QMenu</span><span class="p">(</span> <span class="n">title</span><span class="o">=</span><span class="n">name</span> <span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_submenus</span><span class="p">[</span> <span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">()</span><span class="o">.</span><span class="n">hex</span> <span class="p">]</span> <span class="o">=</span> <span class="n">menu</span> <span class="c1"># keep reference on object, so not</span>
+                                                          <span class="c1"># deleted when method scope ends</span>
             <span class="k">if</span> <span class="n">menu</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">submenu_of</span><span class="p">:</span>
                     <span class="n">submenu_of</span><span class="o">.</span><span class="n">addMenu</span><span class="p">(</span> <span class="n">menu</span> <span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">addMenu</span><span class="p">(</span> <span class="n">menu</span> <span class="p">)</span>
+
 
 
             <span class="c1"># if modelitem does not have children,</span>
@@ -289,8 +316,8 @@
 
 
 
-    <span class="c1">#test_submenu_style()</span>
-    <span class="n">test_indented_style</span><span class="p">()</span>
+    <span class="n">test_submenu_style</span><span class="p">()</span>
+    <span class="c1">#test_indented_style()</span>
 
 
 </pre></div>

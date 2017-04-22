@@ -93,7 +93,7 @@
 <td>Returns all keys from <cite>indexinfo</cite> for a particular item.</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="#qconcurrency.widgets.DictModelQComboBox.get_modelindex_from_index" title="qconcurrency.widgets.DictModelQComboBox.get_modelindex_from_index"><code class="xref py py-obj docutils literal"><span class="pre">qconcurrency.widgets.DictModelQComboBox.get_modelindex_from_index</span></code></a>(index)</td>
-<td></td>
+<td>Returns the <code class="xref py py-obj docutils literal"><span class="pre">QtCore.QModelIndex</span></code> corresponding to the item with a <code class="xref py py-obj docutils literal"><span class="pre">QtWidgets.QComboBox</span></code> index.</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="#qconcurrency.widgets.DictModelQComboBox.get_selected" title="qconcurrency.widgets.DictModelQComboBox.get_selected"><code class="xref py py-obj docutils literal"><span class="pre">qconcurrency.widgets.DictModelQComboBox.get_selected</span></code></a>()</td>
 <td>Returns the modelitem corresponding to the user&#8217;s selection.</td>
@@ -113,15 +113,11 @@
 <dt id="qconcurrency.widgets.DictModelQComboBox">
 <em class="property">class </em><code class="descclassname">qconcurrency.widgets.</code><code class="descname">DictModelQComboBox</code><span class="sig-paren">(</span><em>dictmodel</em>, <em>indexinfo={'id': '_id'</em>, <em>'name': 'name'}</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qconcurrency/widgets/_dictmodelqcombobox_.html#DictModelQComboBox"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qconcurrency.widgets.DictModelQComboBox" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">PySide.QtGui.QComboBox</span></code></p>
-<p>ComboBox that displays nested-model structures.</p>
-<p>This widget does not directly use the modelview,
-but it does get updated when the model changes.</p>
-<div class="admonition warning">
-<p class="first admonition-title">Warning</p>
-<p class="last">In order to select an item in the combobox, you must
-provide the model-index to the item you want, which is
-a bit ackward.</p>
-</div>
+<p>ComboBox  whose contents are determined by the contents of a
+<a class="reference internal" href="qconcurrency.models.DictModel.html#qconcurrency.models.DictModel" title="qconcurrency.models.DictModel"><code class="xref py py-obj docutils literal"><span class="pre">qconcurrency.models.DictModel</span></code></a>. The widget&#8217;s contents are
+updated whenever the modelchanges.</p>
+<p class="rubric">Example</p>
+<img alt="../_images/qconcurrency.widgets.DictModelQComboBox.png" src="../_images/qconcurrency.widgets.DictModelQComboBox.png" />
 <dl class="method">
 <dt id="qconcurrency.widgets.DictModelQComboBox.__init__">
 <code class="descname">__init__</code><span class="sig-paren">(</span><em>dictmodel</em>, <em>indexinfo={'id': '_id'</em>, <em>'name': 'name'}</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qconcurrency/widgets/_dictmodelqcombobox_.html#DictModelQComboBox.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qconcurrency.widgets.DictModelQComboBox.__init__" title="Permalink to this definition">¶</a></dt>
@@ -192,7 +188,9 @@ for that specific level.</p>
 <dl class="method">
 <dt id="qconcurrency.widgets.DictModelQComboBox.get_modelindex_from_index">
 <code class="descname">get_modelindex_from_index</code><span class="sig-paren">(</span><em>index</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qconcurrency/widgets/_dictmodelqcombobox_.html#DictModelQComboBox.get_modelindex_from_index"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qconcurrency.widgets.DictModelQComboBox.get_modelindex_from_index" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Returns the <code class="xref py py-obj docutils literal"><span class="pre">QtCore.QModelIndex</span></code> corresponding
+to the item with a <code class="xref py py-obj docutils literal"><span class="pre">QtWidgets.QComboBox</span></code> index.</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="qconcurrency.widgets.DictModelQComboBox.get_selected">
