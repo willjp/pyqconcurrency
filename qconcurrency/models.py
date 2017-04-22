@@ -41,6 +41,15 @@ class DictModel( QtGui.QStandardItemModel ):
 
         Simple Example:
 
+
+        .. code-block:: bash
+
+            | _id | firstname | lastname  | username |
+            |========================================|
+            | 101 | luke      | skywalker | lukes    |
+            | 102 | leia      | skywalker | leias    |
+            |========================================|
+
         .. code-block:: python
 
             model = DictModel( columns=('firstname','lastname','username') )
@@ -57,11 +66,34 @@ class DictModel( QtGui.QStandardItemModel ):
             >>> 'luke'
 
             print( model[userId].columnvals() )
-            >>> {'firstname':'luke', 'lastname':'skywalker', 'username':'lukes'}
+            >>> {'_id':101, 'firstname':'luke', 'lastname':'skywalker', 'username':'lukes'}
 
 
 
         Nested-Table Example:
+
+        .. code-block:: bash
+
+            |=============|
+            | _id | class |  # level: 'jedi_class'
+            |=============|
+            | 101 | sith  |
+            |  |===========================================|
+            |  | _id | firstname  | lastname   | username  | # level: 'user'
+            |  |===========================================|
+            |  | 56  | Darth      | Vader      | anakins   |
+            |  | 57  | Darth      | Maul       | darthm    |
+            |  |===========================================|
+            |             |
+            | 102 | jedi  |
+            |  |===========================================|
+            |  | _id | firstname  | lastname   | username  | # level: 'user'
+            |  |===========================================|
+            |  | 58  | Mace       | Windu      | macew     |
+            |  | 59  | Ben        | Kenobi     | benk      |
+            |  |===========================================|
+            |             |
+            |=============|
 
         .. code-block:: python
 
@@ -82,6 +114,30 @@ class DictModel( QtGui.QStandardItemModel ):
             userId      =  56
             print( model[jediclassId][userId].column('username') )
             >>> 'anakins'
+
+            print( model[jediclassId].level() )
+            >>> 'jedi_class'
+
+            print( model[jediclassId][userId].level() )
+            >>> 'user'
+
+
+        :py:obj:`qconcurrency.models.DictModel`  column datatypes
+
+        .. code-block:: bash
+
+            |===============================================|
+            | _id          | columnA        | columnB       |
+            |===============================================|
+            | DictModelRow |  QStandardItem | QStandardItem |
+            |   |===============================================|
+            |   | _id          | columnA        | columnB       |
+            |   |===============================================|
+            |   | DictModelRow |  QStandardItem | QStandardItem |
+            |   |===============================================|
+            |                                               |
+            |===============================================|
+
     """
     def __init__(self, columns, hierarchy=None ):
         """
@@ -105,7 +161,7 @@ class DictModel( QtGui.QStandardItemModel ):
 
             hierarchy (list, optional):  ``(ex:  ('department_type','department')  )``
                 A list that labels what type of data is stored at each
-                level of table-nesting in this :py:obj:`DictModel`. Each item
+                level of table-nesting in this :py:obj:`qconcurrency.models.DictModel`. Each item
                 indicates another level of nesting.
 
         """
@@ -171,8 +227,8 @@ class DictModel( QtGui.QStandardItemModel ):
 
     def __getitem__(self, key):
         """
-        Returns a :py:obj:`DictModelRow` object representing
-        a row from this :py:obj:`DictModel`.
+        Returns a :py:obj:`qconcurrency.models.DictModelRow` object representing
+        a row from this :py:obj:`qconcurrency.models.DictModel`.
         """
         return self._get_rowitem(key)
 
@@ -188,12 +244,12 @@ class DictModel( QtGui.QStandardItemModel ):
 
             columnvals (dict, optional):
                 Optionally, you may provide a dictionary of column-val assignments
-                (appropriate to this item's table-level) as determined by the `columns`
-                argument to :py:meth:`DictModel.__init__`
+                (appropriate to this item's table-level). All columns, not
+                assigned in `columnvals` will be initialized with a value of ''.
 
 
         Returns:
-            :py:obj:`DictModelRow`
+            :py:obj:`qconcurrency.models.DictModelRow`
         """
 
         set_columnvals = self._defaultcolumnvals.copy()
@@ -209,11 +265,11 @@ class DictModel( QtGui.QStandardItemModel ):
     def columns(self, level=None ):
         """
         Returns the columns for a particular level of nested-table
-        within this :py:obj:`DictModel`.
+        within this :py:obj:`qconcurrency.models.DictModel`.
 
         Args:
             level (obj):
-                If a `hierarchy` was assigned to this :py:obj:`DictModel`,
+                If a `hierarchy` was assigned to this :py:obj:`qconcurrency.models.DictModel`,
                 this will be a label from it. Otherwise, this will be an integer
                 indicating the level-of-nesting (and it will be ignored).
 
@@ -227,7 +283,7 @@ class DictModel( QtGui.QStandardItemModel ):
         if self._hierarchy:
             if level == None:
                 raise RuntimeError(
-                    'This `DictModel` was created with different columns at '
+                    'This `qconcurrency.models.DictModel` was created with different columns at '
                     'different levels. You\'ll need to provide the `level` you are '
                     'interested in to get the column-list '
                 )
@@ -254,10 +310,11 @@ class DictModel( QtGui.QStandardItemModel ):
     def default_columnvals(self, level=None ):
         """
         Returns the default-columnvals for a particular level of nested-table.
+        See :py:meth:`qconcurrency.models.DictModelRow.level`
 
         Args:
             level (obj):
-                If a `hierarchy` was assigned to this :py:obj:`DictModel`,
+                If a `hierarchy` was assigned to this :py:obj:`qconcurrency.models.DictModel`,
                 this will be a label from it. Otherwise, this will be an integer
                 indicating the level-of-nesting (and it will be ignored).
 
@@ -280,7 +337,14 @@ class DictModel( QtGui.QStandardItemModel ):
     def hierarchy(self):
         """
         Returns the model's hierarchy tuple
-        (if one has been assigned in :py:obj:`DictModel.__init__`)
+        (if one has been assigned in :py:obj:`qconcurrency.models.DictModel.__init__`)
+
+        Returns:
+
+            .. code-block:: python
+
+                ('jedi_class', 'user') # if assigned a hierarchy
+                None                   # if no hierarchy is assigned
         """
         return self._hierarchy
 
@@ -324,19 +388,26 @@ class DictModel( QtGui.QStandardItemModel ):
             return self._columns.index(column) +1
 
         raise KeyError(
-            'Column "%s" does not exist in this `DictModel` columns: %s' % (
+            'Column "%s" does not exist in this `qconcurrency.models.DictModel` columns: %s' % (
                 column, str(self._columns)
             )
         )
 
     def keys(self):
         """
-        Returns list containig keys for every
-        row that has been added to this :py:obj:`DictModel` s root
+        Returns list containing keys for every
+        row that has been added to this :py:obj:`qconcurrency.models.DictModel` s root
+
+        Returns:
+
+            .. code-block:: python
+
+                [ 1, 2, 3, 5, 8, ... ]
+
         """
         keys = []
         for i in range(self.rowCount()):
-            keys.append( self.item(i,0).text() )
+            keys.append( self.item(i,0).id() )
         return keys
 
 
@@ -344,10 +415,30 @@ class DictModel( QtGui.QStandardItemModel ):
 class DictModelRow( QtGui.QStandardItem ):
     """
     A DictModelRow is a :py:obj:`QtGui.QStandardItem` that holds
-    an item's key (usually database-Id). It is always added to
-    a :py:obj:`DictModel` at the column-index ``0``. When setting
-    columnvals, they are added to the same parent, but at different
-    column-indexes.
+    an item's key (usually database-Id) within a :py:obj:`qconcurrency.models.DictModel`.
+    It is always added to a :py:obj:`qconcurrency.models.DictModel` at the column-index ``0``.
+    When setting columnvals, they are added to the same parent :py:obj:`qconcurrency.models.DictModel`
+    or :py:obj:`qconcurrency.models.DictModelRow`, but at different column-indexes.
+
+
+    Example:
+
+        .. code-block:: bash
+
+                            ===== ========|
+            DictModelRow     _id  | class |  # level: 'jedi_class'
+                 |          ===== ========|
+                 +---------> 101  | sith  |
+                 |            |============================================|
+                 |            |  _id | firstname  | lastname   | username  | # level: 'user'
+                 |            |============================================|
+                 +-------------> 56  | Darth      | Vader      | anakins   |
+                 +-------------> 57  | Darth      | Maul       | darthm    |
+                              |============================================|
+                                        /\\           /\\            /\\
+                                        |            |             |
+               QtGui.QStandardItem  ----+------------+-------------+
+
     """
     def __init__(self, parent, key, columnvals=None ):
         """
@@ -417,6 +508,23 @@ class DictModelRow( QtGui.QStandardItem ):
         Adds a new row to this DictModel, at a new level of nesting
         henceforth referred to by the key `key`.
 
+        Example:
+
+            .. code-block:: bash
+
+                |==============|
+                | _id | column |
+                |==============|
+                | 100 | 'A'    |     # add_child( 102, {'column':'A1'} )
+                |   |==============|
+                |   | _id | column | # added child:  model[100][102]
+                |   |==============|
+                |   | 102 | 'A1'   |
+                |   |==============|
+                |              |
+                | 101 | 'B'    |
+                |==============|
+
         Args:
             key (obj):
                 Key is the id you will use to refer to this object.
@@ -426,15 +534,15 @@ class DictModelRow( QtGui.QStandardItem ):
             columnvals (dict, optional):
                 Optionally, you may provide a dictionary of column-val assignments
                 (appropriate to this item's table-level) as determined by the `columns`
-                argument to :py:meth:`DictModel.__init__`
+                argument to :py:meth:`qconcurrency.models.DictModel.__init__`
 
 
         Returns:
-            :py:obj:`DictModelRow`
+            :py:obj:`qconcurrency.models.DictModelRow`
 
         See Also:
-            * :py:meth:`DictModelRow.add_row`
-            * :py:meth:`DictModel.add_row`
+            * :py:meth:`qconcurrency.models.DictModelRow.add_row`
+            * :py:meth:`qconcurrency.models.DictModel.add_row`
 
         """
         item = DictModelRow( parent=self, key=key, columnvals=columnvals )
@@ -445,6 +553,19 @@ class DictModelRow( QtGui.QStandardItem ):
         Adds a new row to this DictModel, at the same level of nesting
         henceforth referred to by the key `key`.
 
+        Example:
+
+            .. code-block:: bash
+
+                |==============|
+                | _id | column |
+                |==============|
+                | 100 | 'A'    | # add_row( 102, {'column':'C'} )
+                | 101 | 'B'    |
+                | 102 | 'C'    | # added row: model[102]
+                |==============|
+
+
         Args:
             key (obj):
                 Key is the id you will use to refer to this object.
@@ -454,15 +575,15 @@ class DictModelRow( QtGui.QStandardItem ):
             columnvals (dict, optional):
                 Optionally, you may provide a dictionary of column-val assignments
                 (appropriate to this item's table-level) as determined by the `columns`
-                argument to :py:meth:`DictModel.__init__`
+                argument to :py:meth:`qconcurrency.models.DictModel.__init__`
 
 
         Returns:
-            :py:obj:`DictModelRow`
+            :py:obj:`qconcurrency.models.DictModelRow`
 
         See Also:
-            * :py:meth:`DictModelRow.add_row`
-            * :py:meth:`DictModel.add_row`
+            * :py:meth:`qconcurrency.models.DictModelRow.add_row`
+            * :py:meth:`qconcurrency.models.DictModel.add_row`
 
         """
         if self.parent():
@@ -474,7 +595,7 @@ class DictModelRow( QtGui.QStandardItem ):
 
     def set_columnvals(self, columnvals ):
         """
-        Set columnvals on a key of this :py:obj:`DictModel`
+        Set columnvals on a key of this :py:obj:`qconcurrency.models.DictModel`
         """
 
         # validation
@@ -546,7 +667,7 @@ class DictModelRow( QtGui.QStandardItem ):
 
     def level(self):
         """
-        Returns either a label (if :py:meth:`DictModel.__init__` was passed a
+        Returns either a label (if :py:meth:`qconcurrency.models.DictModel.__init__` was passed a
         `hierarchy` argument), or an integer representing the nesting-depth.
         Either way, level is used to indicate the level-of-nesting of the table
         that this item is in.
@@ -639,7 +760,7 @@ class DictModelRow( QtGui.QStandardItem ):
     def keys(self):
         """
         Returns list containig keys for every
-        child-row that has been added to this :py:obj:`DictModelRow`
+        child-row that has been added to this :py:obj:`qconcurrency.models.DictModelRow`
         """
         keys = []
         for i in range(self.rowCount()):
@@ -649,8 +770,8 @@ class DictModelRow( QtGui.QStandardItem ):
     def id(self):
         """
         Returns the `key` this row represents.
-        (It's value depends on the value passed to :py:meth:`DictModelRow.add_row`
-        or :py:meth:`DictModelRow.add_child` ).
+        (It's value depends on the value passed to :py:meth:`qconcurrency.models.DictModelRow.add_row`
+        or :py:meth:`qconcurrency.models.DictModelRow.add_child` ).
         """
         return self._key
 
