@@ -38,6 +38,26 @@ def SignalManagerFactory( signals, queue_stop=None ):
     """
     Dynamically creates a :py:obj:`SignalManager` class
     with all required signals.
+
+
+    :py:obj:`SignalManager` objects are dynamically
+    created :py:obj:`QtCore.QObject` designed to be handed
+    off to a separate thread. They contain a variable
+    number of signals, and the method `handle_if_abort`
+    which checks the value of `self._abort_requested`
+
+    Example:
+
+        .. code-block:: python
+
+            class SignalManager( QtCore.QObject ):
+                returned  = QtCore.Signal()
+                exception = QtCore.Signal()
+
+                def handle_if_abort(self):
+                    if self._abort_requested:
+                        raise UserCancelledOperation()
+
     """
 
     if not isinstance( signals, MutableMapping ):
@@ -148,36 +168,125 @@ class ThreadedTask( QtCore.QRunnable ):
     number of signals (with variable return-types) into a :py:obj:`QtCore.QRunnable`
     that can be safely queued in a :py:obj:`QtCore.QThreadPool`.
 
-    Threads can be easily cancelled (if for instance a user
-    changes their mind, and wants to do something else).
+    Every callback method  must accept the keyword argument
+    `signalmgr`. `signalmgr` is a :py:obj:`QtCore.QObject`
+    that is instantiated with signals to communicate back with the UI
+    thread, and the method :py:meth:`SignalManager.handle_if_abort`
+    which should be run periodically in your `callback` method
+    to handle user-abort requests (issued by :py:meth:`request_abort` ).
 
 
 
-    Args:
-        callback (callable):
-            A function, method, or class that you would like to run in
-            a separate thread.
+    Example:
 
-        signals (dict, optional):
-            Dictionary of signal-names, and the datatypes they will emit.
-            Signals defined here will override any default signals.
+        *Run function in QCoreApplication's :py:obj:`QtCore.QThreadPool`*
 
-            .. code-block:: python
+        Handling early-exit by periodically (at safe points)
+        checking if :py:meth:`task.request_abort` has been run.
 
-                {
-                    # signal-name #  # datatype #   # equivalent-to #
+        .. code-block:: python
 
-                    'add_item':       (int,str),    #: QtCore.Signal(int,str)
-                    'add_progress':   int,          #: QtCore.Signal(int)
-                    'returned':       None,         #: QtCore.Signal()
-                }
+            def long_running_job( jobid, signalmgr=None ):
+                for i in range(5):
+                    signalmgr.handle_if_abort()   # exit early, if user-abort requested
+                    time.sleep(1)
+                print('finished job %s' % jobid )
 
-        *args/**kwds:
-            Any additional arguments/keyword-arguments are passed
-            to the callback in :py:meth:`run`
+            task = ThreadedTask(
+                callable = long_running_job,
+                jobid    = 1
+            )
+            task.start()
+
+
+        *Create signals that can be used within the thread.*
+
+        :py:obj:`QtCore.QRunnable` objects (which get used in a
+        :py:obj:`QtCore.QThreadPool` ) cannot have signals attached to them.
+        In order for this to work you must create a :py:obj:`QtCore.QObject`
+        with the signals that can be passed to the thread. This all gets
+        done behind the scenes with a :py:obj:`ThreadedTask` .
+
+        .. code-block:: python
+
+            def long_running_job( signalmgr=None ):
+                signalmgr.log_message.emit('started job...')
+                signalmgr.set_title.emit('My Title', 'my description')
+                signalmgr.status_changed.emit()
+
+            def printargs(*args):
+                print( args )
+
+
+            task = ThreadedTask(                      ### Roughly Equivalent to:
+                callback = long_running_job,          #
+                signals  = {                          #  class SignalManager( QtCore.QObject ):
+                    'status_changed': None,           #      status_changed = QtCore.Signal()
+                    'log_message':    str,            #      log_message    = QtCore.Signal(str)
+                    'set_title':     (str,str),       #      set_title      = QtCore.Signal(str,str)
+                },                                    #
+            )                                         #
+            task.signal('set_title').connect(   printargs )
+            task.signal('log_message').connect( printargs )
+            task.start()
+
+
+        *Handle successful returns, and unhandled exceptions*
+
+        :py:obj:`ThreadedTask` have builtin signals
+        `returned`, and `exception`, that are emitted
+        automatically. You may emit the output of your callback
+        in `returned`, only if you  override the `returned`
+        signal in the `signals` argument.
+
+        .. code-blocK:: python
+
+            def long_running_job( signalmgr=None ):
+                pass
+
+            def run_on_exit(*args,**kwds):
+                pass
+
+
+            task = ThreadedTask(
+                callback = long_running_job,
+            )
+            task.signal('returned').connect(run_on_exit)
+            task.signal('exception').connect(run_on_exit)
+            task.start()
+
+    See Also:
+
+        * :py:obj:`qconcurrency.threading.SignalManagerFactory`
+        * :py:obj:`qconcurrency.threading.SoloThreadedTask`
 
     """
     def __init__(self, callback, signals=None, *args, **kwds ):
+        """
+        Args:
+            callback (callable):
+                A function, method, or class that you would like to run in
+                a separate thread.
+
+            signals (dict, optional):
+                Dictionary of signal-names, and the datatypes they will emit.
+                Signals defined here will override any default signals.
+
+                .. code-block:: python
+
+                    {
+                        # signal-name #  # datatype #   # equivalent-to #
+
+                        'add_item':       (int,str),    #: QtCore.Signal(int,str)
+                        'add_progress':   int,          #: QtCore.Signal(int)
+                        'returned':       None,         #: QtCore.Signal()
+                    }
+
+            *args/**kwds:
+                Any additional arguments/keyword-arguments are passed
+                to the callback in :py:meth:`run`
+
+        """
         QtCore.QRunnable.__init__(self)
 
         # Arguments
@@ -285,10 +394,43 @@ class ThreadedTask( QtCore.QRunnable ):
 class SoloThreadedTask( QtCore.QObject ):
     """
     :py:obj:`ThreadedTask` that cancels all of it's running/pending threads (started by
-    this :py:obj:`SoloThreadedTask`) whenever a new thread is requested.
+    this :py:obj:`SoloThreadedTask`) whenever a new thread is requested (and all must exit
+    before the latest requested task is allowed to start ).
 
     This might be useful for loading tasks such as a method that loads or filters
     a widget's contents.
+
+    Example:
+
+        .. code-block:: python
+
+            class MyList( QtWidgets.QListWidget ):
+                def __init__(self):
+                    self._thread_loading = SoloThreadedTask(
+                        callback = self._find_list_items,
+                    )
+                    self._thread_loading.signal('add_item').connect( self.addItem )
+
+                def load(self):
+                    #
+                    # whenever `self.load` is called
+                    # the last load will be cancelled,
+                    # after which a new load process will start
+                    #
+                    self._thread_loading.start()
+
+                def _find_list_items(self, signalmgr=None ):
+                    for i in range(100):
+                        signalmgr.handle_if_abort()   # check for a request-abort, and exit early
+                        time.sleep(1)
+                        signalmgr.add_item.emit( i )  # add an item to the list
+
+
+
+
+    See Also:
+        * :py:obj:`qconcurrency.threading.ThreadedTask`
+
     """
     def __init__(self, callback, signals=None, mutex_expiry=5000 ):
         QtCore.QObject.__init__(self)
