@@ -1,0 +1,11 @@
+
+SignalManagerFactory
+====================
+
+Documentation
+-------------
+
+
+.. autofunction:: qconcurrency.threading.SignalManagerFactory
+
+

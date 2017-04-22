@@ -94,17 +94,42 @@
 
 <div class="viewcode-block" id="Fake"><a class="viewcode-back" href="../_api/qconcurrency.Fake.html#qconcurrency.Fake">[docs]</a><span class="k">class</span> <span class="nc">Fake</span><span class="p">(</span> <span class="nb">object</span> <span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    A fake object, that will allow you to call attributes (at any level)</span>
-<span class="sd">    as functions with any number of args/kwds without errors.</span>
+<span class="sd">    A fake standin object, that allows you to get/call non-existant</span>
+<span class="sd">    attributes on it. Like :py:obj:`mock.Mock`, but more portable</span>
+<span class="sd">    and less utilitarian (this will work, for example in cx_freeze_).</span>
 
-<span class="sd">    You can use this in place of a signalmgr (see :py:obj:`SignalManagerFactory`)</span>
-<span class="sd">    if you want the ability to run methods inside or outside of threads.</span>
+<span class="sd">    .. _cx_freeze: https://anthony-tuininga.github.io/cx_Freeze/</span>
+
+<span class="sd">    This exists in this library so that you may define</span>
+<span class="sd">    methods that can be used within :py:obj:`ThreadedTask` ,</span>
+<span class="sd">    but can also be called outside of a thread (simply ignoring all signals)</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            Fake()</span>
+<span class="sd">            &gt;&gt;&gt; &lt;qconcurrency.Fake object at 0x7fef27891c10&gt;</span>
+
+<span class="sd">            Fake().fake.fake.fake</span>
+<span class="sd">            &gt;&gt;&gt; &lt;qconcurrency.Fake object at 0x7fef27774450&gt;</span>
+
+<span class="sd">            Fake().fake.fake.fake( &#39;cool&#39;, &#39;you get the point&#39; )</span>
+<span class="sd">            &gt;&gt;&gt; &lt;qconcurrency.Fake object at 0x7fef277123c0&gt;</span>
+
+
 <span class="sd">    &quot;&quot;&quot;</span>
 <div class="viewcode-block" id="Fake.__init__"><a class="viewcode-back" href="../_api/qconcurrency.Fake.html#qconcurrency.Fake.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span> <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Accepts/ignores any number of parameters</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">pass</span></div>
+        <span class="nb">object</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="o">*</span><span class="n">args</span><span class="p">,</span><span class="o">**</span><span class="n">kwds</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">Fake</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">yield</span> <span class="n">Fake</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">__getattribute__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -117,19 +142,14 @@
 <div class="viewcode-block" id="QApplication"><a class="viewcode-back" href="../_api/qconcurrency.QApplication.html#qconcurrency.QApplication">[docs]</a><span class="k">class</span> <span class="nc">QApplication</span><span class="p">(</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QApplication</span> <span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    QApplication that can be used in a `with` statement, automatically</span>
-<span class="sd">    exits when the last widget is deleted, at the occurrence of an unhandled</span>
+<span class="sd">    exits when the last widget is deleted, or at the occurrence of an unhandled</span>
 <span class="sd">    exception.</span>
 
 <span class="sd">    Does nothing if a QApplication already exists</span>
-<span class="sd">    ( Such as from within programs like Autodesk Maya, who are</span>
-<span class="sd">     already running their own QApplication instance ).</span>
+<span class="sd">    ( Such as from within programs like Autodesk_Maya_, that will have already</span>
+<span class="sd">    created a QApplication for you )</span>
 
-
-<span class="sd">    Args:</span>
-<span class="sd">        PySequence (tuple, optional):</span>
-<span class="sd">            An optional tuple of arguments to pass to your</span>
-<span class="sd">            QApplication&#39;s `__init__` method. ( uses :py:obj:`sys.argv`</span>
-<span class="sd">            by default. )</span>
+<span class="sd">    .. _Autodesk_Maya: http://www.autodesk.com/products/maya/overview</span>
 
 <span class="sd">    Example:</span>
 
@@ -140,9 +160,16 @@
 <span class="sd">                btn.show()</span>
 
 <span class="sd">            # ...</span>
-<span class="sd">            # when window is closed by user, QApp exits</span>
+<span class="sd">            # when window is closed by user, QApplication exits</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">PySequence</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span><span class="p">):</span>
+<div class="viewcode-block" id="QApplication.__init__"><a class="viewcode-back" href="../_api/qconcurrency.QApplication.html#qconcurrency.QApplication.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">PySequence</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            PySequence (tuple, optional):</span>
+<span class="sd">                An optional tuple of arguments to pass to your</span>
+<span class="sd">                QApplication&#39;s `__init__` method. ( uses :py:obj:`sys.argv`</span>
+<span class="sd">                by default. )</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">qapp</span>               <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QApplication</span><span class="o">.</span><span class="n">instance</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_created_qapp</span> <span class="o">=</span> <span class="kc">False</span>
 
@@ -153,7 +180,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_created_qapp</span> <span class="o">=</span> <span class="kc">True</span>
 
         <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span> <span class="o">=</span> <span class="n">qapp</span>
+            <span class="bp">self</span> <span class="o">=</span> <span class="n">qapp</span></div>
 
     <span class="k">def</span> <span class="nf">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span>

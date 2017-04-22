@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Iterable &#8212; pyqconcurrency 0.0.a1 documentation</title>
+    <title>SignalManagerFactory &#8212; pyqconcurrency 0.0.a1 documentation</title>
     
     <link rel="stylesheet" href="../_static/pyramid.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -53,54 +53,30 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="iterable">
-<h1>Iterable<a class="headerlink" href="#iterable" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="attributes">
-<h2>Attributes<a class="headerlink" href="#attributes" title="Permalink to this headline">¶</a></h2>
-<table border="1" class="longtable docutils">
-<colgroup>
-<col width="10%" />
-<col width="90%" />
-</colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">qconcurrency.threading.Iterable.__abstractmethods__</span></code></td>
-<td></td>
-</tr>
-<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">qconcurrency.threading.Iterable.__slots__</span></code></td>
-<td></td>
-</tr>
-<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">qconcurrency.threading.Iterable._abc_cache</span></code></td>
-<td></td>
-</tr>
-<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">qconcurrency.threading.Iterable._abc_negative_cache</span></code></td>
-<td></td>
-</tr>
-<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">qconcurrency.threading.Iterable._abc_negative_cache_version</span></code></td>
-<td></td>
-</tr>
-<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">qconcurrency.threading.Iterable._abc_registry</span></code></td>
-<td></td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="section" id="methods">
-<h2>Methods<a class="headerlink" href="#methods" title="Permalink to this headline">¶</a></h2>
-<table border="1" class="longtable docutils">
-<colgroup>
-<col width="10%" />
-<col width="90%" />
-</colgroup>
-<tbody valign="top">
-</tbody>
-</table>
-</div>
+  <div class="section" id="signalmanagerfactory">
+<h1>SignalManagerFactory<a class="headerlink" href="#signalmanagerfactory" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="documentation">
 <h2>Documentation<a class="headerlink" href="#documentation" title="Permalink to this headline">¶</a></h2>
-<dl class="class">
-<dt id="qconcurrency.threading.Iterable">
-<em class="property">class </em><code class="descclassname">qconcurrency.threading.</code><code class="descname">Iterable</code><a class="headerlink" href="#qconcurrency.threading.Iterable" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<dl class="function">
+<dt id="qconcurrency.threading.SignalManagerFactory">
+<code class="descclassname">qconcurrency.threading.</code><code class="descname">SignalManagerFactory</code><span class="sig-paren">(</span><em>signals</em>, <em>queue_stop=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qconcurrency/threading.html#SignalManagerFactory"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qconcurrency.threading.SignalManagerFactory" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dynamically creates a <code class="xref py py-obj docutils literal"><span class="pre">SignalManager</span></code> class
+with all required signals.</p>
+<p><code class="xref py py-obj docutils literal"><span class="pre">SignalManager</span></code> objects are dynamically
+created <code class="xref py py-obj docutils literal"><span class="pre">QtCore.QObject</span></code> designed to be handed
+off to a separate thread. They contain a variable
+number of signals, and the method <cite>handle_if_abort</cite>
+which checks the value of <cite>self._abort_requested</cite></p>
+<p class="rubric">Example</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">SignalManager</span><span class="p">(</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">QObject</span> <span class="p">):</span>
+    <span class="n">returned</span>  <span class="o">=</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">Signal</span><span class="p">()</span>
+    <span class="n">exception</span> <span class="o">=</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">Signal</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">handle_if_abort</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_abort_requested</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">UserCancelledOperation</span><span class="p">()</span>
+</pre></div>
+</div>
 </dd></dl>
 
 </div>
@@ -114,9 +90,7 @@
         <div class="sphinxsidebarwrapper">
   <h3><a href="../index.html">Table Of Contents</a></h3>
   <ul>
-<li><a class="reference internal" href="#">Iterable</a><ul>
-<li><a class="reference internal" href="#attributes">Attributes</a></li>
-<li><a class="reference internal" href="#methods">Methods</a></li>
+<li><a class="reference internal" href="#">SignalManagerFactory</a><ul>
 <li><a class="reference internal" href="#documentation">Documentation</a></li>
 </ul>
 </li>

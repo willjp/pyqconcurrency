@@ -75,10 +75,23 @@
 <dt id="qconcurrency.Fake">
 <em class="property">class </em><code class="descclassname">qconcurrency.</code><code class="descname">Fake</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwds</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qconcurrency.html#Fake"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qconcurrency.Fake" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
-<p>A fake object, that will allow you to call attributes (at any level)
-as functions with any number of args/kwds without errors.</p>
-<p>You can use this in place of a signalmgr (see <code class="xref py py-obj docutils literal"><span class="pre">SignalManagerFactory</span></code>)
-if you want the ability to run methods inside or outside of threads.</p>
+<p>A fake standin object, that allows you to get/call non-existant
+attributes on it. Like <code class="xref py py-obj docutils literal"><span class="pre">mock.Mock</span></code>, but more portable
+and less utilitarian (this will work, for example in <a class="reference external" href="https://anthony-tuininga.github.io/cx_Freeze/">cx_freeze</a>).</p>
+<p>This exists in this library so that you may define
+methods that can be used within <code class="xref py py-obj docutils literal"><span class="pre">ThreadedTask</span></code> ,
+but can also be called outside of a thread (simply ignoring all signals)</p>
+<p class="rubric">Example</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">Fake</span><span class="p">()</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="o">&lt;</span><span class="n">qconcurrency</span><span class="o">.</span><span class="n">Fake</span> <span class="nb">object</span> <span class="n">at</span> <span class="mh">0x7fef27891c10</span><span class="o">&gt;</span>
+
+<span class="n">Fake</span><span class="p">()</span><span class="o">.</span><span class="n">fake</span><span class="o">.</span><span class="n">fake</span><span class="o">.</span><span class="n">fake</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="o">&lt;</span><span class="n">qconcurrency</span><span class="o">.</span><span class="n">Fake</span> <span class="nb">object</span> <span class="n">at</span> <span class="mh">0x7fef27774450</span><span class="o">&gt;</span>
+
+<span class="n">Fake</span><span class="p">()</span><span class="o">.</span><span class="n">fake</span><span class="o">.</span><span class="n">fake</span><span class="o">.</span><span class="n">fake</span><span class="p">(</span> <span class="s1">&#39;cool&#39;</span><span class="p">,</span> <span class="s1">&#39;you get the point&#39;</span> <span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="o">&lt;</span><span class="n">qconcurrency</span><span class="o">.</span><span class="n">Fake</span> <span class="nb">object</span> <span class="n">at</span> <span class="mh">0x7fef277123c0</span><span class="o">&gt;</span>
+</pre></div>
+</div>
 <dl class="method">
 <dt id="qconcurrency.Fake.__init__">
 <code class="descname">__init__</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwds</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qconcurrency.html#Fake.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qconcurrency.Fake.__init__" title="Permalink to this definition">¶</a></dt>

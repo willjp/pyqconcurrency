@@ -63,8 +63,16 @@
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">qconcurrency.threading.ThreadedTask.__init__</span></code>(...)</td>
-<td></td>
+<tr class="row-odd"><td><a class="reference internal" href="#qconcurrency.threading.ThreadedTask.__init__" title="qconcurrency.threading.ThreadedTask.__init__"><code class="xref py py-obj docutils literal"><span class="pre">qconcurrency.threading.ThreadedTask.__init__</span></code></a>(...)</td>
+<td><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">param callback:</th><td class="field-body">A function, method, or class that you would like to run in</td>
+</tr>
+</tbody>
+</table>
+</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="#qconcurrency.threading.ThreadedTask.request_abort" title="qconcurrency.threading.ThreadedTask.request_abort"><code class="xref py py-obj docutils literal"><span class="pre">qconcurrency.threading.ThreadedTask.request_abort</span></code></a>(...)</td>
 <td>Runs <code class="xref py py-meth docutils literal"><span class="pre">SignalManager._request_abort()</span></code> .</td>
@@ -93,9 +101,89 @@
 <p>Bundles a callback method, it&#8217;s arguments, and a variable
 number of signals (with variable return-types) into a <code class="xref py py-obj docutils literal"><span class="pre">QtCore.QRunnable</span></code>
 that can be safely queued in a <code class="xref py py-obj docutils literal"><span class="pre">QtCore.QThreadPool</span></code>.</p>
-<p>Threads can be easily cancelled (if for instance a user
-changes their mind, and wants to do something else).</p>
-<table class="docutils field-list" frame="void" rules="none">
+<p>Every callback method  must accept the keyword argument
+<cite>signalmgr</cite>. <cite>signalmgr</cite> is a <code class="xref py py-obj docutils literal"><span class="pre">QtCore.QObject</span></code>
+that is instantiated with signals to communicate back with the UI
+thread, and the method <code class="xref py py-meth docutils literal"><span class="pre">SignalManager.handle_if_abort()</span></code>
+which should be run periodically in your <cite>callback</cite> method
+to handle user-abort requests (issued by <code class="xref py py-meth docutils literal"><span class="pre">request_abort()</span></code> ).</p>
+<p class="rubric">Example</p>
+<p><em>Run function in QCoreApplication&#8217;s :py:obj:`QtCore.QThreadPool`</em></p>
+<p>Handling early-exit by periodically (at safe points)
+checking if <code class="xref py py-meth docutils literal"><span class="pre">task.request_abort()</span></code> has been run.</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">long_running_job</span><span class="p">(</span> <span class="n">jobid</span><span class="p">,</span> <span class="n">signalmgr</span><span class="o">=</span><span class="bp">None</span> <span class="p">):</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">):</span>
+        <span class="n">signalmgr</span><span class="o">.</span><span class="n">handle_if_abort</span><span class="p">()</span>   <span class="c1"># exit early, if user-abort requested</span>
+        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;finished job </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">jobid</span> <span class="p">)</span>
+
+<span class="n">task</span> <span class="o">=</span> <span class="n">ThreadedTask</span><span class="p">(</span>
+    <span class="nb">callable</span> <span class="o">=</span> <span class="n">long_running_job</span><span class="p">,</span>
+    <span class="n">jobid</span>    <span class="o">=</span> <span class="mi">1</span>
+<span class="p">)</span>
+<span class="n">task</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+</pre></div>
+</div>
+<p><em>Create signals that can be used within the thread.</em></p>
+<p><code class="xref py py-obj docutils literal"><span class="pre">QtCore.QRunnable</span></code> objects (which get used in a
+<code class="xref py py-obj docutils literal"><span class="pre">QtCore.QThreadPool</span></code> ) cannot have signals attached to them.
+In order for this to work you must create a <code class="xref py py-obj docutils literal"><span class="pre">QtCore.QObject</span></code>
+with the signals that can be passed to the thread. This all gets
+done behind the scenes with a <code class="xref py py-obj docutils literal"><span class="pre">ThreadedTask</span></code> .</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">long_running_job</span><span class="p">(</span> <span class="n">signalmgr</span><span class="o">=</span><span class="bp">None</span> <span class="p">):</span>
+    <span class="n">signalmgr</span><span class="o">.</span><span class="n">log_message</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="s1">&#39;started job...&#39;</span><span class="p">)</span>
+    <span class="n">signalmgr</span><span class="o">.</span><span class="n">set_title</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="s1">&#39;My Title&#39;</span><span class="p">,</span> <span class="s1">&#39;my description&#39;</span><span class="p">)</span>
+    <span class="n">signalmgr</span><span class="o">.</span><span class="n">status_changed</span><span class="o">.</span><span class="n">emit</span><span class="p">()</span>
+
+<span class="k">def</span> <span class="nf">printargs</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">):</span>
+    <span class="k">print</span><span class="p">(</span> <span class="n">args</span> <span class="p">)</span>
+
+
+<span class="n">task</span> <span class="o">=</span> <span class="n">ThreadedTask</span><span class="p">(</span>                      <span class="c1">### Roughly Equivalent to:</span>
+    <span class="n">callback</span> <span class="o">=</span> <span class="n">long_running_job</span><span class="p">,</span>          <span class="c1">#</span>
+    <span class="n">signals</span>  <span class="o">=</span> <span class="p">{</span>                          <span class="c1">#  class SignalManager( QtCore.QObject ):</span>
+        <span class="s1">&#39;status_changed&#39;</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span>           <span class="c1">#      status_changed = QtCore.Signal()</span>
+        <span class="s1">&#39;log_message&#39;</span><span class="p">:</span>    <span class="nb">str</span><span class="p">,</span>            <span class="c1">#      log_message    = QtCore.Signal(str)</span>
+        <span class="s1">&#39;set_title&#39;</span><span class="p">:</span>     <span class="p">(</span><span class="nb">str</span><span class="p">,</span><span class="nb">str</span><span class="p">),</span>       <span class="c1">#      set_title      = QtCore.Signal(str,str)</span>
+    <span class="p">},</span>                                    <span class="c1">#</span>
+<span class="p">)</span>                                         <span class="c1">#</span>
+<span class="n">task</span><span class="o">.</span><span class="n">signal</span><span class="p">(</span><span class="s1">&#39;set_title&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span>   <span class="n">printargs</span> <span class="p">)</span>
+<span class="n">task</span><span class="o">.</span><span class="n">signal</span><span class="p">(</span><span class="s1">&#39;log_message&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span> <span class="n">printargs</span> <span class="p">)</span>
+<span class="n">task</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+</pre></div>
+</div>
+<p><em>Handle successful returns, and unhandled exceptions</em></p>
+<p><code class="xref py py-obj docutils literal"><span class="pre">ThreadedTask</span></code> have builtin signals
+<cite>returned</cite>, and <cite>exception</cite>, that are emitted
+automatically. You may emit the output of your callback
+in <cite>returned</cite>, only if you  override the <cite>returned</cite>
+signal in the <cite>signals</cite> argument.</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">long_running_job</span><span class="p">(</span> <span class="n">signalmgr</span><span class="o">=</span><span class="bp">None</span> <span class="p">):</span>
+    <span class="k">pass</span>
+
+<span class="k">def</span> <span class="nf">run_on_exit</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span><span class="o">**</span><span class="n">kwds</span><span class="p">):</span>
+    <span class="k">pass</span>
+
+
+<span class="n">task</span> <span class="o">=</span> <span class="n">ThreadedTask</span><span class="p">(</span>
+    <span class="n">callback</span> <span class="o">=</span> <span class="n">long_running_job</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">task</span><span class="o">.</span><span class="n">signal</span><span class="p">(</span><span class="s1">&#39;returned&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">run_on_exit</span><span class="p">)</span>
+<span class="n">task</span><span class="o">.</span><span class="n">signal</span><span class="p">(</span><span class="s1">&#39;exception&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">run_on_exit</span><span class="p">)</span>
+<span class="n">task</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<ul class="last simple">
+<li><a class="reference internal" href="qconcurrency.threading.SignalManagerFactory.html#qconcurrency.threading.SignalManagerFactory" title="qconcurrency.threading.SignalManagerFactory"><code class="xref py py-obj docutils literal"><span class="pre">qconcurrency.threading.SignalManagerFactory</span></code></a></li>
+<li><a class="reference internal" href="qconcurrency.threading.SoloThreadedTask.html#qconcurrency.threading.SoloThreadedTask" title="qconcurrency.threading.SoloThreadedTask"><code class="xref py py-obj docutils literal"><span class="pre">qconcurrency.threading.SoloThreadedTask</span></code></a></li>
+</ul>
+</div>
+<dl class="method">
+<dt id="qconcurrency.threading.ThreadedTask.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>callback</em>, <em>signals=None</em>, <em>*args</em>, <em>**kwds</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qconcurrency/threading.html#ThreadedTask.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qconcurrency.threading.ThreadedTask.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
@@ -122,6 +210,8 @@ to the callback in <code class="xref py py-meth docutils literal"><span class="p
 </tr>
 </tbody>
 </table>
+</dd></dl>
+
 <dl class="method">
 <dt id="qconcurrency.threading.ThreadedTask.request_abort">
 <code class="descname">request_abort</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwds</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qconcurrency/threading.html#ThreadedTask.request_abort"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qconcurrency.threading.ThreadedTask.request_abort" title="Permalink to this definition">¶</a></dt>

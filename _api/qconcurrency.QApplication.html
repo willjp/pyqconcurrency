@@ -77,8 +77,17 @@
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">qconcurrency.QApplication.__init__</span></code>([PySequence])</td>
-<td></td>
+<tr class="row-odd"><td><a class="reference internal" href="#qconcurrency.QApplication.__init__" title="qconcurrency.QApplication.__init__"><code class="xref py py-obj docutils literal"><span class="pre">qconcurrency.QApplication.__init__</span></code></a>([PySequence])</td>
+<td><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name" colspan="2">param PySequence:</th></tr>
+<tr class="field-odd field"><td>&#160;</td><td class="field-body">An optional tuple of arguments to pass to your</td>
+</tr>
+</tbody>
+</table>
+</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="#qconcurrency.QApplication.staticMetaObject" title="qconcurrency.QApplication.staticMetaObject"><code class="xref py py-obj docutils literal"><span class="pre">qconcurrency.QApplication.staticMetaObject</span></code></a></td>
 <td></td>
@@ -93,13 +102,24 @@
 <em class="property">class </em><code class="descclassname">qconcurrency.</code><code class="descname">QApplication</code><span class="sig-paren">(</span><em>PySequence=None</em>, <em>*args</em>, <em>**kwds</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qconcurrency.html#QApplication"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qconcurrency.QApplication" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">PySide.QtGui.QApplication</span></code></p>
 <p>QApplication that can be used in a <cite>with</cite> statement, automatically
-exits when the last widget is deleted, at the occurrence of an unhandled
+exits when the last widget is deleted, or at the occurrence of an unhandled
 exception.</p>
 <p>Does nothing if a QApplication already exists
-( Such as from within programs like Autodesk Maya, who are</p>
-<blockquote>
-<div>already running their own QApplication instance ).</div></blockquote>
-<table class="docutils field-list" frame="void" rules="none">
+( Such as from within programs like <a class="reference external" href="http://www.autodesk.com/products/maya/overview">Autodesk_Maya</a>, that will have already
+created a QApplication for you )</p>
+<p class="rubric">Example</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="k">with</span> <span class="n">QApplication</span><span class="p">():</span>
+    <span class="n">btn</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QPushButton</span><span class="p">(</span><span class="s1">&#39;boo&#39;</span><span class="p">)</span>
+    <span class="n">btn</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+<span class="c1"># ...</span>
+<span class="c1"># when window is closed by user, QApplication exits</span>
+</pre></div>
+</div>
+<dl class="method">
+<dt id="qconcurrency.QApplication.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>PySequence=None</em>, <em>*args</em>, <em>**kwds</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qconcurrency.html#QApplication.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qconcurrency.QApplication.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
@@ -109,15 +129,8 @@ by default. )</td>
 </tr>
 </tbody>
 </table>
-<p class="rubric">Example</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="k">with</span> <span class="n">QApplication</span><span class="p">():</span>
-    <span class="n">btn</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QPushButton</span><span class="p">(</span><span class="s1">&#39;boo&#39;</span><span class="p">)</span>
-    <span class="n">btn</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</dd></dl>
 
-<span class="c1"># ...</span>
-<span class="c1"># when window is closed by user, QApp exits</span>
-</pre></div>
-</div>
 <dl class="attribute">
 <dt id="qconcurrency.QApplication.staticMetaObject">
 <code class="descname">staticMetaObject</code><em class="property"> = &lt;PySide.QtCore.QMetaObject object&gt;</em><a class="headerlink" href="#qconcurrency.QApplication.staticMetaObject" title="Permalink to this definition">¶</a></dt>
