@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Name :          qconcurrency._threadifaces_.py
+Name :          qconcurrency.threading_..py
 Created :       Apr 08, 2017
 Author :        Will Pittman
 Contact :       willjpittman@gmail.com
@@ -272,8 +272,8 @@ class ThreadedTask( QtCore.QRunnable ):
 
     See Also:
 
-        * :py:obj:`qconcurrency.threading.SignalManagerFactory`
-        * :py:obj:`qconcurrency.threading.SoloThreadedTask`
+        * :py:obj:`qconcurrency.threading_.SignalManagerFactory`
+        * :py:obj:`qconcurrency.threading_.SoloThreadedTask`
 
     """
     def __init__(self, callback, signals=None, *args, **kwds ):
@@ -354,7 +354,6 @@ class ThreadedTask( QtCore.QRunnable ):
         except:
             exc_info = sys.exc_info()
             self._signalmgr.exception.emit( exc_info )
-            six.reraise( *exc_info )
 
     def start(self, expiryTimeout=-1, threadpool=None ):
         """
@@ -442,7 +441,7 @@ class SoloThreadedTask( QtCore.QObject ):
 
 
     See Also:
-        * :py:obj:`qconcurrency.threading.ThreadedTask`
+        * :py:obj:`qconcurrency.threading_.ThreadedTask`
 
     """
     def __init__(self, callback, signals=None, connections=None, mutex_expiry=5000 ):
@@ -615,6 +614,8 @@ class SoloThreadedTask( QtCore.QObject ):
 
 
 if __name__ == '__main__':
+    from qconcurrency import QApplication
+    from Qt           import QtWidgets
     import time
     import supercli.logging
     supercli.logging.SetLog(lv=10)
@@ -628,14 +629,16 @@ if __name__ == '__main__':
                 time.sleep(1)
             print( 'job finished (%s)' % thread_num )
 
-
-        for i in range(5):
-            task = ThreadedTask(
-                callback   = long_running_job,
-                # args/kwds
-                thread_num = i,
-            )
-            task.start()
+        with QApplication():
+            label = QtWidgets.QLabel('watch progress in terminal window..')
+            label.show()
+            for i in range(5):
+                task = ThreadedTask(
+                    callback   = long_running_job,
+                    # args/kwds
+                    thread_num = i,
+                )
+                task.start()
 
     def test_solo_threadedtask():
         def long_running_job( thread_num, signalmgr=None ):
@@ -650,17 +653,22 @@ if __name__ == '__main__':
         def printtxt(msg):
             print(msg)
 
-        solotask = SoloThreadedTask(
-            callback    = long_running_job,
-            signals     = {'print_txt':str},
-            connections = {'print_txt':[printtxt]},
-        )
 
-        # every 1s, cancel current job with
-        # a new job.
-        for i in range(5):
-            solotask.start( thread_num=i+1 )
-            time.sleep(1)
+        with QApplication():
+            label = QtWidgets.QLabel('watch progress in terminal window..')
+            label.show()
+
+            solotask = SoloThreadedTask(
+                callback    = long_running_job,
+                signals     = {'print_txt':str},
+                connections = {'print_txt':[printtxt]},
+            )
+
+            # every 1s, cancel current job with
+            # a new job.
+            for i in range(5):
+                solotask.start( thread_num=i+1 )
+                time.sleep(1)
 
     def runtests():
         #test_threadedtask()

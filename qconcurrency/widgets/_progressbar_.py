@@ -18,7 +18,7 @@ import uuid
 #external
 from Qt            import QtWidgets
 #internal
-from qconcurrency.threading  import ThreadedTask, SoloThreadedTask
+from qconcurrency.threading_  import ThreadedTask, SoloThreadedTask
 
 #!TODO: http://stackoverflow.com/questions/7108715/how-to-show-hide-a-child-qwidget-with-a-motion-animation
 

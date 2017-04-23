@@ -19,7 +19,7 @@ from   Qt import QtCore, QtWidgets
 import six
 #internal
 from   qconcurrency.exceptions_  import *
-from   qconcurrency.threading    import ThreadedTask, SoloThreadedTask
+from   qconcurrency.threading_    import ThreadedTask, SoloThreadedTask
 from   qconcurrency.widgets      import ProgressBar
 
 #!TODO: handle request-abort

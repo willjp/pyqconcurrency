@@ -5,7 +5,7 @@ Created :       Apr 08, 2017
 Author :        Will Pittman
 Contact :       willjpittman@gmail.com
 ________________________________________________________________________________
-Description :   Tools to facilitate threading, locks, mutexes, semaphores, etc.
+Description :   Tools to facilitate threading_ locks, mutexes, semaphores, etc.
 ________________________________________________________________________________
 """
 #builtin

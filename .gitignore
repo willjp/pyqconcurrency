@@ -5,3 +5,4 @@ docs/source/_api/*
 *.egg-info/*
 build/*
 dist/*
+.ropeproject/*

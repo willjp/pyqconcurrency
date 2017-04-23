@@ -13,7 +13,7 @@ pyqconcurrency documentation
 
 .. warning:: 
    
-   still working out kinks in :py:obj:`qconcurrency.threading.SoloThreadedTask`
+   still working out kinks in :py:obj:`qconcurrency.threading_.SoloThreadedTask`
 
 
 

@@ -1,4 +1,4 @@
-from   qconcurrency.threading import SoloThreadedTask
+from   qconcurrency.threading_ import SoloThreadedTask
 from   Qt                     import QtCore, QtWidgets
 import sys
 import six
@@ -59,7 +59,7 @@ class MyThreadedList( QtWidgets.QListWidget ):
 
 if __name__ == '__main__':
     from   qconcurrency           import QApplication
-    from   qconcurrency.threading import ThreadedTask
+    from   qconcurrency.threading_ import ThreadedTask
     import time
 
     with QApplication():
