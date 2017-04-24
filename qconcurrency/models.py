@@ -17,6 +17,7 @@ from __future__          import print_function
 from collections         import Iterable, MutableMapping
 #external
 from Qt                  import QtGui, QtCore
+import six
 #internal
 
 __all__ = [
@@ -24,6 +25,10 @@ __all__ = [
     'DictModelRow',
 ]
 
+
+#!TODO: implement the other QStandardItemModel methods (insertRow, ...)
+#!      taking special care to handle self._data
+#!      (to keep IPython happy)
 
 #!TODO: test using delattr unecessary, (and potentially harmful)
 #!      QStandardItemModel methods (like appendRow, setItem, ...)
@@ -172,6 +177,16 @@ class DictModel( QtGui.QStandardItemModel ):
         self._columns           = None    # either a list of columns, or a dict of hierarchy-keys and their columns
         self._hierarchy         = None    # either ``None``, or a list, indicating the level of each
 
+        self._data              = {}      # unfortunately, if an item has a dict interface
+                                          # and has assignments within a context-manager,
+                                          # IPython tries to save/restore the values when it
+                                          # is destroyed.
+                                          #
+                                          # This means we need a real-dict (or something
+                                          # to fake it) in order to cleanly use
+                                          # within IPython. So we are now  keeping
+                                          # 2x references to the data.
+
 
         # Validation
         # ==========
@@ -225,13 +240,6 @@ class DictModel( QtGui.QStandardItemModel ):
         self._columns   = columns
         self._hierarchy = hierarchy
 
-    def __getitem__(self, key):
-        """
-        Returns a :py:obj:`qconcurrency.models.DictModelRow` object representing
-        a row from this :py:obj:`qconcurrency.models.DictModel`.
-        """
-        return self._get_rowitem(key)
-
     def add_row(self, key, columnvals=None ):
         """
         Adds a new (toplevel) row to this DictModel, henceforth referred to by the key `key`.
@@ -259,6 +267,7 @@ class DictModel( QtGui.QStandardItemModel ):
         # NOTE: this step should not be necessary,
         #       but it seems to be...
         self.setItem( self.rowCount()-1, 0, item )
+        self._data[ key ] = item
 
         return item
 
@@ -365,6 +374,10 @@ class DictModel( QtGui.QStandardItemModel ):
             if self.item(i,0).text() == str(key):
                 return self.item(i,0)
 
+        raise KeyError(
+            'no row has the key "%s"' % key
+        )
+
     def _get_colindex(self, column):
         """
         Returns the column-index for a column within this :py:obj:`QtGui.QStandardItemModel`
@@ -405,10 +418,92 @@ class DictModel( QtGui.QStandardItemModel ):
                 [ 1, 2, 3, 5, 8, ... ]
 
         """
-        keys = []
-        for i in range(self.rowCount()):
-            keys.append( self.item(i,0).id() )
-        return keys
+        return self._data.keys()
+        #keys = []
+        #for i in range(self.rowCount()):
+        #    keys.append( self.item(i,0).id() )
+        #return keys
+
+
+    def removeRow(self, key):
+        self._data.pop( key )
+
+        # row is gone. that is all we care about
+        try:
+            modelitem = self._get_rowitem( key )
+            return QtGui.QStandardItemModel.removeRow( self, modelitem.row() )
+        except( KeyError ):
+            return
+
+    def takeRow(self, key):
+        return self.removeRow( key )
+
+
+    def __getitem__(self, key):
+        """
+        Returns a :py:obj:`qconcurrency.models.DictModelRow` object representing
+        a row from this :py:obj:`qconcurrency.models.DictModel`.
+        """
+        return self._data[key]
+
+    def __delitem__(self, key):
+        """
+        Wraps :py:meth:`removeRow`
+        """
+        self.removeRow( key )
+
+    def __contains__(self, item):
+        """
+        Returns True/False if a row with `key` exists in
+        :py:obj:`QtWidgets.QStandardItemModel`
+        """
+        return item in self._data
+
+    def __len__(self):
+        """
+        Wraps `self._data.__len__`
+        """
+        return len(self._data)
+
+    def __iter__(self):
+        """
+        Allows iteration over Ids in DictModel.
+        """
+        return iter(self._data)
+
+    def has_key(self, k):
+        """
+        Wraps `self._data.has_key`
+        """
+        return self._data.has_key(k)
+
+    def keys(self):
+        """
+        Lists `key` value for every row in the
+        :py:obj:`QtWidgets.QStandardItemModel`
+        """
+        return self._data.keys()
+
+    def values(self):
+        """
+        Lists :py:obj:`DictModelRow` objects for every row in the
+        :py:obj:`QtWidgets.QStandardItemModel`
+        """
+        return self._data.values()
+
+    def items(self):
+        """
+        Lists a tuple with the `key` and :py:obj:`DictModelRow`
+        objects for every row in the :py:obj:`QtWidgets.QStandardItemModel`
+        """
+        return self._data.items()
+
+    def clear(self):
+        """
+        Removes all items from :py:obj:`QtGui.QStandardItemModel`
+        """
+        self._data = {}
+        QtGui.QStandardItemModel.clear(self)
 
 
 
@@ -664,6 +759,13 @@ class DictModelRow( QtGui.QStandardItem ):
         raise KeyError(
             'Unable to find a column named: "%s" in %s' % (name, repr(columns))
         )
+
+    def columnitem(self, name):
+        """
+        Returns the sibling-widget representing one of the columnvals
+        """
+        sibling_index = self.index().sibling( self.index().row(), self._get_colindex( name ) )
+        return self.model().itemFromIndex( sibling_index )
 
     def level(self):
         """
