@@ -312,9 +312,9 @@ class DictModel( QtGui.QStandardItemModel ):
                 3   # a column-index
         """
         if self._hierarchy:
-            return self._columns[ level ].index( column )
+            return self._columns[ level ].index( column ) +1
         else:
-            return self._columns.index( column )
+            return self._columns.index( column ) +1
 
     def default_columnvals(self, level=None ):
         """
@@ -706,15 +706,15 @@ class DictModelRow( QtGui.QStandardItem ):
             if column in columnvals:
                 if self.parent() is not None:
                     self.parent().setChild(
-                        self.index().row(),                       # row
-                        i+1,                                      # column
-                        QtGui.QStandardItem( columnvals[column] ) # item
+                        self.index().row(),                            # row
+                        i+1,                                           # column
+                        QtGui.QStandardItem( str(columnvals[column]) ) # item
                     )
                 else:
                     self.model().setItem(
-                        self.index().row(),                       # row
-                        i+1,                                      # column
-                        QtGui.QStandardItem( columnvals[column] ) # item
+                        self.index().row(),                            # row
+                        i+1,                                           # column
+                        QtGui.QStandardItem( str(columnvals[column]) ) # item
                     )
 
     def columnvals(self):
