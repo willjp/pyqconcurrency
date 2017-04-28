@@ -300,7 +300,7 @@ class DictModel( QtGui.QStandardItemModel ):
                 )
 
             if level in self._columns:
-                columns = self._columns[ level ][:]
+                columns = list(self._columns[ level ][:])
                 columns.insert( 0, 'id' )
                 return columns
 
@@ -309,7 +309,7 @@ class DictModel( QtGui.QStandardItemModel ):
                     i = 0
                     for key in self._columns:
                         if i == level:
-                            columns = self._columns[ key ][:]
+                            columns = list(self._columns[ key ][:])
                             columns.insert( 0, 'id' )
                             return columns
                         i +=1
