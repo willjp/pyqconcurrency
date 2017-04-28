@@ -277,10 +277,12 @@ class DictModel( QtGui.QStandardItemModel ):
         within this :py:obj:`qconcurrency.models.DictModel`.
 
         Args:
-            level (obj):
+            level (obj):  ``( ex:  'jedi_class', 0 )``
                 If a `hierarchy` was assigned to this :py:obj:`qconcurrency.models.DictModel`,
-                this will be a label from it. Otherwise, this will be an integer
-                indicating the level-of-nesting (and it will be ignored).
+                this can be a label from it, or an integer indicating the level-of-nesting.
+
+                Otherwise, this will be an integer indicating the level-of-nesting
+                (and it will be ignored).
 
         Returns:
 
@@ -296,7 +298,19 @@ class DictModel( QtGui.QStandardItemModel ):
                     'different levels. You\'ll need to provide the `level` you are '
                     'interested in to get the column-list '
                 )
-            return self._columns[ level ]
+
+            if level in self._columns:
+                return self._columns[ level ]
+
+            elif isinstance( level, int ):
+                if level <= len(self._columns):
+                    i = 0
+                    for key in self._columns:
+                        if i == level:
+                            return self._columns[ key ]
+                        i +=1
+            raise KeyError('unknown level: %s' % level )
+
         else:
             return self._columns
 
@@ -305,6 +319,15 @@ class DictModel( QtGui.QStandardItemModel ):
         Returns the column-index for a specific columnname
         at a specific level.
 
+        Args:
+            level (obj):  ``( ex:  'jedi_class', 0 )``
+                If a `hierarchy` was assigned to this :py:obj:`qconcurrency.models.DictModel`,
+                this can be a label from it, or an integer indicating the level-of-nesting.
+
+                Otherwise, this will be an integer indicating the level-of-nesting
+                (and it will be ignored).
+
+
         Returns:
 
             .. code-block:: python
@@ -312,7 +335,24 @@ class DictModel( QtGui.QStandardItemModel ):
                 3   # a column-index
         """
         if self._hierarchy:
-            return self._columns[ level ].index( column ) +1
+            if level == None:
+                raise RuntimeError(
+                    'This `qconcurrency.models.DictModel` was created with different columns at '
+                    'different levels. You\'ll need to provide the `level` you are '
+                    'interested in to get the column-list '
+                )
+            if level in self._columns:
+                return self._columns[ level ].index( column ) +1
+
+            elif isinstance( level, int ):
+                if level <= len(self._columns):
+                    i = 0
+                    for key in self._columns:
+                        if i == level:
+                            return self._columns[ key ]
+                        i +=1
+            raise KeyError('unknown level: %s' % level )
+
         else:
             return self._columns.index( column ) +1
 
@@ -339,7 +379,18 @@ class DictModel( QtGui.QStandardItemModel ):
         """
 
         if self._hierarchy:
-            return self._defaultcolumnvals[ level ]
+            if level in self._defaultcolumnvals:
+                return self._defaultcolumnvals[ level ]
+
+            elif isinstance( level, int ):
+                if level <= len(self._defaultcolumnvals):
+                    i = 0
+                    for key in self._defaultcolumnvals:
+                        if i == level:
+                            return self._defaultcolumnvals[ key ]
+                        i +=1
+            raise KeyError('unknown level: %s' % level )
+
         else:
             return self._defaultcolumnvals
 
@@ -378,7 +429,7 @@ class DictModel( QtGui.QStandardItemModel ):
             'no row has the key "%s"' % key
         )
 
-    def _get_colindex(self, column):
+    def _get_colindex(self, level, column):
         """
         Returns the column-index for a column within this :py:obj:`QtGui.QStandardItemModel`
         by it's name.
@@ -397,8 +448,30 @@ class DictModel( QtGui.QStandardItemModel ):
         Raises:
             KeyError: if column does not exist in table
         """
-        if column in self._columns:
+
+        if self._hierarchy:
+            if level == None:
+                raise RuntimeError(
+                    'This `qconcurrency.models.DictModel` was created with different columns at '
+                    'different levels. You\'ll need to provide the `level` you are '
+                    'interested in to get the column-list '
+                )
+
+            if   level in self._columns:
+                return self._columns[ level ].index( column ) +1
+
+            elif isinstance( level, int ):
+                if level <= len(self._columns):
+                    i = 0
+                    for key in self._columns:
+                        if i == level:
+                            return self._columns[ key ].index( column  ) +1
+                        i +=1
+            raise KeyError('unknown level: %s' % level )
+
+        else:
             return self._columns.index(column) +1
+
 
         raise KeyError(
             'Column "%s" does not exist in this `qconcurrency.models.DictModel` columns: %s' % (
@@ -857,7 +930,7 @@ class DictModelRow( QtGui.QStandardItem ):
         )
 
     def _get_colindex(self, column):
-        return self.model()._get_colindex(column)
+        return self.model()._get_colindex( self.level(), column )
 
     def keys(self):
         """
