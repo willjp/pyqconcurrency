@@ -288,7 +288,7 @@ class DictModel( QtGui.QStandardItemModel ):
 
             .. code-block:: python
 
-                ('firstname','lastname','username', ...)
+                ('id','firstname','lastname','username', ...)
         """
 
         if self._hierarchy:
@@ -300,14 +300,18 @@ class DictModel( QtGui.QStandardItemModel ):
                 )
 
             if level in self._columns:
-                return self._columns[ level ]
+                columns = self._columns[ level ][:]
+                columns.insert( 0, 'id' )
+                return columns
 
             elif isinstance( level, int ):
                 if level <= len(self._columns):
                     i = 0
                     for key in self._columns:
                         if i == level:
-                            return self._columns[ key ]
+                            columns = self._columns[ key ][:]
+                            columns.insert( 0, 'id' )
+                            return columns
                         i +=1
             raise KeyError('unknown level: %s' % level )
 
