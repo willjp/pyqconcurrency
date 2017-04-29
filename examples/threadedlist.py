@@ -1,5 +1,5 @@
-from   qconcurrency.threading_ import SoloThreadedTask
-from   Qt                     import QtCore, QtWidgets
+from   qconcurrency.threading_ import ThreadedTask, SoloThreadedTask
+from   Qt                      import QtCore, QtWidgets
 import sys
 import six
 import time
@@ -52,6 +52,8 @@ class MyThreadedList( QtWidgets.QListWidget ):
             self._mutex_rendering.unlock()
             six.reraise( *sys.exc_info() )
 
+        # make sure events get processed
+        QtCore.QCoreApplication.instance().processEvents()
         self._sem_rendering.release(1)
 
 
@@ -62,11 +64,13 @@ if __name__ == '__main__':
     from   qconcurrency.threading_ import ThreadedTask
     import time
 
+
     with QApplication():
         # create/load the list
         mylist = MyThreadedList()
         mylist.show()
         mylist.load()
+
 
         # from a separate thread (so that it is visible)
         # continuously reload the list

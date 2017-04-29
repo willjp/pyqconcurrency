@@ -343,6 +343,7 @@ class ThreadedTask( QtCore.QRunnable ):
                 signals  = {'returned': (int,int)},  #: mycallback is now expected to return 2x integers
             )
         """
+
         try:
             retval = self._callback( signalmgr=self._signalmgr, *self._args, **self._kwds )
 
@@ -410,6 +411,17 @@ class SoloThreadedTask( QtCore.QObject ):
 
     This might be useful for methods that load or filter the contents
     of a widget.
+
+
+    .. warning::
+
+        If slot connected to one of this task's signals does not update
+        UI until this thread exits, add the following line to the end of your slot.
+
+        .. code-block:: python
+
+            QtCore.QCoreApplication.instance().processEvents()
+
 
     Example:
 
@@ -530,11 +542,11 @@ class SoloThreadedTask( QtCore.QObject ):
         if self._connections:
             for signal_name in self._connections:
                 for callback in self._connections[ signal_name ]:
-                    task.signal( signal_name ).connect( callback, QtCore.Qt.DirectConnection )
+                    task.signal( signal_name ).connect( callback )
 
 
-        task.signal('thread_acquired_mutex').connect( self._set_active_threadId,   QtCore.Qt.DirectConnection )
-        task.signal('_thread_exit_').connect(         self._set_complete_threadId, QtCore.Qt.DirectConnection )
+        task.signal('thread_acquired_mutex').connect( self._set_active_threadId )
+        task.signal('_thread_exit_').connect(         self._set_complete_threadId )
 
         task.start( expiryTimeout=expiryTimeout, threadpool=threadpool )
 
