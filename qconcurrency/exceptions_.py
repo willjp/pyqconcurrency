@@ -23,3 +23,12 @@ class UserCancelledOperation( Exception ):
     pass
 
 
+class TimedOut( Exception ):
+    """
+    If waiting for a resource to be available, or an
+    operation to complete, and it fails to do so.
+    """
+    pass
+
+
+

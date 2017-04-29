@@ -177,6 +177,95 @@ def SignalManagerFactory( signals, queue_stop=None ):
 
 
 
+class QSemaphoreLocker( QtCore.QObject ):
+    """
+    Mirrors the behaviour of :py:obj:`QtCore.QMutexLocker`, but instead of a mutex
+    manages a :py:obj:`QtCore.QSemaphore` .
+
+
+    Example:
+
+        .. code-block:: python
+
+            class MyClass( QtCore.QObject ):
+                def __init__(self):
+                    self._semaphore = QtCore.QSemaphore(5)
+
+                def load(self):
+                    locked = QSemaphoreLocker( self._semaphore, 3, 500 )
+
+                    # ...
+                    # when locked goes out of scope, 3x resource is released
+                    # ...
+
+                def load_again(self):
+
+                    with QSemaphoreLocker( self._semaphore ):
+                        # ...
+                        # do these actions while 1x semaphore is locked
+                        # ...
+
+                    # .. semaphore resources no longer in use ..
+
+    """
+    def __init__(self, semaphore, n=1, timeout=-1 ):
+        """
+
+        Args:
+            semaphore (QtCore.QSemaphore):
+                The semaphore that you'd like to lock
+
+            n (int, optional):
+                The number of resources you would like to lock
+                in the semaphore.
+
+            timeout (int, optional):
+                milliseconds you would like to wait for `n` resources
+                to become available before failing :py:meth:`QtCore.QSemaphore.acquire`
+                A :py:obj:`RuntimeError` will be raised.
+        """
+        QtCore.QObject.__init__(self)
+
+        if not isinstance( semaphore, QtCore.QSemaphore ):
+            raise TypeError((
+                'expected `semaphore` argument to be of type `QtCore.QSemaphore` \n'
+                'received type: %s'
+                ) % str(type(semaphore))
+            )
+
+
+        self._semaphore = semaphore
+        self._resources = n
+
+        self.destroyed.connect(
+            functools.partial(
+                self._semaphore.unlock,
+                self._resources,
+            )
+        )
+
+        success = self._semaphore.tryAcquire( n, timeout )
+        if not success:
+            raise TimedOut(
+                'waited timeout of %sms to acquire %s QSemaphore resources' % (
+                    timeout, n)
+            )
+
+    def __enter__(self):
+        pass
+
+    def __exit__(self, err_type, err_msg, err_tb ):
+        """
+        On exit, releases all resources that were acquired
+        """
+        if all([ err_type, err_msg, err_tb ]):
+            self._semaphore.release( self._resources )
+            six.reraise( err_type, err_msg, err_tb )
+
+        self._semaphore.release( self._resources )
+
+
+
 class ThreadedTask( QtCore.QRunnable ):
     """
     Bundles a callback method, it's arguments, and a variable
