@@ -7,7 +7,9 @@ import time
 class MyThreadedList( QtWidgets.QListWidget ):
     def __init__(self):
         QtWidgets.QListWidget.__init__(self)
+
         self._sem_rendering  = QtCore.QSemaphore(1)
+
         self._thread_loading = SoloThreadedTask(
             callback    = self._find_list_items,
             signals     = {
@@ -38,13 +40,17 @@ class MyThreadedList( QtWidgets.QListWidget ):
             signalmgr.handle_if_abort()   # check for a request-abort, and exit early
 
             # slow signals down, emitting one object at a time
+            # so that job can be cancelled.
             # ( signals have no priority, once emitted,  )
-            # ( you must wait for all them to be handled )
-            # ( before you can cancel the job            )
+            # ( you must wait for them all to be handled )
             self._sem_rendering.tryAcquire(1,5000)
             signalmgr.add_item.emit( str(i) )  # add an item to the list
 
     def addItem(self, item):
+        """
+        Unecessarily waits .01 seconds (so you can see widget updating live),
+        then adds the item to the list.
+        """
         time.sleep(0.01)
         try:
             QtWidgets.QListWidget.addItem(self, item )
@@ -52,15 +58,23 @@ class MyThreadedList( QtWidgets.QListWidget ):
             self._mutex_rendering.unlock()
             six.reraise( *sys.exc_info() )
 
-        # make sure events get processed
+
+        if not self._sem_rendering.available():
+            self._sem_rendering.release(1)
+
+        # in this example, the wait is performed
+        # in the UI thread - it never has a chance to process
+        # QApp events (causing item to be rendered) until it runs
+        # out of signals to fire. It is unlikely you will
+        # need the following line in your production code.
+        #
         QtCore.QCoreApplication.instance().processEvents()
-        self._sem_rendering.release(1)
 
 
 
 
 if __name__ == '__main__':
-    from   qconcurrency           import QApplication
+    from   qconcurrency            import QApplication
     from   qconcurrency.threading_ import ThreadedTask
     import time
 
