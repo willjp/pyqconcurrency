@@ -399,8 +399,6 @@ class ThreadedTask( QtCore.QRunnable ):
         self._kwds     = kwds
         self._id       = None # used by SoloThreadedTask
 
-        if signals == None:
-            signals = {}
 
         # Attributes
         self._signals  = {
@@ -408,7 +406,8 @@ class ThreadedTask( QtCore.QRunnable ):
             'exception':       tuple,
             'abort_requested': None,
         }
-        self._signals.update( signals )
+        if signals:
+            self._signals.update( signals )
 
         self._signalmgr = SignalManagerFactory( self._signals )
 
@@ -443,7 +442,8 @@ class ThreadedTask( QtCore.QRunnable ):
 
         except:
             exc_info = sys.exc_info()
-            self._signalmgr.exception.emit( exc_info )
+            logger.error( 'Unhandled Exception occurred in thread: %s' % repr(exc_info) )
+            self._signalmgr.exception.emit( tuple(exc_info) )
 
     def start(self, expiryTimeout=-1, threadpool=None ):
         """
