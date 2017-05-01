@@ -304,10 +304,10 @@ class DictModel( QtGui.QStandardItemModel ):
                 columns.insert( 0, 'id' )
                 return columns
 
-            elif isinstance( level, int ):
-                if level <= len(self._columns):
+            elif isinstance( level, int ) and isinstance( self._hierarchy, Iterable):
+                if level <= len(self._hierarchy):
                     i = 0
-                    for key in self._columns:
+                    for key in self._hierarchy:
                         if i == level:
                             columns = list(self._columns[ key ][:])
                             columns.insert( 0, 'id' )
@@ -348,12 +348,12 @@ class DictModel( QtGui.QStandardItemModel ):
             if level in self._columns:
                 return self._columns[ level ].index( column ) +1
 
-            elif isinstance( level, int ):
-                if level <= len(self._columns):
+            elif isinstance( level, int ) and isinstance( self._hierarchy, Iterable ):
+                if level <= len(self._hierarchy):
                     i = 0
-                    for key in self._columns:
+                    for key in self._hierarchy:
                         if i == level:
-                            return self._columns[ key ]
+                            return self._columns[ key ].index( column ) +1
                         i +=1
             raise KeyError('unknown level: %s' % level )
 
@@ -464,10 +464,10 @@ class DictModel( QtGui.QStandardItemModel ):
             if   level in self._columns:
                 return self._columns[ level ].index( column ) +1
 
-            elif isinstance( level, int ):
-                if level <= len(self._columns):
+            elif isinstance( level, int ) and isinstance( self._hierarchy, Iterable ):
+                if level <= len(self._hierarchy):
                     i = 0
-                    for key in self._columns:
+                    for key in self._hierarchy:
                         if i == level:
                             return self._columns[ key ].index( column  ) +1
                         i +=1
@@ -784,13 +784,13 @@ class DictModelRow( QtGui.QStandardItem ):
                 if self.parent() is not None:
                     self.parent().setChild(
                         self.index().row(),                            # row
-                        i+1,                                           # column
+                        i,                                             # column
                         QtGui.QStandardItem( str(columnvals[column]) ) # item
                     )
                 else:
                     self.model().setItem(
                         self.index().row(),                            # row
-                        i+1,                                           # column
+                        i,                                             # column
                         QtGui.QStandardItem( str(columnvals[column]) ) # item
                     )
 
@@ -805,10 +805,28 @@ class DictModelRow( QtGui.QStandardItem ):
 
         for i in range(len(columns)):
             column = columns[i]
+
+            # nested-modelitem
             if self.parent() is not None:
-                columnvals[ column ] = self.parent().child( self.row(), i+1 ).text()
+                modelitem = self.parent().child( self.row(), i+1 )
+                if modelitem is not None:
+                    columnvals[ column ] = modelitem.text()
+                else:
+                    raise RuntimeError(
+                        'item at level "%s" in column "%s" (%s,%s) is None. Expected QtCore.QStandardItem' % (
+                            self._level, column, self.row(), i+1)
+                    )
+
+            # root-modelitems
             else:
-                columnvals[ column ] = self.model().item( self.row(), i+1 ).text()
+                modelitem = self.model().item( self.row(), i+1 )
+                if modelitem is not None:
+                    columnvals[ column ] = modelitem.text()
+                else:
+                    raise RuntimeError(
+                        'item at level "%s" in column "%s" (%s,%s) is None. Expected QtCore.QStandardItem' % (
+                            self._level, column, self.row(), i+1)
+                    )
         columnvals['_id'] = self._key
 
         return columnvals
