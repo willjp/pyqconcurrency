@@ -14,10 +14,12 @@ from __future__    import absolute_import
 from __future__    import division
 from __future__    import print_function
 from   collections import MutableMapping, Iterable, OrderedDict
+from   numbers     import Number
 import logging
 import sys
 import os
 import uuid
+import time
 #package
 #external
 from   Qt import QtCore, QtWidgets
@@ -607,7 +609,7 @@ class SoloThreadedTask( QtCore.QObject ):
         # locks
         self._mutex_loading    = QtCore.QMutex()
 
-    def start(self, expiryTimeout=-1, threadpool=None, *args,**kwds):
+    def start(self, expiryTimeout=-1, threadpool=None, wait=False, *args,**kwds):
         """
         Creates/starts a new :py:obj:`ThreadedTask`, and cancels
         all other pending/running threads started by this
@@ -638,6 +640,32 @@ class SoloThreadedTask( QtCore.QObject ):
         task.signal('_thread_exit_').connect(         self._set_complete_threadId )
 
         task.start( expiryTimeout=expiryTimeout, threadpool=threadpool )
+
+
+        if wait:
+            elapsed = 0
+            # wait for thread to lock
+            while self._mutex_loading.tryLock(0):
+                self._mutex_loading.unlock()
+                time.sleep(0.05)
+                elapsed += 0.05
+            print( 'locked by thread' )
+
+
+            # wait for thread to unlock
+            while not self._mutex_loading.tryLock(0):
+                if wait not in (True,False):
+                    if elapsed >= wait:
+                        raise TimedOut(
+                            'waited %ss for job to complete without success' % elapsed
+                        )
+
+                time.sleep(0.05)
+                elapsed += 0.05
+                QtCore.QCoreApplication.instance().processEvents()
+
+            self._mutex_loading.unlock()
+
 
     def _run(self, threadId=None, signalmgr=None, *args, **kwds ):
         """
@@ -673,7 +701,7 @@ class SoloThreadedTask( QtCore.QObject ):
         self._mutex_loading.unlock()
         return retval
 
-    def stop(self, until_threadId=None ):
+    def stop(self, until_threadId=None, wait=None ):
         """
         Emits `request_abort` signal on all threads up-to (but not including)
         the target `until_threadId`. If `until_threadId` is not provided, all
@@ -681,6 +709,17 @@ class SoloThreadedTask( QtCore.QObject ):
 
         (threadIds will be automatically removed from attr :py:attr:`_active_threads`
         as they return, or raise unhandled exceptions).
+
+
+        Args:
+            wait (numbers.Number, optional):  ``(ex: None, -1, 100)``
+                Optionally, wait *N* seconds for job to complete
+                after requesting abort. If negative number, waits
+                indefinitely. Waiting in the main UI thread will
+                result in a deadlock.
+
+        Raises
+            * :py:obj:`TimedOut` if user set a wait time.
         """
 
         for active_threadId in self._active_threads:
@@ -689,6 +728,24 @@ class SoloThreadedTask( QtCore.QObject ):
             else:
                 logger.debug('requesting abort on threadId: %s' % active_threadId )
                 self._active_threads[ active_threadId ]()
+
+        if wait:
+            elapsed = 0
+            while True:
+                locked = self._mutex_loading.tryLock(0)
+
+                # if lock is free, exit
+                if locked:
+                    self._mutex_loading.unlock()
+                    break
+
+                # if waited user-requested time, exit
+                if elapsed > 0  and  elapsed >= wait:
+                    raise TimedOut('waited %ss for thread to end' % elapsed)
+                    break
+
+                time.sleep(0.05)
+                elapsed += 0.05
 
     def _set_active_threadId(self, threadId):
         """
@@ -711,6 +768,10 @@ class SoloThreadedTask( QtCore.QObject ):
         if threadId in self._active_threads:
             self._active_threads.pop( threadId )
 
+    def is_active(self):
+        if self._active_threads:
+            return True
+        return False
 
 
 

@@ -267,7 +267,7 @@ class DictModel( QtGui.QStandardItemModel ):
         # NOTE: this step should not be necessary,
         #       but it seems to be...
         self.setItem( self.rowCount()-1, 0, item )
-        self._data[ key ] = item
+        self._data[ str(key) ] = item
 
         return item
 
@@ -503,7 +503,7 @@ class DictModel( QtGui.QStandardItemModel ):
 
 
     def removeRow(self, key):
-        self._data.pop( key )
+        self._data.pop( str(key) )
 
         # row is gone. that is all we care about
         try:
@@ -513,7 +513,7 @@ class DictModel( QtGui.QStandardItemModel ):
             return
 
     def takeRow(self, key):
-        return self.removeRow( key )
+        return self.removeRow( str(key) )
 
 
     def __getitem__(self, key):
@@ -521,7 +521,7 @@ class DictModel( QtGui.QStandardItemModel ):
         Returns a :py:obj:`qconcurrency.models.DictModelRow` object representing
         a row from this :py:obj:`qconcurrency.models.DictModel`.
         """
-        return self._data[key]
+        return self._data[str(key)]
 
     def __delitem__(self, key):
         """
@@ -534,7 +534,7 @@ class DictModel( QtGui.QStandardItemModel ):
         Returns True/False if a row with `key` exists in
         :py:obj:`QtWidgets.QStandardItemModel`
         """
-        return item in self._data
+        return str(item) in self._data
 
     def __len__(self):
         """
