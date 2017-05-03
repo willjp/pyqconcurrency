@@ -147,7 +147,7 @@ class ProgressBar( QtWidgets.QProgressBar ):
 
         return task
 
-    def new_solotask(self, callback, signals=None, mutex_expiry=5000 ):
+    def new_solotask(self, callback, signals=None, connections=None, mutex_expiry=5000 ):
         """
         Creates a new :py:obj:`SoloThreadedTask` object, adding
         signals to it so that it can update this :py:obj:`ProgressBar`.
@@ -160,34 +160,33 @@ class ProgressBar( QtWidgets.QProgressBar ):
             'incr_progress': int,
             'add_progress':  int,
         }
-
         if signals:
             default_signals.update( signals )
 
+        # assign connections
+        default_connections = {
+            'incr_progress' : [functools.partial( self.incr_progress, jobid=jobid )],
+            'add_progress'  : [functools.partial( self.add_progress,  jobid=jobid )],
+            'returned'      : [functools.partial( self._handle_return_or_abort, jobid=jobid )],
+            'exception'     : [functools.partial( self._handle_return_or_abort, jobid=jobid )],
+        }
+        for signal in connections:
+            if isinstance( connections[ signal ], Iterable ):
+                for _callable in connections[ signal ]:
+                    default_connections.append( _callable )
+            else:
+                _callable = connections[ signal ]
+                default_connections.append( _callable )
 
         # create task
-        task = SoloThreadedTask(
+        solotask = SoloThreadedTask(
             callback     = callback,
             signals      = default_signals,
+            connections  = default_connections,
             mutex_expiry = mutex_expiry,
         )
 
-
-        # Connections
-        task.signal('incr_progress').connect(
-            functools.partial( self.incr_progress, jobid=jobid )
-        )
-        task.signal('add_progress').connect(
-            functools.partial( self.add_progress, jobid=jobid )
-        )
-        task.signal('returned').connect(
-            functools.partial( self._handle_return_or_abort, jobid=jobid )
-        )
-        task.signal('exception').connect(
-            functools.partial( self._handle_return_or_abort, jobid=jobid )
-        )
-
-        return task
+        return solotask
 
     def _handle_return_or_abort(self, jobid=None, *args,**kwds):
         self.reset( jobid=jobid )

@@ -74,6 +74,52 @@ class QBaseWindow( QtWidgets.QWidget ):
 
 
 
+class QBaseObject( QtCore.QObject ):
+    def __init__(self):
+        QtCore.QObject.__init__(self)
+
+    def new_task(self, callback, signals=None, *args, **kwds):
+
+        # assign signals
+        default_signals = {
+            'incr_progress': int,
+            'add_progress':  int,
+        }
+
+        if signals:
+            default_signals.update( signals )
+
+        task = ThreadedTask(
+            callback = callback,
+            signals  = default_signals,
+            *args, **kwds
+        )
+
+        return task
+
+    def new_solotask(self, callback, signals=None, connections=None, mutex_expiry=5000):
+
+        # assign signals
+        default_signals = {
+            'incr_progress': int,
+            'add_progress':  int,
+        }
+
+        if signals:
+            default_signals.update( signals )
+
+        solotask = SoloThreadedTask(
+            callback     = callback,
+            signals      = default_signals,
+            connections  = connections,
+            mutex_expiry = mutex_expiry,
+        )
+
+        return solotask
+
+
+
+
 
 if __name__ == '__main__':
     #internal
