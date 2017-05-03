@@ -616,14 +616,14 @@ class SoloThreadedTask( QtCore.QObject ):
                     }
 
             connections (dict, optional):
-                Dictionary of signal-names, and a list of python-collables you
-                would like to connect to the signal.
+                Dictionary of signal-names, and a python-callable, or list
+                of python-callables to connect to the signal.
 
                 .. code-block:: python
 
                     {
                         'add_item':     [ printargs, mylist.addItem ],
-                        'add_progress': [ progbar.add_progress, ],
+                        'add_progress': progbar.add_progress,
                         ...
                     }
 
@@ -632,6 +632,21 @@ class SoloThreadedTask( QtCore.QObject ):
                 to the callback in :py:meth:`run`
         """
         QtCore.QObject.__init__(self)
+
+        if signals:
+            if not isinstance( signals, MutableMapping ):
+                raise TypeError((
+                    'Expected dictionary for `signals` argument, '
+                    'received type: %s' ) % repr(type(signals))
+                )
+
+        if connections:
+            if not isinstance( connections, MutableMapping ):
+                raise TypeError((
+                    'Expected dictionary for `connections` argument '
+                    'received type: %s' ) % repr(type(connections))
+                )
+
 
         # Args
         self._callback = callback
@@ -679,8 +694,13 @@ class SoloThreadedTask( QtCore.QObject ):
         # setup all user-defined connections
         if self._connections:
             for signal_name in self._connections:
-                for callback in self._connections[ signal_name ]:
-                    task.signal( signal_name ).connect( callback )
+                if isinstance( self._connections[ signal_name ], Iterable ):
+                    for callback in self._connections[ signal_name ]:
+                        task.signal( signal_name ).connect( callback )
+                else:
+                    task.signal( signal_name ).connect(
+                        self._connections[signal_name]
+                    )
 
 
         task.signal('thread_acquired_mutex').connect( self._set_active_threadId )
@@ -712,7 +732,6 @@ class SoloThreadedTask( QtCore.QObject ):
                 QtCore.QCoreApplication.instance().processEvents()
 
             self._mutex_loading.unlock()
-
 
     def _run(self, threadId=None, signalmgr=None, *args, **kwds ):
         """

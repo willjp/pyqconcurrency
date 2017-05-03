@@ -203,13 +203,5 @@ class Test_ThreadedTask( unittest.TestCase ):
         self.assertEqual( queue.empty(), False )
         self.assertEqual( queue.get(),   True )
 
-    def test_async_signals(self):
-        """
-        verify slots are being fired as signals are emitted from other thread.
-        difficult to test, since not in eventloop.
-        """
-
-        self.fail()
-
 
 
