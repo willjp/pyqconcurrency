@@ -6,6 +6,6 @@ Documentation
 -------------
 
 
-.. autofunction:: qconcurrency.threading.SignalManagerFactory
+.. autofunction:: qconcurrency.threading_.SignalManagerFactory
 
 

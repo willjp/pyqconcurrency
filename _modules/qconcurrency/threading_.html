@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>qconcurrency.threading &#8212; pyqconcurrency 0.0.a1 documentation</title>
+    <title>qconcurrency.threading_ &#8212; pyqconcurrency 0.0.a1 documentation</title>
     
     <link rel="stylesheet" href="../../_static/pyramid.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -55,10 +55,10 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <h1>Source code for qconcurrency.threading</h1><div class="highlight"><pre>
+  <h1>Source code for qconcurrency.threading_</h1><div class="highlight"><pre>
 <span></span><span class="ch">#!/usr/bin/env python</span>
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">Name :          qconcurrency._threadifaces_.py</span>
+<span class="sd">Name :          qconcurrency.threading_..py</span>
 <span class="sd">Created :       Apr 08, 2017</span>
 <span class="sd">Author :        Will Pittman</span>
 <span class="sd">Contact :       willjpittman@gmail.com</span>
@@ -72,10 +72,14 @@
 <span class="kn">from</span> <span class="nn">__future__</span>    <span class="k">import</span> <span class="n">division</span>
 <span class="kn">from</span> <span class="nn">__future__</span>    <span class="k">import</span> <span class="n">print_function</span>
 <span class="kn">from</span>   <span class="nn">collections</span> <span class="k">import</span> <span class="n">MutableMapping</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">OrderedDict</span>
+<span class="kn">from</span>   <span class="nn">numbers</span>     <span class="k">import</span> <span class="n">Number</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">uuid</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">importlib</span>
+<span class="kn">import</span> <span class="nn">functools</span>
 <span class="c1">#package</span>
 <span class="c1">#external</span>
 <span class="kn">from</span>   <span class="nn">Qt</span> <span class="k">import</span> <span class="n">QtCore</span><span class="p">,</span> <span class="n">QtWidgets</span>
@@ -90,9 +94,10 @@
     <span class="s1">&#39;SignalManagerFactory&#39;</span><span class="p">,</span>
     <span class="s1">&#39;ThreadedTask&#39;</span><span class="p">,</span>
     <span class="s1">&#39;SoloThreadedTask&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;QSemaphoreLocker&#39;</span><span class="p">,</span>
 <span class="p">]</span>
 
-<div class="viewcode-block" id="SignalManagerFactory"><a class="viewcode-back" href="../../_api/qconcurrency.threading.SignalManagerFactory.html#qconcurrency.threading.SignalManagerFactory">[docs]</a><span class="k">def</span> <span class="nf">SignalManagerFactory</span><span class="p">(</span> <span class="n">signals</span><span class="p">,</span> <span class="n">queue_stop</span><span class="o">=</span><span class="kc">None</span> <span class="p">):</span>
+<div class="viewcode-block" id="SignalManagerFactory"><a class="viewcode-back" href="../../_api/qconcurrency.threading_.SignalManagerFactory.html#qconcurrency.threading_.SignalManagerFactory">[docs]</a><span class="k">def</span> <span class="nf">SignalManagerFactory</span><span class="p">(</span> <span class="n">signals</span><span class="p">,</span> <span class="n">queue_stop</span><span class="o">=</span><span class="kc">None</span> <span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Dynamically creates a :py:obj:`SignalManager` class</span>
 <span class="sd">    with all requested signals.</span>
@@ -144,7 +149,45 @@
             <span class="s1">&#39;signal-names, and emit-datatypes </span><span class="se">\n</span><span class="s1">&#39;</span>
         <span class="p">)</span>
 
-    <span class="n">class_</span> <span class="o">=</span> <span class="p">(</span>
+
+    <span class="c1"># extend globals to include all types needed for signals</span>
+    <span class="k">def</span> <span class="nf">import_signal_datatype</span><span class="p">(</span> <span class="n">_globals</span><span class="p">,</span> <span class="n">datatype</span> <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            _globals (dict):</span>
+<span class="sd">                A modified version of `globals` builtin, that will be used</span>
+<span class="sd">                when defining class</span>
+
+<span class="sd">            datatype (object):</span>
+<span class="sd">                A python object, emitted by a signal.</span>
+
+<span class="sd">        Returns:</span>
+
+<span class="sd">            .. code-block:: python</span>
+
+<span class="sd">                (</span>
+<span class="sd">                    _globals, # globals() with datatype pkg imported</span>
+<span class="sd">                    pkgname , # full importpath of datatype</span>
+<span class="sd">                )</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">str_datatype</span> <span class="o">=</span> <span class="n">datatype</span><span class="o">.</span><span class="vm">__name__</span>
+
+        <span class="k">if</span> <span class="n">datatype</span><span class="o">.</span><span class="vm">__module__</span> <span class="o">!=</span> <span class="s1">&#39;__builtin__&#39;</span><span class="p">:</span>
+            <span class="n">_globals</span><span class="p">[</span> <span class="n">datatype</span><span class="o">.</span><span class="vm">__module__</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span> <span class="n">datatype</span><span class="o">.</span><span class="vm">__module__</span> <span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">str_datatype</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">.</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span>
+                <span class="n">datatype</span><span class="o">.</span><span class="vm">__module__</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+                <span class="n">datatype</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">_globals</span><span class="p">,</span> <span class="n">str_datatype</span>
+
+
+
+
+    <span class="n">_globals</span> <span class="o">=</span> <span class="nb">globals</span><span class="p">()</span>
+    <span class="n">class_</span>   <span class="o">=</span> <span class="p">(</span>
         <span class="s1">&#39;from Qt import QtCore </span><span class="se">\n</span><span class="s1">&#39;</span>
         <span class="s1">&#39;class SignalManager( QtCore.QObject ):</span><span class="se">\n</span><span class="s1">&#39;</span>
     <span class="p">)</span>
@@ -158,14 +201,22 @@
 
         <span class="c1"># signals with multiple returns</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span> <span class="n">signals</span><span class="p">[</span><span class="n">signal</span><span class="p">],</span> <span class="n">Iterable</span> <span class="p">):</span>
+            <span class="n">str_datatypes</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">datatype</span> <span class="ow">in</span> <span class="n">signals</span><span class="p">[</span><span class="n">signal</span><span class="p">]:</span>
+                <span class="p">(</span><span class="n">_globals</span><span class="p">,</span> <span class="n">str_datatype</span><span class="p">)</span> <span class="o">=</span> <span class="n">import_signal_datatype</span><span class="p">(</span> <span class="n">_globals</span><span class="p">,</span> <span class="n">datatype</span> <span class="p">)</span>
+                <span class="n">str_datatypes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">str_datatype</span> <span class="p">)</span>
+
             <span class="n">class_</span> <span class="o">+=</span> <span class="s1">&#39;    </span><span class="si">{signal}</span><span class="s1"> = QtCore.Signal(</span><span class="si">{signal_datatypes}</span><span class="s1">)</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
                 <span class="n">signal</span>           <span class="o">=</span> <span class="n">signal</span><span class="p">,</span>
-                <span class="n">signal_datatypes</span> <span class="o">=</span> <span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span> <span class="nb">str</span><span class="p">(</span><span class="n">datatype</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span> <span class="k">for</span> <span class="n">datatype</span> <span class="ow">in</span> <span class="n">signals</span><span class="p">[</span><span class="n">signal</span><span class="p">]</span> <span class="p">]),</span>
+                <span class="n">signal_datatypes</span> <span class="o">=</span> <span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">str_datatypes</span><span class="p">)</span>
             <span class="p">)</span>
+
+        <span class="c1"># single signal datatype</span>
         <span class="k">else</span><span class="p">:</span>
+            <span class="p">(</span><span class="n">_globals</span><span class="p">,</span> <span class="n">str_datatype</span><span class="p">)</span> <span class="o">=</span> <span class="n">import_signal_datatype</span><span class="p">(</span> <span class="n">_globals</span><span class="p">,</span> <span class="n">signals</span><span class="p">[</span><span class="n">signal</span><span class="p">]</span> <span class="p">)</span>
             <span class="n">class_</span> <span class="o">+=</span> <span class="s1">&#39;    </span><span class="si">{signal}</span><span class="s1"> = QtCore.Signal(</span><span class="si">{datatype}</span><span class="s1">)</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
                 <span class="n">signal</span>   <span class="o">=</span> <span class="n">signal</span><span class="p">,</span>
-                <span class="n">datatype</span> <span class="o">=</span> <span class="n">signals</span><span class="p">[</span><span class="n">signal</span><span class="p">]</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
+                <span class="n">datatype</span> <span class="o">=</span> <span class="n">str_datatype</span><span class="p">,</span>
             <span class="p">)</span>
 
     <span class="c1"># self._signals</span>
@@ -229,13 +280,102 @@
 
 
     <span class="n">_locals</span> <span class="o">=</span> <span class="nb">locals</span><span class="p">()</span>
-    <span class="n">exec</span><span class="p">(</span> <span class="n">class_</span><span class="p">,</span> <span class="nb">globals</span><span class="p">(),</span> <span class="n">_locals</span> <span class="p">)</span>
+    <span class="n">exec</span><span class="p">(</span> <span class="n">class_</span><span class="p">,</span> <span class="n">_globals</span><span class="p">,</span> <span class="n">_locals</span> <span class="p">)</span>
 
     <span class="k">return</span> <span class="n">_locals</span><span class="p">[</span><span class="s1">&#39;SignalManager&#39;</span><span class="p">]()</span></div>
 
 
 
-<div class="viewcode-block" id="ThreadedTask"><a class="viewcode-back" href="../../_api/qconcurrency.threading.ThreadedTask.html#qconcurrency.threading.ThreadedTask">[docs]</a><span class="k">class</span> <span class="nc">ThreadedTask</span><span class="p">(</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">QRunnable</span> <span class="p">):</span>
+<div class="viewcode-block" id="QSemaphoreLocker"><a class="viewcode-back" href="../../_api/qconcurrency.threading_.QSemaphoreLocker.html#qconcurrency.threading_.QSemaphoreLocker">[docs]</a><span class="k">class</span> <span class="nc">QSemaphoreLocker</span><span class="p">(</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">QObject</span> <span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Mirrors the behaviour of :py:obj:`QtCore.QMutexLocker`, but instead of a mutex</span>
+<span class="sd">    manages a :py:obj:`QtCore.QSemaphore` .</span>
+
+
+<span class="sd">    Example:</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            class MyClass( QtCore.QObject ):</span>
+<span class="sd">                def __init__(self):</span>
+<span class="sd">                    self._semaphore = QtCore.QSemaphore(5)</span>
+
+<span class="sd">                def load(self):</span>
+<span class="sd">                    locked = QSemaphoreLocker( self._semaphore, 3, 500 )</span>
+
+<span class="sd">                    # ...</span>
+<span class="sd">                    # when locked goes out of scope, 3x resource is released</span>
+<span class="sd">                    # ...</span>
+
+<span class="sd">                def load_again(self):</span>
+
+<span class="sd">                    with QSemaphoreLocker( self._semaphore ):</span>
+<span class="sd">                        # ...</span>
+<span class="sd">                        # do these actions while 1x semaphore is locked</span>
+<span class="sd">                        # ...</span>
+
+<span class="sd">                    # .. semaphore resources no longer in use ..</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="QSemaphoreLocker.__init__"><a class="viewcode-back" href="../../_api/qconcurrency.threading_.QSemaphoreLocker.html#qconcurrency.threading_.QSemaphoreLocker.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">semaphore</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=-</span><span class="mi">1</span> <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            semaphore (QtCore.QSemaphore):</span>
+<span class="sd">                The semaphore that you&#39;d like to lock</span>
+
+<span class="sd">            n (int, optional):</span>
+<span class="sd">                The number of resources you would like to lock</span>
+<span class="sd">                in the semaphore.</span>
+
+<span class="sd">            timeout (int, optional):</span>
+<span class="sd">                milliseconds you would like to wait for `n` resources</span>
+<span class="sd">                to become available before failing :py:meth:`QtCore.QSemaphore.acquire`</span>
+<span class="sd">                A :py:obj:`RuntimeError` will be raised.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">QtCore</span><span class="o">.</span><span class="n">QObject</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span> <span class="n">semaphore</span><span class="p">,</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">QSemaphore</span> <span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">((</span>
+                <span class="s1">&#39;expected `semaphore` argument to be of type `QtCore.QSemaphore` </span><span class="se">\n</span><span class="s1">&#39;</span>
+                <span class="s1">&#39;received type: </span><span class="si">%s</span><span class="s1">&#39;</span>
+                <span class="p">)</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">semaphore</span><span class="p">))</span>
+            <span class="p">)</span>
+
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_semaphore</span> <span class="o">=</span> <span class="n">semaphore</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_resources</span> <span class="o">=</span> <span class="n">n</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">destroyed</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span>
+            <span class="n">functools</span><span class="o">.</span><span class="n">partial</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_semaphore</span><span class="o">.</span><span class="n">release</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_resources</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="n">success</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_semaphore</span><span class="o">.</span><span class="n">tryAcquire</span><span class="p">(</span> <span class="n">n</span><span class="p">,</span> <span class="n">timeout</span> <span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">success</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">TimedOut</span><span class="p">(</span>
+                <span class="s1">&#39;waited timeout of </span><span class="si">%s</span><span class="s1">ms to acquire </span><span class="si">%s</span><span class="s1"> QSemaphore resources&#39;</span> <span class="o">%</span> <span class="p">(</span>
+                    <span class="n">timeout</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+            <span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span>
+
+    <span class="k">def</span> <span class="nf">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">err_type</span><span class="p">,</span> <span class="n">err_msg</span><span class="p">,</span> <span class="n">err_tb</span> <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        On exit, releases all resources that were acquired</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">all</span><span class="p">([</span> <span class="n">err_type</span><span class="p">,</span> <span class="n">err_msg</span><span class="p">,</span> <span class="n">err_tb</span> <span class="p">]):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_semaphore</span><span class="o">.</span><span class="n">release</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resources</span> <span class="p">)</span>
+            <span class="n">six</span><span class="o">.</span><span class="n">reraise</span><span class="p">(</span> <span class="n">err_type</span><span class="p">,</span> <span class="n">err_msg</span><span class="p">,</span> <span class="n">err_tb</span> <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_semaphore</span><span class="o">.</span><span class="n">release</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resources</span> <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="ThreadedTask"><a class="viewcode-back" href="../../_api/qconcurrency.threading_.ThreadedTask.html#qconcurrency.threading_.ThreadedTask">[docs]</a><span class="k">class</span> <span class="nc">ThreadedTask</span><span class="p">(</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">QRunnable</span> <span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Bundles a callback method, it&#39;s arguments, and a variable</span>
 <span class="sd">    number of signals (with variable return-types) into a :py:obj:`QtCore.QRunnable`</span>
@@ -330,11 +470,11 @@
 
 <span class="sd">    See Also:</span>
 
-<span class="sd">        * :py:obj:`qconcurrency.threading.SignalManagerFactory`</span>
-<span class="sd">        * :py:obj:`qconcurrency.threading.SoloThreadedTask`</span>
+<span class="sd">        * :py:obj:`qconcurrency.threading_.SignalManagerFactory`</span>
+<span class="sd">        * :py:obj:`qconcurrency.threading_.SoloThreadedTask`</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-<div class="viewcode-block" id="ThreadedTask.__init__"><a class="viewcode-back" href="../../_api/qconcurrency.threading.ThreadedTask.html#qconcurrency.threading.ThreadedTask.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">,</span> <span class="n">signals</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span> <span class="p">):</span>
+<div class="viewcode-block" id="ThreadedTask.__init__"><a class="viewcode-back" href="../../_api/qconcurrency.threading_.ThreadedTask.html#qconcurrency.threading_.ThreadedTask.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">,</span> <span class="n">signals</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span> <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
 <span class="sd">            callback (callable):</span>
@@ -368,8 +508,6 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_kwds</span>     <span class="o">=</span> <span class="n">kwds</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_id</span>       <span class="o">=</span> <span class="kc">None</span> <span class="c1"># used by SoloThreadedTask</span>
 
-        <span class="k">if</span> <span class="n">signals</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">signals</span> <span class="o">=</span> <span class="p">{}</span>
 
         <span class="c1"># Attributes</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_signals</span>  <span class="o">=</span> <span class="p">{</span>
@@ -377,11 +515,12 @@
             <span class="s1">&#39;exception&#39;</span><span class="p">:</span>       <span class="nb">tuple</span><span class="p">,</span>
             <span class="s1">&#39;abort_requested&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
         <span class="p">}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_signals</span><span class="o">.</span><span class="n">update</span><span class="p">(</span> <span class="n">signals</span> <span class="p">)</span>
+        <span class="k">if</span> <span class="n">signals</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_signals</span><span class="o">.</span><span class="n">update</span><span class="p">(</span> <span class="n">signals</span> <span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_signalmgr</span> <span class="o">=</span> <span class="n">SignalManagerFactory</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">_signals</span> <span class="p">)</span></div>
 
-<div class="viewcode-block" id="ThreadedTask.run"><a class="viewcode-back" href="../../_api/qconcurrency.threading.ThreadedTask.html#qconcurrency.threading.ThreadedTask.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="ThreadedTask.run"><a class="viewcode-back" href="../../_api/qconcurrency.threading_.ThreadedTask.html#qconcurrency.threading_.ThreadedTask.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Runs ``callback( *args, **kwds )`` in a separate thread. This method</span>
 <span class="sd">        will be called automatically by the :py:obj:`QtCore.QThreadPool`</span>
@@ -401,6 +540,7 @@
 <span class="sd">                signals  = {&#39;returned&#39;: (int,int)},  #: mycallback is now expected to return 2x integers</span>
 <span class="sd">            )</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="k">try</span><span class="p">:</span>
             <span class="n">retval</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span><span class="p">(</span> <span class="n">signalmgr</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_signalmgr</span><span class="p">,</span> <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">_args</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_kwds</span> <span class="p">)</span>
 
@@ -411,10 +551,10 @@
 
         <span class="k">except</span><span class="p">:</span>
             <span class="n">exc_info</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">exc_info</span><span class="p">()</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_signalmgr</span><span class="o">.</span><span class="n">exception</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span> <span class="n">exc_info</span> <span class="p">)</span>
-            <span class="n">six</span><span class="o">.</span><span class="n">reraise</span><span class="p">(</span> <span class="o">*</span><span class="n">exc_info</span> <span class="p">)</span></div>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span> <span class="s1">&#39;Unhandled Exception occurred in thread: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="nb">repr</span><span class="p">(</span><span class="n">exc_info</span><span class="p">)</span> <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_signalmgr</span><span class="o">.</span><span class="n">exception</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">exc_info</span><span class="p">)</span> <span class="p">)</span></div>
 
-<div class="viewcode-block" id="ThreadedTask.start"><a class="viewcode-back" href="../../_api/qconcurrency.threading.ThreadedTask.html#qconcurrency.threading.ThreadedTask.start">[docs]</a>    <span class="k">def</span> <span class="nf">start</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">expiryTimeout</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">threadpool</span><span class="o">=</span><span class="kc">None</span> <span class="p">):</span>
+<div class="viewcode-block" id="ThreadedTask.start"><a class="viewcode-back" href="../../_api/qconcurrency.threading_.ThreadedTask.html#qconcurrency.threading_.ThreadedTask.start">[docs]</a>    <span class="k">def</span> <span class="nf">start</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">expiryTimeout</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">threadpool</span><span class="o">=</span><span class="kc">None</span> <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Queues this thread in a :py:obj:`QtCore.QThreadPool`</span>
 <span class="sd">        (by default :py:obj:`QtCore.QThreadPool.globalInstance()` )</span>
@@ -434,7 +574,7 @@
 
         <span class="n">threadpool</span><span class="o">.</span><span class="n">start</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="n">expiryTimeout</span> <span class="p">)</span></div>
 
-<div class="viewcode-block" id="ThreadedTask.signalmgr"><a class="viewcode-back" href="../../_api/qconcurrency.threading.ThreadedTask.html#qconcurrency.threading.ThreadedTask.signalmgr">[docs]</a>    <span class="k">def</span> <span class="nf">signalmgr</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="ThreadedTask.signalmgr"><a class="viewcode-back" href="../../_api/qconcurrency.threading_.ThreadedTask.html#qconcurrency.threading_.ThreadedTask.signalmgr">[docs]</a>    <span class="k">def</span> <span class="nf">signalmgr</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns :py:obj:`SignalManager` instance (QObject that will be</span>
 <span class="sd">        passed to separate thread, and stores all signals the thread will</span>
@@ -442,14 +582,14 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_signalmgr</span></div>
 
-<div class="viewcode-block" id="ThreadedTask.signal"><a class="viewcode-back" href="../../_api/qconcurrency.threading.ThreadedTask.html#qconcurrency.threading.ThreadedTask.signal">[docs]</a>    <span class="k">def</span> <span class="nf">signal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">signal_name</span><span class="p">):</span>
+<div class="viewcode-block" id="ThreadedTask.signal"><a class="viewcode-back" href="../../_api/qconcurrency.threading_.ThreadedTask.html#qconcurrency.threading_.ThreadedTask.signal">[docs]</a>    <span class="k">def</span> <span class="nf">signal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">signal_name</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns one of the :py:obj:`QtCore.Signal` s defined in `signals`.</span>
 <span class="sd">        See documentation in :py:meth:`__init__`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">_signalmgr</span><span class="p">,</span> <span class="n">signal_name</span> <span class="p">)</span></div>
 
-<div class="viewcode-block" id="ThreadedTask.request_abort"><a class="viewcode-back" href="../../_api/qconcurrency.threading.ThreadedTask.html#qconcurrency.threading.ThreadedTask.request_abort">[docs]</a>    <span class="k">def</span> <span class="nf">request_abort</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="o">*</span><span class="n">args</span><span class="p">,</span><span class="o">**</span><span class="n">kwds</span><span class="p">):</span>
+<div class="viewcode-block" id="ThreadedTask.request_abort"><a class="viewcode-back" href="../../_api/qconcurrency.threading_.ThreadedTask.html#qconcurrency.threading_.ThreadedTask.request_abort">[docs]</a>    <span class="k">def</span> <span class="nf">request_abort</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="o">*</span><span class="n">args</span><span class="p">,</span><span class="o">**</span><span class="n">kwds</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Runs :py:meth:`SignalManager._request_abort` .</span>
 <span class="sd">        (your callback will still need to periodically run</span>
@@ -461,7 +601,7 @@
 
 
 
-<div class="viewcode-block" id="SoloThreadedTask"><a class="viewcode-back" href="../../_api/qconcurrency.threading.SoloThreadedTask.html#qconcurrency.threading.SoloThreadedTask">[docs]</a><span class="k">class</span> <span class="nc">SoloThreadedTask</span><span class="p">(</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">QObject</span> <span class="p">):</span>
+<div class="viewcode-block" id="SoloThreadedTask"><a class="viewcode-back" href="../../_api/qconcurrency.threading_.SoloThreadedTask.html#qconcurrency.threading_.SoloThreadedTask">[docs]</a><span class="k">class</span> <span class="nc">SoloThreadedTask</span><span class="p">(</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">QObject</span> <span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    :py:obj:`ThreadedTask` that cancels all of it&#39;s running/pending threads (started by</span>
 <span class="sd">    this :py:obj:`SoloThreadedTask`) whenever a new thread is requested (and all must exit</span>
@@ -469,6 +609,17 @@
 
 <span class="sd">    This might be useful for methods that load or filter the contents</span>
 <span class="sd">    of a widget.</span>
+
+
+<span class="sd">    .. warning::</span>
+
+<span class="sd">        If slot connected to one of this task&#39;s signals does not update</span>
+<span class="sd">        UI until this thread exits, add the following line to the end of your slot.</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            QtCore.QCoreApplication.instance().processEvents()</span>
+
 
 <span class="sd">    Example:</span>
 
@@ -500,10 +651,10 @@
 
 
 <span class="sd">    See Also:</span>
-<span class="sd">        * :py:obj:`qconcurrency.threading.ThreadedTask`</span>
+<span class="sd">        * :py:obj:`qconcurrency.threading_.ThreadedTask`</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-<div class="viewcode-block" id="SoloThreadedTask.__init__"><a class="viewcode-back" href="../../_api/qconcurrency.threading.SoloThreadedTask.html#qconcurrency.threading.SoloThreadedTask.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">,</span> <span class="n">signals</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">connections</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mutex_expiry</span><span class="o">=</span><span class="mi">5000</span> <span class="p">):</span>
+<div class="viewcode-block" id="SoloThreadedTask.__init__"><a class="viewcode-back" href="../../_api/qconcurrency.threading_.SoloThreadedTask.html#qconcurrency.threading_.SoloThreadedTask.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">,</span> <span class="n">signals</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">connections</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mutex_expiry</span><span class="o">=</span><span class="mi">5000</span> <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
 <span class="sd">            callback (callable):</span>
@@ -525,14 +676,14 @@
 <span class="sd">                    }</span>
 
 <span class="sd">            connections (dict, optional):</span>
-<span class="sd">                Dictionary of signal-names, and a list of python-collables you</span>
-<span class="sd">                would like to connect to the signal.</span>
+<span class="sd">                Dictionary of signal-names, and a python-callable, or list</span>
+<span class="sd">                of python-callables to connect to the signal.</span>
 
 <span class="sd">                .. code-block:: python</span>
 
 <span class="sd">                    {</span>
 <span class="sd">                        &#39;add_item&#39;:     [ printargs, mylist.addItem ],</span>
-<span class="sd">                        &#39;add_progress&#39;: [ progbar.add_progress, ],</span>
+<span class="sd">                        &#39;add_progress&#39;: progbar.add_progress,</span>
 <span class="sd">                        ...</span>
 <span class="sd">                    }</span>
 
@@ -541,6 +692,21 @@
 <span class="sd">                to the callback in :py:meth:`run`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">QtCore</span><span class="o">.</span><span class="n">QObject</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">signals</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span> <span class="n">signals</span><span class="p">,</span> <span class="n">MutableMapping</span> <span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">((</span>
+                    <span class="s1">&#39;Expected dictionary for `signals` argument, &#39;</span>
+                    <span class="s1">&#39;received type: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="p">)</span> <span class="o">%</span> <span class="nb">repr</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">signals</span><span class="p">))</span>
+                <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">connections</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span> <span class="n">connections</span><span class="p">,</span> <span class="n">MutableMapping</span> <span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">((</span>
+                    <span class="s1">&#39;Expected dictionary for `connections` argument &#39;</span>
+                    <span class="s1">&#39;received type: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="p">)</span> <span class="o">%</span> <span class="nb">repr</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">connections</span><span class="p">))</span>
+                <span class="p">)</span>
+
 
         <span class="c1"># Args</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span> <span class="o">=</span> <span class="n">callback</span>
@@ -565,7 +731,7 @@
         <span class="c1"># locks</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_mutex_loading</span>    <span class="o">=</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">QMutex</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="SoloThreadedTask.start"><a class="viewcode-back" href="../../_api/qconcurrency.threading.SoloThreadedTask.html#qconcurrency.threading.SoloThreadedTask.start">[docs]</a>    <span class="k">def</span> <span class="nf">start</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">expiryTimeout</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">threadpool</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span><span class="o">**</span><span class="n">kwds</span><span class="p">):</span>
+<div class="viewcode-block" id="SoloThreadedTask.start"><a class="viewcode-back" href="../../_api/qconcurrency.threading_.SoloThreadedTask.html#qconcurrency.threading_.SoloThreadedTask.start">[docs]</a>    <span class="k">def</span> <span class="nf">start</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">expiryTimeout</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">threadpool</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span><span class="o">**</span><span class="n">kwds</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Creates/starts a new :py:obj:`ThreadedTask`, and cancels</span>
 <span class="sd">        all other pending/running threads started by this</span>
@@ -588,14 +754,49 @@
         <span class="c1"># setup all user-defined connections</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_connections</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">signal_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_connections</span><span class="p">:</span>
-                <span class="k">for</span> <span class="n">callback</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_connections</span><span class="p">[</span> <span class="n">signal_name</span> <span class="p">]:</span>
-                    <span class="n">task</span><span class="o">.</span><span class="n">signal</span><span class="p">(</span> <span class="n">signal_name</span> <span class="p">)</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span> <span class="n">callback</span><span class="p">,</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">DirectConnection</span> <span class="p">)</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">_connections</span><span class="p">[</span> <span class="n">signal_name</span> <span class="p">],</span> <span class="n">Iterable</span> <span class="p">):</span>
+                    <span class="k">for</span> <span class="n">callback</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_connections</span><span class="p">[</span> <span class="n">signal_name</span> <span class="p">]:</span>
+                        <span class="n">task</span><span class="o">.</span><span class="n">signal</span><span class="p">(</span> <span class="n">signal_name</span> <span class="p">)</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span> <span class="n">callback</span> <span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">task</span><span class="o">.</span><span class="n">signal</span><span class="p">(</span> <span class="n">signal_name</span> <span class="p">)</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_connections</span><span class="p">[</span><span class="n">signal_name</span><span class="p">]</span>
+                    <span class="p">)</span>
 
 
-        <span class="n">task</span><span class="o">.</span><span class="n">signal</span><span class="p">(</span><span class="s1">&#39;thread_acquired_mutex&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set_active_threadId</span><span class="p">,</span>   <span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">DirectConnection</span> <span class="p">)</span>
-        <span class="n">task</span><span class="o">.</span><span class="n">signal</span><span class="p">(</span><span class="s1">&#39;_thread_exit_&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span>         <span class="bp">self</span><span class="o">.</span><span class="n">_set_complete_threadId</span><span class="p">,</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">DirectConnection</span> <span class="p">)</span>
+        <span class="n">task</span><span class="o">.</span><span class="n">signal</span><span class="p">(</span><span class="s1">&#39;thread_acquired_mutex&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_set_active_threadId</span>
+        <span class="p">)</span>
+        <span class="n">task</span><span class="o">.</span><span class="n">signal</span><span class="p">(</span><span class="s1">&#39;_thread_exit_&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_set_complete_threadId</span><span class="p">,</span>
+            <span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">DirectConnection</span>
+        <span class="p">)</span>
 
-        <span class="n">task</span><span class="o">.</span><span class="n">start</span><span class="p">(</span> <span class="n">expiryTimeout</span><span class="o">=</span><span class="n">expiryTimeout</span><span class="p">,</span> <span class="n">threadpool</span><span class="o">=</span><span class="n">threadpool</span> <span class="p">)</span></div>
+        <span class="n">task</span><span class="o">.</span><span class="n">start</span><span class="p">(</span> <span class="n">expiryTimeout</span><span class="o">=</span><span class="n">expiryTimeout</span><span class="p">,</span> <span class="n">threadpool</span><span class="o">=</span><span class="n">threadpool</span> <span class="p">)</span>
+
+
+        <span class="k">if</span> <span class="n">wait</span><span class="p">:</span>
+            <span class="n">elapsed</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="c1"># wait for thread to lock</span>
+            <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mutex_loading</span><span class="o">.</span><span class="n">tryLock</span><span class="p">(</span><span class="mi">0</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_mutex_loading</span><span class="o">.</span><span class="n">unlock</span><span class="p">()</span>
+                <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.05</span><span class="p">)</span>
+                <span class="n">elapsed</span> <span class="o">+=</span> <span class="mf">0.05</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span> <span class="s1">&#39;locked by thread&#39;</span> <span class="p">)</span>
+
+
+            <span class="c1"># wait for thread to unlock</span>
+            <span class="k">while</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mutex_loading</span><span class="o">.</span><span class="n">tryLock</span><span class="p">(</span><span class="mi">0</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">wait</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">True</span><span class="p">,</span><span class="kc">False</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">elapsed</span> <span class="o">&gt;=</span> <span class="n">wait</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="n">TimedOut</span><span class="p">(</span>
+                            <span class="s1">&#39;waited </span><span class="si">%s</span><span class="s1">s for job to complete without success&#39;</span> <span class="o">%</span> <span class="n">elapsed</span>
+                        <span class="p">)</span>
+
+                <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.05</span><span class="p">)</span>
+                <span class="n">elapsed</span> <span class="o">+=</span> <span class="mf">0.05</span>
+                <span class="n">QtCore</span><span class="o">.</span><span class="n">QCoreApplication</span><span class="o">.</span><span class="n">instance</span><span class="p">()</span><span class="o">.</span><span class="n">processEvents</span><span class="p">()</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_mutex_loading</span><span class="o">.</span><span class="n">unlock</span><span class="p">()</span></div>
 
     <span class="k">def</span> <span class="nf">_run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">threadId</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">signalmgr</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span> <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -622,16 +823,19 @@
                 <span class="n">signalmgr</span> <span class="o">=</span> <span class="n">signalmgr</span><span class="p">,</span>
                 <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span>
             <span class="p">)</span>
+
         <span class="k">except</span><span class="p">:</span>
+            <span class="n">exc_info</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">exc_info</span><span class="p">()</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span> <span class="s1">&#39;Unhandled Exception occurred in solo-thread: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="nb">repr</span><span class="p">(</span><span class="n">exc_info</span><span class="p">)</span> <span class="p">)</span>
             <span class="n">signalmgr</span><span class="o">.</span><span class="n">_thread_exit_</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span> <span class="n">threadId</span> <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_mutex_loading</span><span class="o">.</span><span class="n">unlock</span><span class="p">()</span>
-            <span class="n">six</span><span class="o">.</span><span class="n">reraise</span><span class="p">(</span> <span class="o">*</span><span class="n">sys</span><span class="o">.</span><span class="n">exc_info</span><span class="p">()</span> <span class="p">)</span>
+            <span class="n">six</span><span class="o">.</span><span class="n">reraise</span><span class="p">(</span> <span class="o">*</span><span class="n">exc_info</span> <span class="p">)</span>
 
         <span class="n">signalmgr</span><span class="o">.</span><span class="n">_thread_exit_</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span> <span class="n">threadId</span> <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_mutex_loading</span><span class="o">.</span><span class="n">unlock</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">retval</span>
 
-<div class="viewcode-block" id="SoloThreadedTask.stop"><a class="viewcode-back" href="../../_api/qconcurrency.threading.SoloThreadedTask.html#qconcurrency.threading.SoloThreadedTask.stop">[docs]</a>    <span class="k">def</span> <span class="nf">stop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">until_threadId</span><span class="o">=</span><span class="kc">None</span> <span class="p">):</span>
+<div class="viewcode-block" id="SoloThreadedTask.stop"><a class="viewcode-back" href="../../_api/qconcurrency.threading_.SoloThreadedTask.html#qconcurrency.threading_.SoloThreadedTask.stop">[docs]</a>    <span class="k">def</span> <span class="nf">stop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">until_threadId</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="kc">None</span> <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Emits `request_abort` signal on all threads up-to (but not including)</span>
 <span class="sd">        the target `until_threadId`. If `until_threadId` is not provided, all</span>
@@ -639,6 +843,17 @@
 
 <span class="sd">        (threadIds will be automatically removed from attr :py:attr:`_active_threads`</span>
 <span class="sd">        as they return, or raise unhandled exceptions).</span>
+
+
+<span class="sd">        Args:</span>
+<span class="sd">            wait (numbers.Number, optional):  ``(ex: None, -1, 100)``</span>
+<span class="sd">                Optionally, wait *N* seconds for job to complete</span>
+<span class="sd">                after requesting abort. If negative number, waits</span>
+<span class="sd">                indefinitely. Waiting in the main UI thread will</span>
+<span class="sd">                result in a deadlock.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">            * :py:obj:`TimedOut` if user set a wait time.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">for</span> <span class="n">active_threadId</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_active_threads</span><span class="p">:</span>
@@ -646,7 +861,25 @@
                 <span class="k">return</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;requesting abort on threadId: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">active_threadId</span> <span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_active_threads</span><span class="p">[</span> <span class="n">active_threadId</span> <span class="p">]()</span></div>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_active_threads</span><span class="p">[</span> <span class="n">active_threadId</span> <span class="p">]()</span>
+
+        <span class="k">if</span> <span class="n">wait</span><span class="p">:</span>
+            <span class="n">elapsed</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+                <span class="n">locked</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mutex_loading</span><span class="o">.</span><span class="n">tryLock</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+                <span class="c1"># if lock is free, exit</span>
+                <span class="k">if</span> <span class="n">locked</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_mutex_loading</span><span class="o">.</span><span class="n">unlock</span><span class="p">()</span>
+                    <span class="k">break</span>
+
+                <span class="c1"># if waited user-requested time, exit</span>
+                <span class="k">if</span> <span class="n">elapsed</span> <span class="o">&gt;</span> <span class="mi">0</span>  <span class="ow">and</span>  <span class="n">elapsed</span> <span class="o">&gt;=</span> <span class="n">wait</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">TimedOut</span><span class="p">(</span><span class="s1">&#39;waited </span><span class="si">%s</span><span class="s1">s for thread to end&#39;</span> <span class="o">%</span> <span class="n">elapsed</span><span class="p">)</span>
+                    <span class="k">break</span>
+
+                <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.05</span><span class="p">)</span>
+                <span class="n">elapsed</span> <span class="o">+=</span> <span class="mf">0.05</span></div>
 
     <span class="k">def</span> <span class="nf">_set_active_threadId</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">threadId</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -667,12 +900,18 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="n">threadId</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_active_threads</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_active_threads</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span> <span class="n">threadId</span> <span class="p">)</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_active_threads</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span> <span class="n">threadId</span> <span class="p">)</span>
 
+<div class="viewcode-block" id="SoloThreadedTask.is_active"><a class="viewcode-back" href="../../_api/qconcurrency.threading_.SoloThreadedTask.html#qconcurrency.threading_.SoloThreadedTask.is_active">[docs]</a>    <span class="k">def</span> <span class="nf">is_active</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_active_threads</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="kc">False</span></div></div>
 
 
 
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">qconcurrency</span> <span class="k">import</span> <span class="n">QApplication</span>
+    <span class="kn">from</span> <span class="nn">Qt</span>           <span class="k">import</span> <span class="n">QtWidgets</span>
     <span class="kn">import</span> <span class="nn">time</span>
     <span class="kn">import</span> <span class="nn">supercli.logging</span>
     <span class="n">supercli</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">SetLog</span><span class="p">(</span><span class="n">lv</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
@@ -686,14 +925,16 @@
                 <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
             <span class="nb">print</span><span class="p">(</span> <span class="s1">&#39;job finished (</span><span class="si">%s</span><span class="s1">)&#39;</span> <span class="o">%</span> <span class="n">thread_num</span> <span class="p">)</span>
 
-
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">):</span>
-            <span class="n">task</span> <span class="o">=</span> <span class="n">ThreadedTask</span><span class="p">(</span>
-                <span class="n">callback</span>   <span class="o">=</span> <span class="n">long_running_job</span><span class="p">,</span>
-                <span class="c1"># args/kwds</span>
-                <span class="n">thread_num</span> <span class="o">=</span> <span class="n">i</span><span class="p">,</span>
-            <span class="p">)</span>
-            <span class="n">task</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+        <span class="k">with</span> <span class="n">QApplication</span><span class="p">():</span>
+            <span class="n">label</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QLabel</span><span class="p">(</span><span class="s1">&#39;watch progress in terminal window..&#39;</span><span class="p">)</span>
+            <span class="n">label</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">):</span>
+                <span class="n">task</span> <span class="o">=</span> <span class="n">ThreadedTask</span><span class="p">(</span>
+                    <span class="n">callback</span>   <span class="o">=</span> <span class="n">long_running_job</span><span class="p">,</span>
+                    <span class="c1"># args/kwds</span>
+                    <span class="n">thread_num</span> <span class="o">=</span> <span class="n">i</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="n">task</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">test_solo_threadedtask</span><span class="p">():</span>
         <span class="k">def</span> <span class="nf">long_running_job</span><span class="p">(</span> <span class="n">thread_num</span><span class="p">,</span> <span class="n">signalmgr</span><span class="o">=</span><span class="kc">None</span> <span class="p">):</span>
@@ -708,17 +949,22 @@
         <span class="k">def</span> <span class="nf">printtxt</span><span class="p">(</span><span class="n">msg</span><span class="p">):</span>
             <span class="nb">print</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
 
-        <span class="n">solotask</span> <span class="o">=</span> <span class="n">SoloThreadedTask</span><span class="p">(</span>
-            <span class="n">callback</span>    <span class="o">=</span> <span class="n">long_running_job</span><span class="p">,</span>
-            <span class="n">signals</span>     <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;print_txt&#39;</span><span class="p">:</span><span class="nb">str</span><span class="p">},</span>
-            <span class="n">connections</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;print_txt&#39;</span><span class="p">:[</span><span class="n">printtxt</span><span class="p">]},</span>
-        <span class="p">)</span>
 
-        <span class="c1"># every 1s, cancel current job with</span>
-        <span class="c1"># a new job.</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">):</span>
-            <span class="n">solotask</span><span class="o">.</span><span class="n">start</span><span class="p">(</span> <span class="n">thread_num</span><span class="o">=</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span> <span class="p">)</span>
-            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">QApplication</span><span class="p">():</span>
+            <span class="n">label</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QLabel</span><span class="p">(</span><span class="s1">&#39;watch progress in terminal window..&#39;</span><span class="p">)</span>
+            <span class="n">label</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+            <span class="n">solotask</span> <span class="o">=</span> <span class="n">SoloThreadedTask</span><span class="p">(</span>
+                <span class="n">callback</span>    <span class="o">=</span> <span class="n">long_running_job</span><span class="p">,</span>
+                <span class="n">signals</span>     <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;print_txt&#39;</span><span class="p">:</span><span class="nb">str</span><span class="p">},</span>
+                <span class="n">connections</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;print_txt&#39;</span><span class="p">:[</span><span class="n">printtxt</span><span class="p">]},</span>
+            <span class="p">)</span>
+
+            <span class="c1"># every 1s, cancel current job with</span>
+            <span class="c1"># a new job.</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">):</span>
+                <span class="n">solotask</span><span class="o">.</span><span class="n">start</span><span class="p">(</span> <span class="n">thread_num</span><span class="o">=</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span> <span class="p">)</span>
+                <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">runtests</span><span class="p">():</span>
         <span class="c1">#test_threadedtask()</span>

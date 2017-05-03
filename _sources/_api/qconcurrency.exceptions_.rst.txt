@@ -6,6 +6,7 @@ qconcurrency.exceptions_
 classes
 -------
 
+   * :doc:`qconcurrency.exceptions_.TimedOut`
    * :doc:`qconcurrency.exceptions_.UserCancelledOperation`
 
 

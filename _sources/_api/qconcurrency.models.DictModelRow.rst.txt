@@ -10,6 +10,7 @@ Methods
    qconcurrency.models.DictModelRow.__init__
    qconcurrency.models.DictModelRow.add_child
    qconcurrency.models.DictModelRow.add_row
+   qconcurrency.models.DictModelRow.columnitem
    qconcurrency.models.DictModelRow.columnval
    qconcurrency.models.DictModelRow.columnvals
    qconcurrency.models.DictModelRow.delete

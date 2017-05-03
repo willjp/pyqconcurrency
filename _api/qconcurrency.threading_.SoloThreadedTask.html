@@ -63,7 +63,7 @@
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="#qconcurrency.threading.SoloThreadedTask.staticMetaObject" title="qconcurrency.threading.SoloThreadedTask.staticMetaObject"><code class="xref py py-obj docutils literal"><span class="pre">qconcurrency.threading.SoloThreadedTask.staticMetaObject</span></code></a></td>
+<tr class="row-odd"><td><a class="reference internal" href="#qconcurrency.threading_.SoloThreadedTask.staticMetaObject" title="qconcurrency.threading_.SoloThreadedTask.staticMetaObject"><code class="xref py py-obj docutils literal"><span class="pre">qconcurrency.threading_.SoloThreadedTask.staticMetaObject</span></code></a></td>
 <td></td>
 </tr>
 </tbody>
@@ -77,7 +77,7 @@
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="#qconcurrency.threading.SoloThreadedTask.__init__" title="qconcurrency.threading.SoloThreadedTask.__init__"><code class="xref py py-obj docutils literal"><span class="pre">qconcurrency.threading.SoloThreadedTask.__init__</span></code></a>(...)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#qconcurrency.threading_.SoloThreadedTask.__init__" title="qconcurrency.threading_.SoloThreadedTask.__init__"><code class="xref py py-obj docutils literal"><span class="pre">qconcurrency.threading_.SoloThreadedTask.__init__</span></code></a>(...)</td>
 <td><table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -88,13 +88,16 @@
 </table>
 </td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#qconcurrency.threading.SoloThreadedTask.start" title="qconcurrency.threading.SoloThreadedTask.start"><code class="xref py py-obj docutils literal"><span class="pre">qconcurrency.threading.SoloThreadedTask.start</span></code></a>([...])</td>
-<td>Creates/starts a new <code class="xref py py-obj docutils literal"><span class="pre">ThreadedTask</span></code>, and cancels all other pending/running threads started by this <code class="xref py py-obj docutils literal"><span class="pre">SoloThreadedTask</span></code> instance.</td>
-</tr>
-<tr class="row-odd"><td><a class="reference internal" href="#qconcurrency.threading.SoloThreadedTask.staticMetaObject" title="qconcurrency.threading.SoloThreadedTask.staticMetaObject"><code class="xref py py-obj docutils literal"><span class="pre">qconcurrency.threading.SoloThreadedTask.staticMetaObject</span></code></a></td>
+<tr class="row-even"><td><a class="reference internal" href="#qconcurrency.threading_.SoloThreadedTask.is_active" title="qconcurrency.threading_.SoloThreadedTask.is_active"><code class="xref py py-obj docutils literal"><span class="pre">qconcurrency.threading_.SoloThreadedTask.is_active</span></code></a>()</td>
 <td></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#qconcurrency.threading.SoloThreadedTask.stop" title="qconcurrency.threading.SoloThreadedTask.stop"><code class="xref py py-obj docutils literal"><span class="pre">qconcurrency.threading.SoloThreadedTask.stop</span></code></a>([...])</td>
+<tr class="row-odd"><td><a class="reference internal" href="#qconcurrency.threading_.SoloThreadedTask.start" title="qconcurrency.threading_.SoloThreadedTask.start"><code class="xref py py-obj docutils literal"><span class="pre">qconcurrency.threading_.SoloThreadedTask.start</span></code></a>([...])</td>
+<td>Creates/starts a new <code class="xref py py-obj docutils literal"><span class="pre">ThreadedTask</span></code>, and cancels all other pending/running threads started by this <code class="xref py py-obj docutils literal"><span class="pre">SoloThreadedTask</span></code> instance.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#qconcurrency.threading_.SoloThreadedTask.staticMetaObject" title="qconcurrency.threading_.SoloThreadedTask.staticMetaObject"><code class="xref py py-obj docutils literal"><span class="pre">qconcurrency.threading_.SoloThreadedTask.staticMetaObject</span></code></a></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#qconcurrency.threading_.SoloThreadedTask.stop" title="qconcurrency.threading_.SoloThreadedTask.stop"><code class="xref py py-obj docutils literal"><span class="pre">qconcurrency.threading_.SoloThreadedTask.stop</span></code></a>([...])</td>
 <td>Emits <cite>request_abort</cite> signal on all threads up-to (but not including) the target <cite>until_threadId</cite>.</td>
 </tr>
 </tbody>
@@ -103,14 +106,22 @@
 <div class="section" id="documentation">
 <h2>Documentation<a class="headerlink" href="#documentation" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
-<dt id="qconcurrency.threading.SoloThreadedTask">
-<em class="property">class </em><code class="descclassname">qconcurrency.threading.</code><code class="descname">SoloThreadedTask</code><span class="sig-paren">(</span><em>callback</em>, <em>signals=None</em>, <em>connections=None</em>, <em>mutex_expiry=5000</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qconcurrency/threading.html#SoloThreadedTask"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qconcurrency.threading.SoloThreadedTask" title="Permalink to this definition">¶</a></dt>
+<dt id="qconcurrency.threading_.SoloThreadedTask">
+<em class="property">class </em><code class="descclassname">qconcurrency.threading_.</code><code class="descname">SoloThreadedTask</code><span class="sig-paren">(</span><em>callback</em>, <em>signals=None</em>, <em>connections=None</em>, <em>mutex_expiry=5000</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qconcurrency/threading_.html#SoloThreadedTask"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qconcurrency.threading_.SoloThreadedTask" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">PySide.QtCore.QObject</span></code></p>
 <p><code class="xref py py-obj docutils literal"><span class="pre">ThreadedTask</span></code> that cancels all of it&#8217;s running/pending threads (started by
 this <code class="xref py py-obj docutils literal"><span class="pre">SoloThreadedTask</span></code>) whenever a new thread is requested (and all must exit
 before the latest requested task is allowed to start ).</p>
 <p>This might be useful for methods that load or filter the contents
 of a widget.</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p>If slot connected to one of this task&#8217;s signals does not update
+UI until this thread exits, add the following line to the end of your slot.</p>
+<div class="last highlight-python"><div class="highlight"><pre><span></span><span class="n">QtCore</span><span class="o">.</span><span class="n">QCoreApplication</span><span class="o">.</span><span class="n">instance</span><span class="p">()</span><span class="o">.</span><span class="n">processEvents</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
 <p class="rubric">Example</p>
 <div class="highlight-python"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">MyList</span><span class="p">(</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QListWidget</span> <span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -138,12 +149,12 @@ of a widget.</p>
 <div class="admonition seealso">
 <p class="first admonition-title">See also</p>
 <ul class="last simple">
-<li><a class="reference internal" href="qconcurrency.threading.ThreadedTask.html#qconcurrency.threading.ThreadedTask" title="qconcurrency.threading.ThreadedTask"><code class="xref py py-obj docutils literal"><span class="pre">qconcurrency.threading.ThreadedTask</span></code></a></li>
+<li><a class="reference internal" href="qconcurrency.threading_.ThreadedTask.html#qconcurrency.threading_.ThreadedTask" title="qconcurrency.threading_.ThreadedTask"><code class="xref py py-obj docutils literal"><span class="pre">qconcurrency.threading_.ThreadedTask</span></code></a></li>
 </ul>
 </div>
 <dl class="method">
-<dt id="qconcurrency.threading.SoloThreadedTask.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>callback</em>, <em>signals=None</em>, <em>connections=None</em>, <em>mutex_expiry=5000</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qconcurrency/threading.html#SoloThreadedTask.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qconcurrency.threading.SoloThreadedTask.__init__" title="Permalink to this definition">¶</a></dt>
+<dt id="qconcurrency.threading_.SoloThreadedTask.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>callback</em>, <em>signals=None</em>, <em>connections=None</em>, <em>mutex_expiry=5000</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qconcurrency/threading_.html#SoloThreadedTask.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qconcurrency.threading_.SoloThreadedTask.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -163,11 +174,11 @@ Signals defined here will override any default signals.</p>
 </pre></div>
 </div>
 </li>
-<li><strong>connections</strong> (<em>dict</em><em>, </em><em>optional</em>) &#8211; <p>Dictionary of signal-names, and a list of python-collables you
-would like to connect to the signal.</p>
+<li><strong>connections</strong> (<em>dict</em><em>, </em><em>optional</em>) &#8211; <p>Dictionary of signal-names, and a python-callable, or list
+of python-callables to connect to the signal.</p>
 <div class="highlight-python"><div class="highlight"><pre><span></span><span class="p">{</span>
     <span class="s1">&#39;add_item&#39;</span><span class="p">:</span>     <span class="p">[</span> <span class="n">printargs</span><span class="p">,</span> <span class="n">mylist</span><span class="o">.</span><span class="n">addItem</span> <span class="p">],</span>
-    <span class="s1">&#39;add_progress&#39;</span><span class="p">:</span> <span class="p">[</span> <span class="n">progbar</span><span class="o">.</span><span class="n">add_progress</span><span class="p">,</span> <span class="p">],</span>
+    <span class="s1">&#39;add_progress&#39;</span><span class="p">:</span> <span class="n">progbar</span><span class="o">.</span><span class="n">add_progress</span><span class="p">,</span>
     <span class="o">...</span>
 <span class="p">}</span>
 </pre></div>
@@ -184,26 +195,50 @@ to the callback in <code class="xref py py-meth docutils literal"><span class="p
 </dd></dl>
 
 <dl class="method">
-<dt id="qconcurrency.threading.SoloThreadedTask.start">
-<code class="descname">start</code><span class="sig-paren">(</span><em>expiryTimeout=-1</em>, <em>threadpool=None</em>, <em>*args</em>, <em>**kwds</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qconcurrency/threading.html#SoloThreadedTask.start"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qconcurrency.threading.SoloThreadedTask.start" title="Permalink to this definition">¶</a></dt>
+<dt id="qconcurrency.threading_.SoloThreadedTask.is_active">
+<code class="descname">is_active</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qconcurrency/threading_.html#SoloThreadedTask.is_active"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qconcurrency.threading_.SoloThreadedTask.is_active" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="qconcurrency.threading_.SoloThreadedTask.start">
+<code class="descname">start</code><span class="sig-paren">(</span><em>expiryTimeout=-1</em>, <em>threadpool=None</em>, <em>wait=False</em>, <em>*args</em>, <em>**kwds</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qconcurrency/threading_.html#SoloThreadedTask.start"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qconcurrency.threading_.SoloThreadedTask.start" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates/starts a new <code class="xref py py-obj docutils literal"><span class="pre">ThreadedTask</span></code>, and cancels
 all other pending/running threads started by this
 <code class="xref py py-obj docutils literal"><span class="pre">SoloThreadedTask</span></code> instance.</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="qconcurrency.threading.SoloThreadedTask.staticMetaObject">
-<code class="descname">staticMetaObject</code><em class="property"> = &lt;PySide.QtCore.QMetaObject object&gt;</em><a class="headerlink" href="#qconcurrency.threading.SoloThreadedTask.staticMetaObject" title="Permalink to this definition">¶</a></dt>
+<dt id="qconcurrency.threading_.SoloThreadedTask.staticMetaObject">
+<code class="descname">staticMetaObject</code><em class="property"> = &lt;PySide.QtCore.QMetaObject object&gt;</em><a class="headerlink" href="#qconcurrency.threading_.SoloThreadedTask.staticMetaObject" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
-<dt id="qconcurrency.threading.SoloThreadedTask.stop">
-<code class="descname">stop</code><span class="sig-paren">(</span><em>until_threadId=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qconcurrency/threading.html#SoloThreadedTask.stop"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qconcurrency.threading.SoloThreadedTask.stop" title="Permalink to this definition">¶</a></dt>
+<dt id="qconcurrency.threading_.SoloThreadedTask.stop">
+<code class="descname">stop</code><span class="sig-paren">(</span><em>until_threadId=None</em>, <em>wait=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qconcurrency/threading_.html#SoloThreadedTask.stop"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qconcurrency.threading_.SoloThreadedTask.stop" title="Permalink to this definition">¶</a></dt>
 <dd><p>Emits <cite>request_abort</cite> signal on all threads up-to (but not including)
 the target <cite>until_threadId</cite>. If <cite>until_threadId</cite> is not provided, all
 pending threads are killed.</p>
 <p>(threadIds will be automatically removed from attr <code class="xref py py-attr docutils literal"><span class="pre">_active_threads</span></code>
 as they return, or raise unhandled exceptions).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>wait</strong> (<em>numbers.Number</em><em>, </em><em>optional</em>) &#8211; <code class="docutils literal"><span class="pre">(ex:</span> <span class="pre">None,</span> <span class="pre">-1,</span> <span class="pre">100)</span></code>
+Optionally, wait <em>N</em> seconds for job to complete
+after requesting abort. If negative number, waits
+indefinitely. Waiting in the main UI thread will
+result in a deadlock.</td>
+</tr>
+</tbody>
+</table>
+<dl class="docutils">
+<dt>Raises</dt>
+<dd><ul class="first last simple">
+<li><code class="xref py py-obj docutils literal"><span class="pre">TimedOut</span></code> if user set a wait time.</li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>

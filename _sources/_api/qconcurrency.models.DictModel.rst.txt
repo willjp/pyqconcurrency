@@ -17,12 +17,18 @@ Methods
 
    qconcurrency.models.DictModel.__init__
    qconcurrency.models.DictModel.add_row
+   qconcurrency.models.DictModel.clear
    qconcurrency.models.DictModel.column_index
    qconcurrency.models.DictModel.columns
    qconcurrency.models.DictModel.default_columnvals
+   qconcurrency.models.DictModel.has_key
    qconcurrency.models.DictModel.hierarchy
+   qconcurrency.models.DictModel.items
    qconcurrency.models.DictModel.keys
+   qconcurrency.models.DictModel.removeRow
    qconcurrency.models.DictModel.staticMetaObject
+   qconcurrency.models.DictModel.takeRow
+   qconcurrency.models.DictModel.values
 
 
 Documentation

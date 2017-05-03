@@ -76,7 +76,7 @@
 <span class="c1">#external</span>
 <span class="kn">from</span> <span class="nn">Qt</span>            <span class="k">import</span> <span class="n">QtWidgets</span>
 <span class="c1">#internal</span>
-<span class="kn">from</span> <span class="nn">qconcurrency.threading</span>  <span class="k">import</span> <span class="n">ThreadedTask</span><span class="p">,</span> <span class="n">SoloThreadedTask</span>
+<span class="kn">from</span> <span class="nn">qconcurrency.threading_</span>  <span class="k">import</span> <span class="n">ThreadedTask</span><span class="p">,</span> <span class="n">SoloThreadedTask</span>
 
 <span class="c1">#!TODO: http://stackoverflow.com/questions/7108715/how-to-show-hide-a-child-qwidget-with-a-motion-animation</span>
 
@@ -185,7 +185,7 @@
         <span class="c1"># create task</span>
         <span class="n">task</span> <span class="o">=</span> <span class="n">ThreadedTask</span><span class="p">(</span>
             <span class="n">callback</span> <span class="o">=</span> <span class="n">callback</span><span class="p">,</span>
-            <span class="n">signals</span>  <span class="o">=</span> <span class="n">signals</span><span class="p">,</span>
+            <span class="n">signals</span>  <span class="o">=</span> <span class="n">default_signals</span><span class="p">,</span>
         <span class="p">)</span>
 
 
@@ -226,7 +226,7 @@
         <span class="c1"># create task</span>
         <span class="n">task</span> <span class="o">=</span> <span class="n">SoloThreadedTask</span><span class="p">(</span>
             <span class="n">callback</span>     <span class="o">=</span> <span class="n">callback</span><span class="p">,</span>
-            <span class="n">signals</span>      <span class="o">=</span> <span class="n">signals</span><span class="p">,</span>
+            <span class="n">signals</span>      <span class="o">=</span> <span class="n">default_signals</span><span class="p">,</span>
             <span class="n">mutex_expiry</span> <span class="o">=</span> <span class="n">mutex_expiry</span><span class="p">,</span>
         <span class="p">)</span>
 
