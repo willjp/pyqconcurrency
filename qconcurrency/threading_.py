@@ -489,6 +489,10 @@ class ThreadedTask( QtCore.QRunnable ):
             else:
                 self._signalmgr.returned.emit( retval )
 
+
+        except( UserCancelledOperation ):
+            pass
+
         except:
             exc_info = sys.exc_info()
             logger.error( 'Unhandled Exception occurred in thread: %s' % repr(exc_info) )
@@ -758,10 +762,16 @@ class SoloThreadedTask( QtCore.QObject ):
                 signalmgr = signalmgr,
                 *args, **kwds
             )
+
+        except( UserCancelledOperation ):
+            logger.debug('user-cancelled-operation in threadId: %s' % threadId)
+
         except:
+            exc_info = sys.exc_info()
+            logger.error( 'Unhandled Exception occurred in solo-thread: %s' % repr(exc_info) )
             signalmgr._thread_exit_.emit( threadId )
             self._mutex_loading.unlock()
-            six.reraise( *sys.exc_info() )
+            six.reraise( *exc_info )
 
         signalmgr._thread_exit_.emit( threadId )
         self._mutex_loading.unlock()

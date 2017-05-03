@@ -76,7 +76,10 @@ class MyThreadedList( QtWidgets.QListWidget ):
 if __name__ == '__main__':
     from   qconcurrency            import QApplication
     from   qconcurrency.threading_ import ThreadedTask
+    import supercli.logging
     import time
+
+    supercli.logging.SetLog( lv=20 )
 
 
     with QApplication():
@@ -91,8 +94,8 @@ if __name__ == '__main__':
 
         def multiload_list( listwidget, signalmgr=None ):
             for i in range(3):
-               time.sleep(0.5)
-               listwidget.load()
+                time.sleep(0.5)
+                listwidget.load()
 
         task = ThreadedTask( multiload_list, listwidget=mylist )
         task.start()
