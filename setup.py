@@ -4,7 +4,7 @@ import setuptools
 
 setup(
     name         = 'qconcurrency',
-    version      = '0.0.a1',
+    version      = '0.0.a2',
     author       = 'Will Pittman',
     author_email = 'willjpittman@gmail.com',
     url          = 'https://github.com/willjp/supercli',
