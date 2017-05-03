@@ -316,7 +316,9 @@ class DictModel( QtGui.QStandardItemModel ):
             raise KeyError('unknown level: %s' % level )
 
         else:
-            return self._columns
+            columns = list(self._columns[:])
+            columns.insert( 0, 'id' )
+            return columns
 
     def column_index(self, level=None, column=None ):
         """
@@ -660,7 +662,7 @@ class DictModelRow( QtGui.QStandardItem ):
         else:
             hierarchy = parent.model().hierarchy()
             if hierarchy:
-                index = hierarchy.index( parent.level() ) +1
+                index = hierarchy.index( parent.level() )+1
                 self._level = hierarchy[ index ]
             else:
                 self._level = parent.level() +1
@@ -668,7 +670,8 @@ class DictModelRow( QtGui.QStandardItem ):
             parent.setChild( parent.rowCount(), 0, self )
 
         self.setText( str(key) )
-        self.set_columnvals( self.model().default_columnvals(self._level) )
+        default_columnvals = self.model().default_columnvals(self._level)
+        self.set_columnvals( default_columnvals )
         if columnvals:
             self.set_columnvals( columnvals )
 
@@ -771,7 +774,7 @@ class DictModelRow( QtGui.QStandardItem ):
         """
 
         # validation
-        if self.model() == None:
+        if self.model() is None:
             raise RuntimeError('Cannot set columnvals until item has been added to a model')
 
         columns = self.model().columns( self._level )
@@ -847,9 +850,13 @@ class DictModelRow( QtGui.QStandardItem ):
             column = columns[i]
             if column == name:
                 if self.parent() is not None:
-                    return self.parent().child( self.row(), i+1 ).text()
+                    modelitem = self.parent().child( self.row(), i )
+                    if modelitem:
+                        return modelitem.text()
                 else:
-                    return self.model().item( self.row(), i+1 ).text()
+                    modelitem = self.model().item( self.row(), i )
+                    if modelitem:
+                        return modelitem.text()
 
         raise KeyError(
             'Unable to find a column named: "%s" in %s' % (name, repr(columns))
