@@ -22,6 +22,7 @@ import uuid
 import time
 import importlib
 import functools
+import traceback
 #package
 #external
 from   Qt import QtCore, QtWidgets
@@ -493,7 +494,7 @@ class ThreadedTask( QtCore.QRunnable ):
 
         except:
             exc_info = sys.exc_info()
-            logger.error( 'Unhandled Exception occurred in thread: %s' % repr(exc_info) )
+            logger.error( '%s\n\nUnhandled Exception occurred in thread: %s' % (traceback.format_exc(exc_info), repr(exc_info)) )
             self._signalmgr.exception.emit( tuple(exc_info) )
 
     def start(self, expiryTimeout=-1, threadpool=None ):
@@ -768,7 +769,7 @@ class SoloThreadedTask( QtCore.QObject ):
 
         except:
             exc_info = sys.exc_info()
-            logger.error( 'Unhandled Exception occurred in solo-thread: %s' % repr(exc_info) )
+            logger.error( '%s\n\nUnhandled Exception occurred in thread: %s' % (traceback.format_exc(exc_info), repr(exc_info)) )
             signalmgr._thread_exit_.emit( threadId )
             self._mutex_loading.unlock()
             six.reraise( *exc_info )
