@@ -354,5 +354,32 @@ class Test_SoloThreadedTask( unittest.TestCase ):
 
 
 
+class Test_QSemaphoreLocker( unittest.TestCase ):
+    def test_lose_scope_lock(self):
+        """
+        when `locked` var loses scope, semaphore is unlocked.
+        """
+        semaphore = QtCore.QSemaphore(1)
+
+        def testlock( semaphore ):
+            locked = QSemaphoreLocker( semaphore, 1 )
+            self.assertEqual( semaphore.tryAcquire(1,0), False )
+
+        testlock( semaphore )
+        self.assertEqual( semaphore.tryAcquire(1,0), True )
+        semaphore.release(1)
+
+    def test_with_exit_lock(self):
+        """
+        when context-manager ends, lock is released.
+        """
+        semaphore = QtCore.QSemaphore(1)
+
+        with QSemaphoreLocker( semaphore ):
+            self.assertEqual( semaphore.tryAcquire(1,0), False )
+
+        self.assertEqual( semaphore.tryAcquire(1,0), True )
+        semaphore.release(1)
+
 
 

@@ -21,6 +21,7 @@ import os
 import uuid
 import time
 import importlib
+import functools
 #package
 #external
 from   Qt import QtCore, QtWidgets
@@ -35,6 +36,7 @@ __all__ = [
     'SignalManagerFactory',
     'ThreadedTask',
     'SoloThreadedTask',
+    'QSemaphoreLocker',
 ]
 
 def SignalManagerFactory( signals, queue_stop=None ):
@@ -288,7 +290,7 @@ class QSemaphoreLocker( QtCore.QObject ):
 
         self.destroyed.connect(
             functools.partial(
-                self._semaphore.unlock,
+                self._semaphore.release,
                 self._resources,
             )
         )
