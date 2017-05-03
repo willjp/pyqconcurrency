@@ -205,3 +205,154 @@ class Test_ThreadedTask( unittest.TestCase ):
 
 
 
+class Test_SoloThreadedTask( unittest.TestCase ):
+    def test_stop_method(self):
+        """
+        task should be interrupted before `_callback`
+        completes - so queue should be empty.
+        """
+
+        queue_finished = six.moves.queue.Queue()
+
+        def _callback( queue_finished, signalmgr=None ):
+            for i in range(15):
+                signalmgr.handle_if_abort()
+                time.sleep(0.1)
+            queue_finished.put(True)
+
+
+        task = SoloThreadedTask(
+            callback = _callback,
+        )
+        task.start( queue_finished=queue_finished )
+
+        task.stop()
+        self.assertEqual( queue_finished.empty(), True )
+
+    def test_interrupted(self):
+        """
+        Despite that 3x tasks are started at essentially
+        the same time, only the last task completes, so the
+        queue should only contain a single item.
+        """
+
+        queue_finished = six.moves.queue.Queue()
+        threadpool     = QtCore.QThreadPool()
+
+        def _callback( queue_finished, signalmgr=None ):
+            for i in range(3):
+                signalmgr.handle_if_abort()
+                time.sleep(0.05)
+            queue_finished.put(True)
+
+
+        task = SoloThreadedTask(
+            callback = _callback,
+        )
+        task.start( queue_finished=queue_finished, threadpool=threadpool )
+        task.start( queue_finished=queue_finished, threadpool=threadpool )
+        task.start( queue_finished=queue_finished, threadpool=threadpool )
+
+
+        threadpool.waitForDone()
+        self.assertEqual( queue_finished.qsize(), 1 )
+
+    def test_start_wait__false(self):
+        """
+        Run SoloThreadedTask in separate thread, do not wait
+        in main UI thread for completion.
+
+        NOTE: This test is technically a race-condition.
+        """
+        queue_finished = six.moves.queue.Queue()
+        threadpool     = QtCore.QThreadPool()
+
+        def _callback( queue_finished, signalmgr=None ):
+            for i in range(3):
+                signalmgr.handle_if_abort()
+                time.sleep(0.05)
+            queue_finished.put(True)
+
+
+        task = SoloThreadedTask(
+            callback = _callback,
+        )
+        task.start(
+            queue_finished = queue_finished,
+            threadpool     = threadpool,
+            wait           = False,
+        )
+        self.assertEqual( queue_finished.qsize(), 0 )
+        threadpool.waitForDone()
+
+    def test_start_wait__true(self):
+        """
+        wait for task to finish in UI thread.
+        """
+        queue_finished = six.moves.queue.Queue()
+        threadpool     = QtCore.QThreadPool()
+
+        def _callback( queue_finished, signalmgr=None ):
+            for i in range(3):
+                signalmgr.handle_if_abort()
+                time.sleep(0.05)
+            queue_finished.put(True)
+
+
+        task = SoloThreadedTask(
+            callback = _callback,
+        )
+        task.start(
+            queue_finished = queue_finished,
+            threadpool     = threadpool,
+            wait           = True,
+        )
+        self.assertEqual( queue_finished.qsize(), 1 )
+        threadpool.waitForDone()
+
+    def test_isactive(self):
+        queue_finished = six.moves.queue.Queue()
+        threadpool     = QtCore.QThreadPool()
+
+        def _callback( queue_finished, signalmgr=None ):
+            for i in range(3):
+                signalmgr.handle_if_abort()
+                time.sleep(0.05)
+            queue_finished.put(True)
+
+
+        task = SoloThreadedTask(
+            callback = _callback,
+        )
+        task.start(
+            queue_finished = queue_finished,
+            threadpool     = threadpool,
+        )
+        self.assertEqual( task.is_active(), True )
+        threadpool.waitForDone()
+
+    def test_isinactive(self):
+        queue_finished = six.moves.queue.Queue()
+        threadpool     = QtCore.QThreadPool()
+
+        def _callback( queue_finished, signalmgr=None ):
+            for i in range(3):
+                signalmgr.handle_if_abort()
+                time.sleep(0.05)
+            queue_finished.put(True)
+
+
+        task = SoloThreadedTask(
+            callback = _callback,
+        )
+        task.start(
+            queue_finished = queue_finished,
+            threadpool     = threadpool,
+        )
+        threadpool.waitForDone()
+        self.assertEqual( task.is_active(), False )
+
+
+
+
+
