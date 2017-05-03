@@ -20,6 +20,7 @@ import sys
 import os
 import uuid
 import time
+import importlib
 #package
 #external
 from   Qt import QtCore, QtWidgets
@@ -88,7 +89,45 @@ def SignalManagerFactory( signals, queue_stop=None ):
             'signal-names, and emit-datatypes \n'
         )
 
-    class_ = (
+
+    # extend globals to include all types needed for signals
+    def import_signal_datatype( _globals, datatype ):
+        """
+        Args:
+            _globals (dict):
+                A modified version of `globals` builtin, that will be used
+                when defining class
+
+            datatype (object):
+                A python object, emitted by a signal.
+
+        Returns:
+
+            .. code-block:: python
+
+                (
+                    _globals, # globals() with datatype pkg imported
+                    pkgname , # full importpath of datatype
+                )
+
+        """
+        str_datatype = datatype.__name__
+
+        if datatype.__module__ != '__builtin__':
+            _globals[ datatype.__module__.split('.')[-1] ] = (
+                importlib.import_module( datatype.__module__ )
+            )
+            str_datatype = '%s.%s' % (
+                datatype.__module__.split('.')[-1],
+                datatype.__name__,
+            )
+        return _globals, str_datatype
+
+
+
+
+    _globals = globals()
+    class_   = (
         'from Qt import QtCore \n'
         'class SignalManager( QtCore.QObject ):\n'
     )
@@ -102,14 +141,22 @@ def SignalManagerFactory( signals, queue_stop=None ):
 
         # signals with multiple returns
         elif isinstance( signals[signal], Iterable ):
+            str_datatypes = []
+            for datatype in signals[signal]:
+                (_globals, str_datatype) = import_signal_datatype( _globals, datatype )
+                str_datatypes.append( str_datatype )
+
             class_ += '    {signal} = QtCore.Signal({signal_datatypes})\n'.format(
                 signal           = signal,
-                signal_datatypes = ','.join([ str(datatype.__name__) for datatype in signals[signal] ]),
+                signal_datatypes = ','.join(str_datatypes)
             )
+
+        # single signal datatype
         else:
+            (_globals, str_datatype) = import_signal_datatype( _globals, signals[signal] )
             class_ += '    {signal} = QtCore.Signal({datatype})\n'.format(
                 signal   = signal,
-                datatype = signals[signal].__name__,
+                datatype = str_datatype,
             )
 
     # self._signals
@@ -173,7 +220,7 @@ def SignalManagerFactory( signals, queue_stop=None ):
 
 
     _locals = locals()
-    exec( class_, globals(), _locals )
+    exec( class_, _globals, _locals )
 
     return _locals['SignalManager']()
 
