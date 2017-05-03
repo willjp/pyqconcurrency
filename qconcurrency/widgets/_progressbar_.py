@@ -127,7 +127,7 @@ class ProgressBar( QtWidgets.QProgressBar ):
         # create task
         task = ThreadedTask(
             callback = callback,
-            signals  = signals,
+            signals  = default_signals,
         )
 
 
@@ -168,7 +168,7 @@ class ProgressBar( QtWidgets.QProgressBar ):
         # create task
         task = SoloThreadedTask(
             callback     = callback,
-            signals      = signals,
+            signals      = default_signals,
             mutex_expiry = mutex_expiry,
         )
 
