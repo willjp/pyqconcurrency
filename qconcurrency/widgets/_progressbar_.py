@@ -16,6 +16,7 @@ from __future__    import print_function
 from   collections import Iterable
 import functools
 import uuid
+import copy
 #external
 from Qt            import QtWidgets
 #internal
@@ -23,11 +24,76 @@ from qconcurrency.threading_  import ThreadedTask, SoloThreadedTask
 
 #!TODO: http://stackoverflow.com/questions/7108715/how-to-show-hide-a-child-qwidget-with-a-motion-animation
 
-## keep track of all tasks with uuids.
-## as each uuid is finished, or burned, remove it's
-## remaining steps
+
+class _ProgressSoloThreadedTask( SoloThreadedTask ):
+    """
+    customized :py:obj:`qconcurrency.threading_.SoloThreadedTask` that
+    assigns a new jobid for each thread it starts, and each thread's progress
+    is measured entirely independently.
+
+    This way, there is no race-condition where cancelling one thread can knock out
+    progress on *all* threads.
+    """
+    def __init__(self, progressbar, callback, signals=None, connections=None, mutex_expiry=5000 ):
+        self._progressbar = progressbar
+        SoloThreadedTask.__init__(self,
+            callback     = callback,
+            signals      = signals,
+            connections  = connections,
+            mutex_expiry = mutex_expiry,
+        )
+
+    def start(self, expiryTimeout=-1, threadpool=None, wait=False, *args, **kwds ):
+        """
+        Wraps :py:meth:`qconcurrency.threading_.SoloThreadedTask.start` ,
+        adding signal-connections so that they update a progressbar.
+
+        See Also:
+
+            * :py:meth:`qconcurrency.threading_.SoloThreadedTask.start`
+        """
+        jobid = uuid.uuid4().hex
+
+        connections = copy.deepcopy(self._connections)
+        if not connections:
+            connections = {}
+
+        progbar_connections = {
+            'incr_progress' : functools.partial( self._progressbar.incr_progress, jobid=jobid ),
+            'add_progress'  : functools.partial( self._progressbar.add_progress,  jobid=jobid ),
+            'returned'      : functools.partial( self._progressbar._handle_return_or_abort, jobid=jobid ),
+            'exception'     : functools.partial( self._progressbar._handle_return_or_abort, jobid=jobid ),
+        }
+
+        for signal in progbar_connections:
+            if signal in connections:
+                connections[ signal ].append( progbar_connections[signal] )
+            else:
+                connections[ signal ] = [ progbar_connections[signal] ]
+
+
+        SoloThreadedTask.start(self,
+                           expiryTimeout = expiryTimeout,
+                           threadpool    = threadpool,
+                           wait          = wait,
+                           _connections  = connections,
+                           *args,**kwds
+                       )
+
+
 
 class ProgressBar( QtWidgets.QProgressBar ):
+    """
+    A ProgressBar designed to track progress of several threads,
+    that is hidden automatically whenever all threads have exited
+    (by unhandled exception, or return).
+
+    Each thread is assigned it's own `jobid`, so that it's progress
+    is tracked entirely independently of all other pending tasks.
+    (my hope is that if errors appear in total-calculated progress in the
+    codebase, this will lessen the appearance of an error for the user - each
+    thread's progress being set to 100% once it exits).
+    """
     def __init__(self):
         QtWidgets.QProgressBar.__init__(self)
 
@@ -166,12 +232,7 @@ class ProgressBar( QtWidgets.QProgressBar ):
             default_signals.update( signals )
 
         # assign connections
-        default_connections = {
-            'incr_progress' : [functools.partial( self.incr_progress, jobid=jobid )],
-            'add_progress'  : [functools.partial( self.add_progress,  jobid=jobid )],
-            'returned'      : [functools.partial( self._handle_return_or_abort, jobid=jobid )],
-            'exception'     : [functools.partial( self._handle_return_or_abort, jobid=jobid )],
-        }
+        default_connections = {}
         if connections:
             for signal in connections:
                 if signal in default_connections:
@@ -185,7 +246,9 @@ class ProgressBar( QtWidgets.QProgressBar ):
                     default_connections[ signal ] = connections[ signal ]
 
         # create task
-        solotask = SoloThreadedTask(
+        #solotask = SoloThreadedTask(
+        solotask = _ProgressSoloThreadedTask(
+            progressbar  = self,
             callback     = callback,
             signals      = default_signals,
             connections  = default_connections,
@@ -208,17 +271,18 @@ if __name__ == '__main__':
     supercli.logging.SetLog(lv=20)
 
 
-    def update_progbar( signalmgr=None ):
+    def update_progbar( start_wait=0, signalmgr=None ):
         if not signalmgr:
             signalmgr = Fake()
 
         signalmgr.add_progress.emit(5)
-        time.sleep(0.2)
+        time.sleep( start_wait )
 
         for i in range(5):
             signalmgr.handle_if_abort()
             time.sleep(0.2)
             signalmgr.incr_progress.emit(1)
+        print('done')
 
 
     with QApplication():
@@ -233,7 +297,14 @@ if __name__ == '__main__':
         solotask = bar.new_solotask(
             callback = update_progbar,
         )
-        solotask.start()
-        solotask.start()
+        solotask.start( start_wait=0   )
+
+        # wait before starting next job,
+        # keeping eventloop alive so progress can be seen
+        for i in range(2):
+            time.sleep(0.2)
+            QtCore.QCoreApplication.instance().processEvents()
+
+        solotask.start( start_wait=0.5 )
 
 

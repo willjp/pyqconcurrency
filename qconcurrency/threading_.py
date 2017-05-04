@@ -556,7 +556,7 @@ class SoloThreadedTask( QtCore.QObject ):
     this :py:obj:`SoloThreadedTask`) whenever a new thread is requested (and all must exit
     before the latest requested task is allowed to start ).
 
-    This might be useful for methods that load or filter the contents
+    This is designed for methods that load or filter the contents
     of a widget.
 
 
@@ -680,13 +680,39 @@ class SoloThreadedTask( QtCore.QObject ):
         # locks
         self._mutex_loading    = QtCore.QMutex()
 
-    def start(self, expiryTimeout=-1, threadpool=None, wait=False, *args,**kwds):
+    def start(self, expiryTimeout=-1, threadpool=None, wait=False, _connections=None, *args,**kwds):
         """
         Creates/starts a new :py:obj:`ThreadedTask`, and cancels
         all other pending/running threads started by this
         :py:obj:`SoloThreadedTask` instance.
-        """
 
+        Args:
+
+            expiryTimeout (int, optional):
+                Thread that unused for N milliseconds are considered expired
+                and will exit. By default, no exipiryTimeout is set ``(-1)``.
+
+            threadpool (QtCore.QThreadPool, optional):
+                By default, this :py:obj:`ThreadedTask` will be queued in the
+                QCoreApplication's global threadpool. If you would prefer to assign
+                another, you may specify it here.
+
+            _connections(dict, optional):
+                Entirely replaces the connections defined in ``__init__`` .
+                Only use this if you are absolutely certain you know what
+                you are doing.
+
+            wait (int, bool, optional):  ``(ex: True, False, 1.5 )``
+                Similar to :py:meth:`threading.Thread.join` this allows
+                you to wait for the thread to complete, or wait N seconds
+                for it to complete. If the timeout expires, the exception
+                :py:obj:`TimedOut` is raised.
+
+            *args/**kwds:
+                Any additional arguments/keyword-arguments will be passed
+                to the `callback` defined in :py:meth:`__init__` when it is
+                run from it's separate thread.
+        """
         threadId = uuid.uuid4().hex
 
         task = ThreadedTask(
@@ -699,16 +725,19 @@ class SoloThreadedTask( QtCore.QObject ):
         )
         self._active_threads[ threadId ] = task.request_abort
 
+        if not _connections:
+            _connections = self._connections
+
 
         # setup all user-defined connections
-        if self._connections:
-            for signal_name in self._connections:
-                if isinstance( self._connections[ signal_name ], Iterable ):
-                    for callback in self._connections[ signal_name ]:
+        if _connections:
+            for signal_name in _connections:
+                if isinstance( _connections[ signal_name ], Iterable ):
+                    for callback in _connections[ signal_name ]:
                         task.signal( signal_name ).connect( callback )
                 else:
                     task.signal( signal_name ).connect(
-                        self._connections[signal_name]
+                        _connections[signal_name]
                     )
 
         task.signal('thread_acquired_mutex').connect(
@@ -801,6 +830,10 @@ class SoloThreadedTask( QtCore.QObject ):
 
 
         Args:
+            until_threadId:
+                Requests abort on all running threads until (and not including)
+                the thread with a threadId matching `until_threadId`.
+
             wait (numbers.Number, optional):  ``(ex: None, -1, 100)``
                 Optionally, wait *N* seconds for job to complete
                 after requesting abort. If negative number, waits
@@ -858,6 +891,10 @@ class SoloThreadedTask( QtCore.QObject ):
             self._active_threads.pop( threadId )
 
     def is_active(self):
+        """
+        Returns ``True`` if this :py:obj:`SoloThreadedTask` is
+        overseeing an active thread.
+        """
         if self._active_threads:
             return True
         return False
