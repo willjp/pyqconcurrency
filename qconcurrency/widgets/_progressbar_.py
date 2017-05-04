@@ -54,7 +54,7 @@ class _ProgressSoloThreadedTask( SoloThreadedTask ):
         """
         jobid = uuid.uuid4().hex
 
-        connections = copy.deepcopy(self._connections)
+        connections = self._connections.copy()
         if not connections:
             connections = {}
 
@@ -306,5 +306,7 @@ if __name__ == '__main__':
             QtCore.QCoreApplication.instance().processEvents()
 
         solotask.start( start_wait=0.5 )
+        solotask.start()
+        solotask.start()
 
 

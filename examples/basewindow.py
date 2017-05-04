@@ -73,7 +73,10 @@ class MyMainWindow( QBaseWindow ):
         """
         Adds 100 items to the list-widget,
         """
+        signalmgr.add_progress.emit(101)
+
         signalmgr.clear.emit()
+        signalmgr.incr_progress.emit(1)
 
         for i in range(100):
             signalmgr.handle_if_abort()   # check for a request-abort, and exit early
@@ -84,6 +87,7 @@ class MyMainWindow( QBaseWindow ):
             # ( you must wait for them all to be handled )
             self._sem_rendering.tryAcquire(1,5000)
             signalmgr.add_item.emit( str(i) )  # add an item to the list
+            signalmgr.incr_progress.emit(1)
 
     def addItem(self, item):
         """
@@ -91,15 +95,8 @@ class MyMainWindow( QBaseWindow ):
         then adds the item to the list.
         """
         time.sleep(0.01)
-        try:
-            self._list.addItem(item)
-        except:
-            self._sem_rendering.release(1)
-            six.reraise( *sys.exc_info() )
-
-
-        if not self._sem_rendering.available():
-            self._sem_rendering.release(1)
+        self._list.addItem(item)
+        self._sem_rendering.release(1)
 
         # in this example, the wait is performed
         # in the UI thread - it never has a chance to process
@@ -117,7 +114,6 @@ if __name__ == '__main__':
     from   qconcurrency.threading_ import ThreadedTask
     import supercli.logging
     import time
-
     supercli.logging.SetLog( lv=20 )
 
 
