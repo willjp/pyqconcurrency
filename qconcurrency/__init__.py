@@ -24,7 +24,7 @@ from   Qt import QtCore, QtWidgets
 import six
 #internal
 from   qconcurrency.exceptions_   import *
-from   qconcurrency._qbasewindow_ import QBaseWindow
+from   qconcurrency._qbasewindow_ import QBaseWindow, QBaseObject
 
 logger = logging.getLogger(__name__)
 loc    = locals

@@ -13,7 +13,7 @@ from __future__    import unicode_literals
 from __future__    import absolute_import
 from __future__    import division
 from __future__    import print_function
-from collections   import Iterable
+from   collections import Iterable
 import functools
 import uuid
 #external
@@ -129,6 +129,7 @@ class ProgressBar( QtWidgets.QProgressBar ):
         task = ThreadedTask(
             callback = callback,
             signals  = default_signals,
+            *args, **kwds
         )
 
 
@@ -193,8 +194,9 @@ class ProgressBar( QtWidgets.QProgressBar ):
 
         return solotask
 
-    def _handle_return_or_abort(self, jobid=None, *args,**kwds):
-        self.reset( jobid=jobid )
+    def _handle_return_or_abort(self, *args,**kwds):
+        if 'jobid' in kwds:
+            self.reset( jobid=kwds['jobid'] )
 
 
 

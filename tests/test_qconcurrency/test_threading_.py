@@ -55,7 +55,7 @@ class Test_ThreadedTask( unittest.TestCase ):
                 signalmgr.handle_if_abort()
                 time.sleep(0.01)
 
-        def queue_put( queue, *args, **kwds ):
+        def queue_put( queue=None, *args, **kwds ):
             queue.put( True )
 
         task = ThreadedTask( callback=try_abort )

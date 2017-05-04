@@ -493,6 +493,7 @@ class ThreadedTask( QtCore.QRunnable ):
                 self._signalmgr.returned.emit( retval )
 
         except:
+            logger.error( 'called with %s( %s, %s )' % (repr(self._callback), repr(self._args), repr(self._kwds) ) )
             exc_info = sys.exc_info()
             logger.error( '%s\n\nUnhandled Exception occurred in thread: %s' % (traceback.format_exc(exc_info), repr(exc_info)) )
             self._signalmgr.exception.emit( tuple(exc_info) )

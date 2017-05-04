@@ -73,10 +73,7 @@ class QBaseWindow( QtWidgets.QWidget ):
 
 
 
-class QBaseObject( QtCore.QObject ):
-    def __init__(self):
-        QtCore.QObject.__init__(self)
-
+class QBaseObject( object ):
     def new_task(self, callback, signals=None, *args, **kwds):
 
         # assign signals
