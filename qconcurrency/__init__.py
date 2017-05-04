@@ -33,6 +33,7 @@ __all__ = [
     'Fake',
     'QApplication',
     'QBaseWindow',
+    'QBaseObject',
 ]
 
 class Fake( object ):

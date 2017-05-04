@@ -30,9 +30,7 @@ class QBaseWindow( QtWidgets.QWidget ):
         self._title  = title
         self._layout = None
 
-        self._initui()
 
-    def _initui(self):
         # Build Widgets
         # =============
         layout = QtWidgets.QVBoxLayout()
@@ -64,10 +62,11 @@ class QBaseWindow( QtWidgets.QWidget ):
         )
         return task
 
-    def new_solotask(self, callback, signals=None, mutex_expiry=5000):
+    def new_solotask(self, callback, signals=None, connections=None, mutex_expiry=5000):
         solotask = self._progressbar.new_solotask(
             callback     = callback,
             signals      = signals,
+            connections  = connections,
             mutex_expiry = mutex_expiry,
         )
         return solotask

@@ -1,10 +1,13 @@
 """
-An example usage for`SoloThreadedTask`.
+Another example usage of `SoloThreadedTask`,
+identical to ``examples/threadedlist.py``, but this
+time it is created-by/used within a `QBaseWindow` so that
+it's builtin progressbar can be updated.
 
-Every time that `MyThreadedList.load` is called,
-the previous job is cancelled, before the next job
-is allowed to start.
+Now, the signals `add_progress` and `incr_progress`
+are used to update the `QBaseWindow`'s builtin progressbar.
 """
+from   qconcurrency            import QBaseWindow
 from   qconcurrency.threading_ import ThreadedTask, SoloThreadedTask
 from   Qt                      import QtCore, QtWidgets
 import sys
@@ -12,13 +15,21 @@ import six
 import time
 
 
-class MyThreadedList( QtWidgets.QListWidget ):
+class MyMainWindow( QBaseWindow ):
     def __init__(self):
-        QtWidgets.QListWidget.__init__(self)
+        QBaseWindow.__init__(self, title='My Window')
 
-        self._sem_rendering  = QtCore.QSemaphore(1)
+        self._sem_rendering = QtCore.QSemaphore(1)
 
-        self._thread_loading = SoloThreadedTask(
+        # using self.new_solotask() instead of
+        # SoloThreadedTask adds the signals:
+        #
+        #    * add_progress
+        #    * incr_progress
+        #
+        # which update this window's builtin progressbar
+        #
+        self._thread_loading = self.new_solotask(
             callback    = self._find_list_items,
             signals     = {
                 'add_item': str,
@@ -30,6 +41,20 @@ class MyThreadedList( QtWidgets.QListWidget ):
             },
         )
 
+        self._initui()
+
+    def _initui(self):
+
+        # Build Widgets
+        layout     = QtWidgets.QVBoxLayout()
+        self._list = QtWidgets.QListWidget()
+        load_btn   = QtWidgets.QPushButton('load')
+
+        # Position Widgets
+        self.setLayout( layout )
+        layout.addWidget( self._list )
+        layout.addWidget( load_btn )
+
     def load(self):
         """
         Loads list with items from a separate thread.
@@ -37,6 +62,12 @@ class MyThreadedList( QtWidgets.QListWidget ):
         before the new load request starts.
         """
         self._thread_loading.start()
+
+    def clear(self):
+        """
+        Clears the QListWidget
+        """
+        self._list.clear()
 
     def _find_list_items(self, signalmgr=None ):
         """
@@ -61,9 +92,9 @@ class MyThreadedList( QtWidgets.QListWidget ):
         """
         time.sleep(0.01)
         try:
-            QtWidgets.QListWidget.addItem(self, item )
+            self._list.addItem(item)
         except:
-            self._mutex_rendering.unlock()
+            self._sem_rendering.release(1)
             six.reraise( *sys.exc_info() )
 
 
@@ -92,7 +123,7 @@ if __name__ == '__main__':
 
     with QApplication():
         # create/load the list
-        mylist = MyThreadedList()
+        mylist = MyMainWindow()
         mylist.show()
         mylist.load()
 

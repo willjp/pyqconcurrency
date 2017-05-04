@@ -13,6 +13,7 @@ from __future__    import unicode_literals
 from __future__    import absolute_import
 from __future__    import division
 from __future__    import print_function
+from collections   import Iterable
 import functools
 import uuid
 #external
@@ -171,12 +172,15 @@ class ProgressBar( QtWidgets.QProgressBar ):
             'exception'     : [functools.partial( self._handle_return_or_abort, jobid=jobid )],
         }
         for signal in connections:
-            if isinstance( connections[ signal ], Iterable ):
-                for _callable in connections[ signal ]:
-                    default_connections.append( _callable )
+            if signal in default_connections:
+                if isinstance( connections[ signal ], Iterable ):
+                    for _callable in connections[ signal ]:
+                        default_connections[ signal ].append( _callable )
+                else:
+                    _callable = connections[ signal ]
+                    default_connections[ signal ].append( _callable )
             else:
-                _callable = connections[ signal ]
-                default_connections.append( _callable )
+                default_connections[ signal ] = connections[ signal ]
 
         # create task
         solotask = SoloThreadedTask(
