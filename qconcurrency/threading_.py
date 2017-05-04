@@ -492,6 +492,11 @@ class ThreadedTask( QtCore.QRunnable ):
             else:
                 self._signalmgr.returned.emit( retval )
 
+        except( UserCancelledOperation ):
+            logger.debug('Responding to user-cancelled-operation. Exiting thread: %s' % repr(self) )
+            exc_info = sys.exc_info()
+            self._signalmgr.exception.emit( tuple(exc_info) )
+
         except:
             logger.error( 'called with %s( %s, %s )' % (repr(self._callback), repr(self._args), repr(self._kwds) ) )
             exc_info = sys.exc_info()
@@ -766,6 +771,13 @@ class SoloThreadedTask( QtCore.QObject ):
                 signalmgr = signalmgr,
                 *args, **kwds
             )
+
+        except( UserCancelledOperation ):
+            exc_info = sys.exc_info()
+            logger.debug('Responding to user-cancelled-operation. Exiting thread: %s' % repr(self) )
+            signalmgr._thread_exit_.emit( threadId )
+            self._mutex_loading.unlock()
+            six.reraise( *exc_info )
 
         except:
             exc_info = sys.exc_info()

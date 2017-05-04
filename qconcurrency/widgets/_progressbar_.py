@@ -203,7 +203,10 @@ class ProgressBar( QtWidgets.QProgressBar ):
 if __name__ == '__main__':
     from   qconcurrency import QApplication, Fake
     from   Qt           import QtWidgets, QtCore, QtGui
+    import supercli.logging
     import time
+    supercli.logging.SetLog(lv=20)
+
 
     def update_progbar( signalmgr=None ):
         if not signalmgr:
