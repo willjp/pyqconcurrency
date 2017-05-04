@@ -685,7 +685,7 @@ class SoloThreadedTask( QtCore.QObject ):
 
         task = ThreadedTask(
             callback = self._run,
-            signals = self._signals,
+            signals  = self._signals,
 
             # args/kwds
             threadId = threadId,
@@ -704,7 +704,6 @@ class SoloThreadedTask( QtCore.QObject ):
                     task.signal( signal_name ).connect(
                         self._connections[signal_name]
                     )
-
 
         task.signal('thread_acquired_mutex').connect(
             self._set_active_threadId

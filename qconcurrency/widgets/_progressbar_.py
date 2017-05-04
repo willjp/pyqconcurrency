@@ -171,16 +171,17 @@ class ProgressBar( QtWidgets.QProgressBar ):
             'returned'      : [functools.partial( self._handle_return_or_abort, jobid=jobid )],
             'exception'     : [functools.partial( self._handle_return_or_abort, jobid=jobid )],
         }
-        for signal in connections:
-            if signal in default_connections:
-                if isinstance( connections[ signal ], Iterable ):
-                    for _callable in connections[ signal ]:
+        if connections:
+            for signal in connections:
+                if signal in default_connections:
+                    if isinstance( connections[ signal ], Iterable ):
+                        for _callable in connections[ signal ]:
+                            default_connections[ signal ].append( _callable )
+                    else:
+                        _callable = connections[ signal ]
                         default_connections[ signal ].append( _callable )
                 else:
-                    _callable = connections[ signal ]
-                    default_connections[ signal ].append( _callable )
-            else:
-                default_connections[ signal ] = connections[ signal ]
+                    default_connections[ signal ] = connections[ signal ]
 
         # create task
         solotask = SoloThreadedTask(
@@ -198,5 +199,36 @@ class ProgressBar( QtWidgets.QProgressBar ):
 
 
 if __name__ == '__main__':
-    pass
+    from   qconcurrency import QApplication, Fake
+    from   Qt           import QtWidgets, QtCore, QtGui
+    import time
+
+    def update_progbar( signalmgr=None ):
+        if not signalmgr:
+            signalmgr = Fake()
+
+        signalmgr.add_progress.emit(5)
+        time.sleep(0.2)
+
+        for i in range(5):
+            signalmgr.handle_if_abort()
+            time.sleep(0.2)
+            signalmgr.incr_progress.emit(1)
+
+
+    with QApplication():
+        win = QtWidgets.QWidget()
+        lyt = QtWidgets.QVBoxLayout()
+        bar = ProgressBar()
+        win.setLayout(lyt)
+        lyt.addWidget(bar)
+
+        win.show()
+
+        solotask = bar.new_solotask(
+            callback = update_progbar,
+        )
+        solotask.start()
+        solotask.start()
+
 
