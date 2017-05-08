@@ -748,13 +748,16 @@ class SoloThreadedTask( QtCore.QObject ):
             QtCore.Qt.DirectConnection
         )
 
-        task.start( expiryTimeout=expiryTimeout, threadpool=threadpool )
+        if not wait:
+            task.start( expiryTimeout=expiryTimeout, threadpool=threadpool )
 
 
-        if wait:
+        else:
             elapsed = 0
             # wait for thread to lock
-            while self._mutex_loading.tryLock(0):
+            while self._mutex_loading.tryLock(0)  and  threadId in self._active_threads:
+                if elapsed == 0:
+                    task.start( expiryTimeout=expiryTimeout, threadpool=threadpool )
                 self._mutex_loading.unlock()
                 time.sleep(0.05)
                 elapsed += 0.05
@@ -762,7 +765,7 @@ class SoloThreadedTask( QtCore.QObject ):
 
 
             # wait for thread to unlock
-            while not self._mutex_loading.tryLock(0):
+            while threadId in self._active_threads:
                 if wait not in (True,False):
                     if elapsed >= wait:
                         raise TimedOut(
