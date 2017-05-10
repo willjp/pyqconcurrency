@@ -261,7 +261,10 @@ class DictModel( QtGui.QStandardItemModel ):
         """
 
         set_columnvals = self._defaultcolumnvals.copy()
-        set_columnvals.update( columnvals )
+
+        if columnvals:
+            set_columnvals.update( columnvals )
+
         item = DictModelRow( parent=self, key=key, columnvals=set_columnvals)
 
         # NOTE: this step should not be necessary,
@@ -784,6 +787,10 @@ class DictModelRow( QtGui.QStandardItem ):
             column = columns[i]
 
             if column in columnvals:
+
+                if columnvals[column] == None:
+                    columnvals[column] = ''
+
                 if self.parent() is not None:
                     self.parent().setChild(
                         self.index().row(),                            # row
