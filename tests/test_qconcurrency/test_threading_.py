@@ -55,13 +55,13 @@ class Test_ThreadedTask( unittest.TestCase ):
                 signalmgr.handle_if_abort()
                 time.sleep(0.01)
 
-        def queue_put( queue=None, *args, **kwds ):
+        def queue_put( *args, **kwds):
             queue.put( True )
 
         task = ThreadedTask( callback=try_abort )
 
         # (direct connection is unecessary when running within eventloop)
-        task.signal('exception').connect( partial( queue_put, queue=queue ), QtCore.Qt.DirectConnection )
+        task.signal('exception').connect( queue_put, QtCore.Qt.DirectConnection )
         task.start( threadpool=threadpool )
         task.request_abort()
 
@@ -256,6 +256,35 @@ class Test_SoloThreadedTask( unittest.TestCase ):
 
         threadpool.waitForDone()
         self.assertEqual( queue_finished.qsize(), 1 )
+
+    def test_interrupted_with_wait(self):
+        """
+        Despite that 20x tasks are started at essentially
+        the same time, with wait=True, they should all complete.
+        """
+
+        queue_finished = six.moves.queue.Queue()
+        threadpool     = QtCore.QThreadPool()
+
+        def _callback( queue_finished, signalmgr=None ):
+            for i in range(1):
+                signalmgr.handle_if_abort()
+                time.sleep(0.005)
+            queue_finished.put(True)
+
+
+        task = SoloThreadedTask(
+            callback = _callback,
+        )
+        for i in range(20):
+            task.start(
+                queue_finished = queue_finished,
+                threadpool     = threadpool,
+                wait           = True,
+            )
+
+        threadpool.waitForDone()
+        self.assertEqual( queue_finished.qsize(), 20 )
 
     def test_start_wait__false(self):
         """
