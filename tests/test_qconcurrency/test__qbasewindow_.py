@@ -153,34 +153,39 @@ class Test_QBaseWindow( unittest.TestCase ):
 
     def test_new_solotask__progressbar(self):
 
-        class MyWin( QBaseWindow ):
-            def __init__(self):
-                QBaseWindow.__init__(self)
-                self.threadpool   = QtCore.QThreadPool()
-                self._progressbar.incr_progress = mock.Mock()
-                self._progressbar.add_progress = mock.Mock()
+        # NOTE: this test occasionally causes fail
+        #       with Objects/tupleobject.c:54: bad argument to internal function
 
-                self._thread_load = self.new_solotask(
-                    callback    = self.run_task,
-                )
+        self.fail('causing occasional failure:  Objects/tupleobject.c:54: bad argument to internal function ')
 
-            def start_task(self):
-                self._thread_load.start( threadpool=self.threadpool )
+        #class MyWin( QBaseWindow ):
+        #    def __init__(self):
+        #        QBaseWindow.__init__(self)
+        #        self._progressbar.incr_progress = mock.Mock()
+        #        self._progressbar.add_progress = mock.Mock()
 
-            def run_task(self, signalmgr=None ):
-                signalmgr.add_progress.emit(1)
-                signalmgr.incr_progress.emit(1)
+        #        self._thread_load = self.new_solotask(
+        #            callback    = self.run_task,
+        #        )
+
+        #    def start_task(self, threadpool ):
+        #        self._thread_load.start( threadpool=threadpool )
+
+        #    def run_task(self, signalmgr=None, *args, **kwds ):
+        #        signalmgr.add_progress.emit(1)
+        #        signalmgr.incr_progress.emit(1)
 
 
-        win = MyWin()
-        win.start_task()
-        win.threadpool.waitForDone()
+        #threadpool = QtCore.QThreadPool()
+        #win = MyWin()
+        #win.start_task( threadpool=threadpool )
+        #threadpool.waitForDone()
 
-        while qapplication.hasPendingEvents():
-            qapplication.processEvents()
+        #while qapplication.hasPendingEvents():
+        #    qapplication.processEvents()
 
-        self.assertEqual( win._progressbar.add_progress.called, True )
-        self.assertEqual( win._progressbar.incr_progress.called, True )
+        #self.assertEqual( win._progressbar.add_progress.called, True )
+        #self.assertEqual( win._progressbar.incr_progress.called, True )
 
     def test_new_solotask__kwds(self):
 
@@ -213,6 +218,7 @@ class Test_QBaseWindow( unittest.TestCase ):
 
         while qapplication.hasPendingEvents():
             qapplication.processEvents()
+
 
 
 

@@ -63,6 +63,7 @@ class QBaseWindow( QtWidgets.QWidget ):
         return task
 
     def new_solotask(self, callback, signals=None, connections=None, mutex_expiry=5000):
+
         solotask = self._progressbar.new_solotask(
             callback     = callback,
             signals      = signals,

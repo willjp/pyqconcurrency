@@ -246,7 +246,6 @@ class ProgressBar( QtWidgets.QProgressBar ):
                     default_connections[ signal ] = connections[ signal ]
 
         # create task
-        #solotask = SoloThreadedTask(
         solotask = _ProgressSoloThreadedTask(
             progressbar  = self,
             callback     = callback,

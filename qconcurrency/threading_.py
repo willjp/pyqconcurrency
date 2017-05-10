@@ -495,13 +495,13 @@ class ThreadedTask( QtCore.QRunnable ):
         except( UserCancelledOperation ):
             logger.debug('Responding to user-cancelled-operation. Exiting thread: %s' % repr(self) )
             exc_info = sys.exc_info()
-            self._signalmgr.exception.emit( tuple(exc_info) )
+            self._signalmgr.exception.emit( tuple() )
 
         except:
             logger.error( 'called with %s( %s, %s )' % (repr(self._callback), repr(self._args), repr(self._kwds) ) )
             exc_info = sys.exc_info()
             logger.error( '%s\n\nUnhandled Exception occurred in thread: %s' % (traceback.format_exc(exc_info), repr(exc_info)) )
-            self._signalmgr.exception.emit( tuple(exc_info) )
+            self._signalmgr.exception.emit( tuple() )
 
     def start(self, expiryTimeout=-1, threadpool=None ):
         """
@@ -809,14 +809,12 @@ class SoloThreadedTask( QtCore.QObject ):
             logger.debug('Responding to user-cancelled-operation. Exiting thread: %s' % repr(self) )
             signalmgr._thread_exit_.emit( threadId )
             self._mutex_loading.unlock()
-            six.reraise( *exc_info )
 
         except:
             exc_info = sys.exc_info()
             logger.error( '%s\n\nUnhandled Exception occurred in thread: %s' % (traceback.format_exc(exc_info), repr(exc_info)) )
             signalmgr._thread_exit_.emit( threadId )
             self._mutex_loading.unlock()
-            six.reraise( *exc_info )
 
         signalmgr._thread_exit_.emit( threadId )
         self._mutex_loading.unlock()

@@ -58,8 +58,8 @@ class Test_ProgressBar(unittest.TestCase):
     def test_new_task(self):
 
         with mock.patch.object( ProgressBar, 'setHidden' ) as _setHidden:
-            with mock.patch.object( ProgressBar, 'reset' ) as _setHidden:
-                def set_progress( signalmgr=None, *args, **kwds ):
+            with mock.patch.object( ProgressBar, 'reset' ) as _reset:
+                def set_progress( *args, **kwds ):
                     signalmgr.add_progress.emit(5)
                     signalmgr.incr_progress.emit(1)
 
@@ -82,7 +82,7 @@ class Test_ProgressBar(unittest.TestCase):
     def test_new_solotask(self):
 
         with mock.patch.object( ProgressBar, 'setHidden' ) as _setHidden:
-            with mock.patch.object( ProgressBar, 'reset' ) as _setHidden:
+            with mock.patch.object( ProgressBar, 'reset' ) as _reset:
                 def set_progress( signalmgr=None, *args, **kwds ):
                     signalmgr.add_progress.emit(5)
                     signalmgr.incr_progress.emit(1)
