@@ -121,7 +121,7 @@ class ProgressBar( QtWidgets.QProgressBar ):
 
         total_progress   = 0
         current_progress = 0
-        for jobid in self._progress.keys():
+        for jobid in list(self._progress.keys()):
             total_progress   += self._progress[ jobid ]['total']
             current_progress += self._progress[ jobid ]['current']
 
