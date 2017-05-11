@@ -455,7 +455,7 @@ class ThreadedTask( QtCore.QRunnable ):
         # Attributes
         self._signals  = {
             'returned':        None,
-            'exception':       tuple,
+            'exception':       None,
             'abort_requested': None,
         }
         if signals:
@@ -495,13 +495,13 @@ class ThreadedTask( QtCore.QRunnable ):
         except( UserCancelledOperation ):
             logger.debug('Responding to user-cancelled-operation. Exiting thread: %s' % repr(self) )
             exc_info = sys.exc_info()
-            self._signalmgr.exception.emit( tuple() )
+            self._signalmgr.exception.emit()
 
         except:
             logger.error( 'called with %s( %s, %s )' % (repr(self._callback), repr(self._args), repr(self._kwds) ) )
             exc_info = sys.exc_info()
             logger.error( '%s\n\nUnhandled Exception occurred in thread: %s' % (traceback.format_exc(exc_info), repr(exc_info)) )
-            self._signalmgr.exception.emit( tuple() )
+            self._signalmgr.exception.emit()
 
     def start(self, expiryTimeout=-1, threadpool=None ):
         """
@@ -755,7 +755,7 @@ class SoloThreadedTask( QtCore.QObject ):
         else:
             elapsed = 0
             # wait for thread to lock
-            while self._mutex_loading.tryLock(0)  and  threadId in self._active_threads:
+            while self._mutex_loading.tryLock(0)   and   threadId in self._active_threads:
                 if elapsed == 0:
                     task.start( expiryTimeout=expiryTimeout, threadpool=threadpool )
                 self._mutex_loading.unlock()
@@ -765,7 +765,8 @@ class SoloThreadedTask( QtCore.QObject ):
 
 
             # wait for thread to unlock
-            while threadId in self._active_threads:
+            while threadId  in  self._active_threads  and  self._active_threads:
+                print( self._active_threads )
                 if wait not in (True,False):
                     if elapsed >= wait:
                         raise TimedOut(
@@ -774,7 +775,9 @@ class SoloThreadedTask( QtCore.QObject ):
 
                 time.sleep(0.05)
                 elapsed += 0.05
+                print('process events')
                 QtCore.QCoreApplication.instance().processEvents()
+                print('post-process events')
 
             self._mutex_loading.unlock()
 

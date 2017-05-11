@@ -103,7 +103,7 @@ class Test_QBaseWindow( unittest.TestCase ):
                     # test args/kwds
                     arg_a=1,
                     arg_b=2,
-                    arc_c=3,
+                    arg_c=3,
                 )
                 task.start( threadpool=self.threadpool )
 
@@ -152,18 +152,6 @@ class Test_QBaseWindow( unittest.TestCase ):
         self.assertEqual( win.custom_signal_fired, True )
 
     def test_new_solotask__progressbar(self):
-
-        # NOTE: when using PyQt5, this test causes SegmentationError:
-        #       (it does not occur when running PySide)
-        #
-        #         Objects/tupleobject.c:54: bad argument to internal function
-        #
-
-        self.fail(
-            'In PyQt5 only (not PySide/PyQt4), inconsistently causes \n'
-            'SegmentationError crash:   Objects/tupleobject.c:54: bad argument to internal function \n'
-        )
-
 
         class MyWin( QBaseWindow ):
             def __init__(self):
@@ -347,7 +335,7 @@ class Test_QBaseObject( unittest.TestCase ):
                     # test args/kwds
                     arg_a=1,
                     arg_b=2,
-                    arc_c=3,
+                    arg_c=3,
                 )
                 task.start( threadpool=self.threadpool )
 
