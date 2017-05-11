@@ -59,7 +59,7 @@ class Test_ProgressBar(unittest.TestCase):
 
         with mock.patch.object( ProgressBar, 'setHidden' ) as _setHidden:
             with mock.patch.object( ProgressBar, 'reset' ) as _reset:
-                def set_progress( *args, **kwds ):
+                def set_progress( signalmgr=None,*args,**kwds ):
                     signalmgr.add_progress.emit(5)
                     signalmgr.incr_progress.emit(1)
 
