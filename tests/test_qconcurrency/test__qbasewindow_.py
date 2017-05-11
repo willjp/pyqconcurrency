@@ -153,39 +153,46 @@ class Test_QBaseWindow( unittest.TestCase ):
 
     def test_new_solotask__progressbar(self):
 
-        # NOTE: this test occasionally causes fail
-        #       with Objects/tupleobject.c:54: bad argument to internal function
+        # NOTE: when using PyQt5, this test causes SegmentationError:
+        #       (it does not occur when running PySide)
+        #
+        #         Objects/tupleobject.c:54: bad argument to internal function
+        #
 
-        self.fail('causing occasional failure:  Objects/tupleobject.c:54: bad argument to internal function ')
-
-        #class MyWin( QBaseWindow ):
-        #    def __init__(self):
-        #        QBaseWindow.__init__(self)
-        #        self._progressbar.incr_progress = mock.Mock()
-        #        self._progressbar.add_progress = mock.Mock()
-
-        #        self._thread_load = self.new_solotask(
-        #            callback    = self.run_task,
-        #        )
-
-        #    def start_task(self, threadpool ):
-        #        self._thread_load.start( threadpool=threadpool )
-
-        #    def run_task(self, signalmgr=None, *args, **kwds ):
-        #        signalmgr.add_progress.emit(1)
-        #        signalmgr.incr_progress.emit(1)
+        self.fail(
+            'In PyQt5 only (not PySide/PyQt4), inconsistently causes \n'
+            'SegmentationError crash:   Objects/tupleobject.c:54: bad argument to internal function \n'
+        )
 
 
-        #threadpool = QtCore.QThreadPool()
-        #win = MyWin()
-        #win.start_task( threadpool=threadpool )
-        #threadpool.waitForDone()
+        class MyWin( QBaseWindow ):
+            def __init__(self):
+                QBaseWindow.__init__(self)
+                self._progressbar.incr_progress = mock.Mock()
+                self._progressbar.add_progress = mock.Mock()
 
-        #while qapplication.hasPendingEvents():
-        #    qapplication.processEvents()
+                self._thread_load = self.new_solotask(
+                    callback    = self.run_task,
+                )
 
-        #self.assertEqual( win._progressbar.add_progress.called, True )
-        #self.assertEqual( win._progressbar.incr_progress.called, True )
+            def start_task(self, threadpool ):
+                self._thread_load.start( threadpool=threadpool )
+
+            def run_task(self, signalmgr=None, *args, **kwds ):
+                signalmgr.add_progress.emit(1)
+                signalmgr.incr_progress.emit(1)
+
+
+        threadpool = QtCore.QThreadPool()
+        win = MyWin()
+        win.start_task( threadpool=threadpool )
+        threadpool.waitForDone()
+
+        while qapplication.hasPendingEvents():
+            qapplication.processEvents()
+
+        self.assertEqual( win._progressbar.add_progress.called, True )
+        self.assertEqual( win._progressbar.incr_progress.called, True )
 
     def test_new_solotask__kwds(self):
 
