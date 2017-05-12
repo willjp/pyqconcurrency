@@ -766,7 +766,6 @@ class SoloThreadedTask( QtCore.QObject ):
 
             # wait for thread to unlock
             while threadId  in  self._active_threads  and  self._active_threads:
-                print( self._active_threads )
                 if wait not in (True,False):
                     if elapsed >= wait:
                         raise TimedOut(
@@ -775,9 +774,7 @@ class SoloThreadedTask( QtCore.QObject ):
 
                 time.sleep(0.05)
                 elapsed += 0.05
-                print('process events')
                 QtCore.QCoreApplication.instance().processEvents()
-                print('post-process events')
 
             self._mutex_loading.unlock()
 
