@@ -123,6 +123,122 @@ class Test_DictModel( unittest.TestCase ):
         for i in range(1,2):
             self.assertEqual( model.item( 0,i ).text(), '')
 
+    def test_nestedhier__defaultcolumns_nested(self):
+
+        model = DictModel(
+            columns   = {'root':('A','B'), 'sub':('C','D')},
+            hierarchy = ('root','sub')
+        )
+        root  = model.add_row( 1 )
+        sub   = root.add_child( 10 )
+
+        self.assertEqual( model.item(0,0).child(0,0).text(), '10' )
+        for i in range(1,2):
+            self.assertEqual( model.item(0,0).child(0,i).text(), '')
+
+    def test_nestedhier__toplevelitems(self):
+        model = DictModel(
+            columns   = {'root':('A','B'), 'sub':('C','D')},
+            hierarchy = ('root','sub')
+        )
+        root = model.add_row(   1, {'A':2,'B':3} )
+
+        # 3x ways of accessing info (root)
+        self.assertEqual( model.item(0,0).text(), '1' )
+        self.assertEqual( model.item(0,1).text(), '2' )
+        self.assertEqual( model.item(0,2).text(), '3' )
+
+        self.assertEqual( model[1].columnval('A'), '2' )
+        self.assertEqual( model[1].columnval('B'), '3' )
+
+        self.assertEqual( root.columnval('A'), '2' )
+        self.assertEqual( root.columnval('B'), '3' )
+
+    def test_nestedhier__nesteditems(self):
+        model = DictModel(
+            columns   = {'root':('A','B'), 'sub':('C','D')},
+            hierarchy = ('root','sub')
+        )
+        root = model.add_row(   1, {'A':2,'B':3} )
+        sub  = root.add_child( 10, {'C':20,'D':30})
+
+        # 3x ways of accessing info (child)
+        self.assertEqual( model.item(0,0).child(0,0).text(), '10' )
+        self.assertEqual( model.item(0,0).child(0,1).text(), '20' )
+        self.assertEqual( model.item(0,0).child(0,2).text(), '30' )
+
+        self.assertEqual( model[1][10].columnval('C'), '20' )
+        self.assertEqual( model[1][10].columnval('D'), '30' )
+
+        self.assertEqual( sub.columnval('C'), '20' )
+        self.assertEqual( sub.columnval('D'), '30' )
+
+    def test_nestedhier__columns_lv0(self):
+
+        model = DictModel(
+            columns   = {'root':('A','B'), 'sub':('C','D')},
+            hierarchy = ('root','sub'),
+        )
+        root = model.add_row( 1 )
+
+        # test as int
+        self.assertEqual( model.columns(level=0),            ['id','A','B'] )
+        # test as str
+        self.assertEqual( model.columns(level='root'),       ['id','A','B'] )
+        # test from row
+        self.assertEqual( model.columns(level=root.level()), ['id','A','B'] )
+
+    def test_nestedhier__columns_lv1(self):
+
+        model = DictModel(
+            columns   = {'root':('A','B'), 'sub':('C','D')},
+            hierarchy = ('root','sub'),
+        )
+        root = model.add_row( 1 )
+        sub  = root.add_child( 10 )
+
+        # test as int
+        self.assertEqual( model.columns(level=1),            ['id','C','D'] )
+        # test as str
+        self.assertEqual( model.columns(level='sub'),        ['id','C','D'] )
+        # test from row
+        self.assertEqual( model.columns(level=sub.level()),  ['id','C','D'] )
+
+    def test_nestedhier__columnindex_lv0(self):
+        model = DictModel(
+            columns   = {'root':('A','B'), 'sub':('C','D')},
+            hierarchy = ('root','sub'),
+        )
+        root  = model.add_row(   1, {'A':2, 'B':3}  )
+
+        # id is always 0
+        self.assertEqual( model.column_index( level=0, column='A'),  1 )
+        self.assertEqual( model.column_index( level=0, column='B'),  2 )
+
+        self.assertEqual( model.column_index( level='root', column='A'),  1 )
+        self.assertEqual( model.column_index( level='root', column='B'),  2 )
+
+        self.assertEqual( model.column_index( level=root.level(), column='A'),  1 )
+        self.assertEqual( model.column_index( level=root.level(), column='B'),  2 )
+
+    def test_nestedhier__columnindex_lv1(self):
+        model = DictModel(
+            columns   = {'root':('A','B'), 'sub':('C','D')},
+            hierarchy = ('root','sub'),
+        )
+        root  = model.add_row(   1, {'A':2, 'B':3}  )
+        sub   = root.add_child( 10, {'C':20,'D':30})
+
+        # id is always 0
+        self.assertEqual( model.column_index( level=1, column='C'),  1 )
+        self.assertEqual( model.column_index( level=1, column='D'),  2 )
+
+        self.assertEqual( model.column_index( level='sub', column='C'),  1 )
+        self.assertEqual( model.column_index( level='sub', column='D'),  2 )
+
+        self.assertEqual( model.column_index( level=sub.level(), column='C'),  1 )
+        self.assertEqual( model.column_index( level=sub.level(), column='D'),  2 )
+
 
     def test_removerow(self):
         model = DictModel(['A','B'])
