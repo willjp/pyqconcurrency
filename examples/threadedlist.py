@@ -5,9 +5,12 @@ Every time that `MyThreadedList.load` is called,
 the previous job is cancelled, before the next job
 is allowed to start.
 """
+import os
+import sys
+qconcurrency_path = '/'.join(os.path.realpath(__file__).replace('\\','/').split('/')[:-2])
+sys.path.insert(0, qconcurrency_path )
 from   qconcurrency.threading_ import ThreadedTask, SoloThreadedTask
 from   Qt                      import QtCore, QtWidgets
-import sys
 import six
 import time
 

@@ -7,12 +7,17 @@ it's builtin progressbar can be updated.
 Now, the signals `add_progress` and `incr_progress`
 are used to update the `QBaseWindow`'s builtin progressbar.
 """
+import os
+import sys
+qconcurrency_path = '/'.join(os.path.realpath(__file__).replace('\\','/').split('/')[:-2])
+sys.path.insert(0, qconcurrency_path )
+
 from   qconcurrency            import QBaseWindow
 from   qconcurrency.threading_ import ThreadedTask, SoloThreadedTask
 from   Qt                      import QtCore, QtWidgets
-import sys
 import six
 import time
+
 
 
 class MyMainWindow( QBaseWindow ):
