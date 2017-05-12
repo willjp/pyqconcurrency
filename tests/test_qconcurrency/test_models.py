@@ -75,3 +75,74 @@ class Test_DictModel( unittest.TestCase ):
         self.assertEqual( model[1][11].columnval('A'), '12' )
         self.assertEqual( model[1][11].columnval('B'), '13' )
 
+    def test_consistenthier__columns_lv0(self):
+        model = DictModel(
+            columns = ['A','B'],
+        )
+        row = model.add_row( 1, {'A':2,'B':3})
+        self.assertEqual( model.columns( level=0 ), ['id','A','B'] )
+        self.assertEqual( row.level(), 0 )
+
+    def test_consistenthier__columns_lv1(self):
+        model = DictModel(
+            columns = ['A','B'],
+        )
+        row   = model.add_row( 1, {'A':2,'B':3})
+        child = row.add_child( 10, {'A':4,'B':5})
+
+        self.assertEqual( model.columns( level=1 ), ['id','A','B'] )
+        self.assertEqual( child.level(), 1 )
+
+    def test_consistenthier__columnindex_lv0(self):
+        model = DictModel(['A','B'])
+        row   = model.add_row( 1, {'A':2,'B':3})
+
+        # id is always 0
+        self.assertEqual( model.column_index( level=0, column='A'),  1 )
+        self.assertEqual( model.column_index( level=0, column='B'),  2 )
+
+    def test_consistenthier__columnindex_lv1(self):
+        model = DictModel(['A','B'])
+        row   = model.add_row( 1,  {'A':2,'B':3})
+        child = row.add_child( 10, {'A':20,'B':30})
+
+        # id is always 0
+        self.assertEqual( model.column_index( level=1, column='A'),  1 )
+        self.assertEqual( model.column_index( level=1, column='B'),  2 )
+
+
+    def test_nestedhier__defaultcolumns(self):
+
+        model = DictModel(
+            columns   = {'root':('A','B'), 'sub':('C','D')},
+            hierarchy = ('root','sub'),
+        )
+        model.add_row( 1 )
+
+        self.assertEqual( model.item(0,0).text(), '1',)
+        for i in range(1,2):
+            self.assertEqual( model.item( 0,i ).text(), '')
+
+
+    def test_removerow(self):
+        model = DictModel(['A','B'])
+        row1  = model.add_row( 1, {'A':21,'B':31})
+        row2  = model.add_row( 2, {'A':22,'B':32})
+        row3  = model.add_row( 3, {'A':23,'B':33})
+        row4  = model.add_row( 4, {'A':24,'B':34})
+
+        model.removeRow( 3 )
+
+        removed_rowitem = model.item(3,0)
+        self.assertEqual( removed_rowitem, None )
+        self.assertEqual( model.rowCount(), 3 )
+
+    def test_clear(self):
+        model = DictModel(['A','B'])
+        row   = model.add_row(    1,{'A':2 ,'B':3 })
+        child = row.add_child( 10,{'A':20,'B':30})
+        model.clear()
+
+        self.assertEqual( model.rowCount(), 0 )
+
+
