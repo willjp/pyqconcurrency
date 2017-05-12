@@ -240,7 +240,7 @@ class Test_SoloThreadedTask( unittest.TestCase ):
         threadpool     = QtCore.QThreadPool()
 
         def _callback( queue_finished, signalmgr=None ):
-            for i in range(5):
+            for i in range(10):
                 signalmgr.handle_if_abort()
                 time.sleep(0.05)
             queue_finished.put(True)

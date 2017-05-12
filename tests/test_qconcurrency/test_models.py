@@ -252,6 +252,7 @@ class Test_DictModel( unittest.TestCase ):
         removed_rowitem = model.item(3,0)
         self.assertEqual( removed_rowitem, None )
         self.assertEqual( model.rowCount(), 3 )
+        self.assertEqual( set(model.keys()), set(['1','2','4']) )
 
     def test_clear(self):
         model = DictModel(['A','B'])
@@ -260,5 +261,54 @@ class Test_DictModel( unittest.TestCase ):
         model.clear()
 
         self.assertEqual( model.rowCount(), 0 )
+
+
+
+class Test_DictModelRow( unittest.TestCase ):
+    def test_id(self):
+        model = DictModel(['A','B'])
+        row   = model.add_row( 1, {'A':10,'B':20})
+
+        # ids are returned as their original datatype
+        self.assertEqual( row.id(), 1 )
+
+    def test_keys(self):
+        model = DictModel(['A','B'])
+        row   = model.add_row( 111, {'A':111,'B':2222})
+
+        child = row.add_child( 1, {'A':11,'B':12})
+        child = row.add_child( 2, {'A':21,'B':22})
+        child = row.add_child( 3, {'A':31,'B':32})
+
+        self.assertEqual( row.keys(), ['1','2','3'] )
+
+    def test_consistenthier__level(self):
+        model = DictModel(['A','B'])
+        row   = model.add_row( 111, {'A':111,'B':2222})
+        child = row.add_child( 1, {'A':11,'B':12})
+
+        self.assertEqual( row.level(), 0 )
+        self.assertEqual( child.level(), 1 )
+
+    def test_nestedhier__level(self):
+        model = DictModel(
+            columns   = {'root':('A','B'), 'sub':('C','D')},
+            hierarchy = ('root','sub'),
+        )
+        root  = model.add_row( 111, {'A':111,'B':2222})
+        sub   = root.add_child( 1,   {'C':11,'D':12})
+
+        self.assertEqual( root.level(), 'root' )
+        self.assertEqual( sub.level(),  'sub'  )
+
+    def test_delete(self):
+        model = DictModel(['A','B'])
+
+        root1  = model.add_row( 1, {'A':111,'B':2222})
+        root2  = model.add_row( 2, {'A':111,'B':2222})
+        root3  = model.add_row( 3, {'A':111,'B':2222})
+        model[2].delete()
+
+        self.assertEqual( model.keys(),  ['1','3'] )
 
 

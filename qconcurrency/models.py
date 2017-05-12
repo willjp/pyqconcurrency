@@ -901,9 +901,9 @@ class DictModelRow( QtGui.QStandardItem ):
         Removes this *row* from the model.
         """
         if self.parent() is not None:
-            self.parent().removeRow( self.index().row() )
+            self.parent().removeRow( self.id() )
         else:
-            self.model().removeRow( self.index().row() )
+            self.model().removeRow( self.id() )
 
     def _get_sibling_row(self, key):
         """
