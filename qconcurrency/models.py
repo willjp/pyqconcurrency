@@ -163,11 +163,22 @@ class DictModel( QtGui.QStandardItemModel ):
                 If `hierarchy` is not set, this must be a list of column-names,
                 and they will be applicable to any level of table-nesting.
 
+                .. code-block:: python
 
-            hierarchy (list, optional):  ``(ex:  ('department_type','department')  )``
+                    {
+                        'jedi_class': ('class',),
+                        'user':       ('firstname','lastname'),
+                    }
+
+
+            hierarchy (dict, optional):  ``(ex:  ('department_type','department')  )``
                 A list that labels what type of data is stored at each
                 level of table-nesting in this :py:obj:`qconcurrency.models.DictModel`. Each item
                 indicates another level of nesting.
+
+                .. code-block:: python
+
+                    hierarchy = ('jedi_class','user'),
 
         """
         QtGui.QStandardItemModel.__init__(self)
@@ -221,7 +232,7 @@ class DictModel( QtGui.QStandardItemModel ):
 
             for level in hierarchy:
                 self._defaultcolumnvals[ level ] = {}
-                for key in columns:
+                for key in columns[level]:
                     self._defaultcolumnvals[ level ][ key ] = None
 
 
@@ -261,6 +272,9 @@ class DictModel( QtGui.QStandardItemModel ):
         """
 
         set_columnvals = self._defaultcolumnvals.copy()
+        if self._hierarchy:
+            set_columnvals = set_columnvals[ self._hierarchy[0] ]
+
 
         if columnvals:
             set_columnvals.update( columnvals )
@@ -501,10 +515,6 @@ class DictModel( QtGui.QStandardItemModel ):
 
         """
         return self._data.keys()
-        #keys = []
-        #for i in range(self.rowCount()):
-        #    keys.append( self.item(i,0).id() )
-        #return keys
 
 
     def removeRow(self, key):
@@ -780,11 +790,12 @@ class DictModelRow( QtGui.QStandardItem ):
         if self.model() is None:
             raise RuntimeError('Cannot set columnvals until item has been added to a model')
 
-        columns = self.model().columns( self._level )
+        columns   = self.model().columns( self._level )
 
         # set columnvals
         for i in range(len(columns)):
             column = columns[i]
+
 
             if column in columnvals:
 
