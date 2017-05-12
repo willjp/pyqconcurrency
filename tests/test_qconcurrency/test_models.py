@@ -309,6 +309,6 @@ class Test_DictModelRow( unittest.TestCase ):
         root3  = model.add_row( 3, {'A':111,'B':2222})
         model[2].delete()
 
-        self.assertEqual( model.keys(),  ['1','3'] )
+        self.assertEqual( set(model.keys()),  set(['1','3']) )
 
 
