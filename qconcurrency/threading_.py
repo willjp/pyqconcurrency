@@ -550,7 +550,7 @@ class ThreadedTask( QtCore.QRunnable ):
 
 
 
-class SoloThreadedTask( QtCore.QObject ):
+class SoloThreadedTask( object ):
     """
     :py:obj:`ThreadedTask` that cancels all of it's running/pending threads (started by
     this :py:obj:`SoloThreadedTask`) whenever a new thread is requested (and all must exit
@@ -640,7 +640,6 @@ class SoloThreadedTask( QtCore.QObject ):
                 Any additional arguments/keyword-arguments are passed
                 to the callback in :py:meth:`run`
         """
-        QtCore.QObject.__init__(self)
 
         if signals:
             if not isinstance( signals, MutableMapping ):
@@ -658,7 +657,7 @@ class SoloThreadedTask( QtCore.QObject ):
 
 
         # Args
-        self._callback = callback
+        self._callback           = callback
         self._mutex_expiry       = mutex_expiry
         self._active_threads     = OrderedDict()  # { uuid : request_abort(method) }
 
@@ -713,6 +712,7 @@ class SoloThreadedTask( QtCore.QObject ):
                 to the `callback` defined in :py:meth:`__init__` when it is
                 run from it's separate thread.
         """
+
         threadId = uuid.uuid4().hex
 
         task = ThreadedTask(
@@ -750,7 +750,7 @@ class SoloThreadedTask( QtCore.QObject ):
 
         if not wait:
             task.start( expiryTimeout=expiryTimeout, threadpool=threadpool )
-
+            logger.debug('created threadId: %s' % threadId)
 
         else:
             elapsed = 0
@@ -758,6 +758,7 @@ class SoloThreadedTask( QtCore.QObject ):
             while self._mutex_loading.tryLock(0)   and   threadId in self._active_threads:
                 if elapsed == 0:
                     task.start( expiryTimeout=expiryTimeout, threadpool=threadpool )
+                    logger.debug('created threadId: %s' % threadId)
                 self._mutex_loading.unlock()
                 time.sleep(0.05)
                 elapsed += 0.05
@@ -787,7 +788,7 @@ class SoloThreadedTask( QtCore.QObject ):
             * calls your callback method
         """
 
-        if not self._mutex_loading.tryLock():
+        if not  self._mutex_loading.tryLock():
             logger.debug('Waiting for loading mutex to be released: %s' % threadId )
             self.stop( until_threadId=threadId )
             self._mutex_loading.tryLock( self._mutex_expiry )
@@ -817,6 +818,7 @@ class SoloThreadedTask( QtCore.QObject ):
             self._mutex_loading.unlock()
 
         signalmgr._thread_exit_.emit( threadId )
+        logger.debug('mutex released by threadId: %s' % threadId)
         self._mutex_loading.unlock()
         return retval
 
