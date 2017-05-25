@@ -39,8 +39,8 @@ class Test_ProgressBar(unittest.TestCase):
             bar.incr_progress( 1, jobid='aaa')
             bar.incr_progress( 1, jobid='bbb')
 
-            self.assertEqual( bar.maximum(), 10 )
-            self.assertEqual( bar.value(),   2  )
+            self.assertEqual( bar._progressbar.maximum(), 10 )
+            self.assertEqual( bar._progressbar.value(),   2  )
 
     def test_premature_completion(self):
 
@@ -52,8 +52,8 @@ class Test_ProgressBar(unittest.TestCase):
             bar.incr_progress( 1, jobid='bbb')
             bar.reset( 'bbb' )
 
-            self.assertEqual( bar.maximum(), 5 )
-            self.assertEqual( bar.value(),   1  )
+            self.assertEqual( bar._progressbar.maximum(), 5 )
+            self.assertEqual( bar._progressbar.value(),   1  )
 
     def test_new_task(self):
 
@@ -75,8 +75,8 @@ class Test_ProgressBar(unittest.TestCase):
                 while qapplication.hasPendingEvents():
                     qapplication.processEvents()
 
-                self.assertEqual( bar.value(), 1 )
-                self.assertEqual( bar.maximum(), 5 )
+                self.assertEqual( bar._progressbar.value(), 1 )
+                self.assertEqual( bar._progressbar.maximum(), 5 )
 
 
     def test_new_solotask(self):
@@ -99,8 +99,8 @@ class Test_ProgressBar(unittest.TestCase):
                 while qapplication.hasPendingEvents():
                     qapplication.processEvents()
 
-                self.assertEqual( bar.value(), 1 )
-                self.assertEqual( bar.maximum(), 5 )
+                self.assertEqual( bar._progressbar.value(), 1 )
+                self.assertEqual( bar._progressbar.maximum(), 5 )
 
 
 
