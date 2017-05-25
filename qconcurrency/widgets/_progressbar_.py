@@ -52,6 +52,7 @@ class _ProgressSoloThreadedTask( SoloThreadedTask ):
 
             * :py:meth:`qconcurrency.threading_.SoloThreadedTask.start`
         """
+
         jobid = uuid.uuid4().hex
 
         connections = self._connections.copy()
@@ -82,7 +83,7 @@ class _ProgressSoloThreadedTask( SoloThreadedTask ):
 
 
 
-class ProgressBar( QtWidgets.QProgressBar ):
+class ProgressBar( QtWidgets.QWidget ):
     """
     A ProgressBar designed to track progress of several threads,
     that is hidden automatically whenever all threads have exited
@@ -95,16 +96,39 @@ class ProgressBar( QtWidgets.QProgressBar ):
     thread's progress being set to 100% once it exits).
     """
     def __init__(self):
-        QtWidgets.QProgressBar.__init__(self)
+        QtWidgets.QWidget.__init__(self)
 
-        self._progress = {}  # { jobid: {'total':10, 'current':3} }
+        self._progress = {}         # { jobid: {'total':10, 'current':3} }
+        self._cancelled_jobids = [] # rolling log of cancelled jobids (so later unhandled progress is ignored)
+
+        self._progressbar = None    # the ProgressBar Widget
         self.setHidden(True)
+
+        self._initui()
+
+    def _initui(self):
+
+        # Create Widgets
+        layout = QtWidgets.QHBoxLayout()
+        self._progressbar = QtWidgets.QProgressBar()
+        self._reset_btn   = QtWidgets.QPushButton('reset progress')
+
+        # Position Widgets
+        self.setLayout( layout )
+        layout.addWidget( self._progressbar )
+        layout.addWidget( self._reset_btn )
+
+        # Connections
+        self._reset_btn.clicked.connect( self.reset )
 
     def add_progress(self, amount, jobid=None):
         """
         Adds to the total number of required steps
         required to complete.
         """
+
+        if jobid in self._cancelled_jobids:
+            return
 
         if jobid not in self._progress:
             self._progress[ jobid ] = {'total':amount, 'current':0}
@@ -125,11 +149,14 @@ class ProgressBar( QtWidgets.QProgressBar ):
             total_progress   += self._progress[ jobid ]['total']
             current_progress += self._progress[ jobid ]['current']
 
+            if jobid in self._cancelled_jobids:
+                self._progress.pop(jobid)
+
             if current_progress == total_progress:
                 self._progress.pop(jobid)
 
-        self.setMaximum( total_progress   )
-        self.setValue(   current_progress )
+        self._progressbar.setMaximum( total_progress   )
+        self._progressbar.setValue(   current_progress )
 
         if total_progress <= current_progress:
             self.setHidden(True)
@@ -139,6 +166,9 @@ class ProgressBar( QtWidgets.QProgressBar ):
         Completes a particular number of steps for
         a particular jobid.
         """
+
+        if jobid in self._cancelled_jobids:
+            return
 
         if amount == None:
             amount = 1
@@ -158,7 +188,8 @@ class ProgressBar( QtWidgets.QProgressBar ):
 
         if not jobid:
             self._progress = {}
-            QtWidgets.QProgressBar.reset(self)
+            self._progressbar.reset()
+            self.refresh_progress()
 
         elif jobid in self._progress:
             self._progress.pop( jobid )
@@ -257,8 +288,21 @@ class ProgressBar( QtWidgets.QProgressBar ):
         return solotask
 
     def _handle_return_or_abort(self, *args,**kwds):
+
         if 'jobid' in kwds:
-            self.reset( jobid=kwds['jobid'] )
+
+            if 'jobid' in kwds:
+                self.reset( jobid=kwds['jobid'] )
+
+            self._cancelled_jobids.append( kwds['jobid'] )
+
+            # when there are more than 50x entries,
+            # prune the tracked jobids
+            if len(self._cancelled_jobids) > 50:
+                self._cancelled_jobids.pop(0)
+
+            self.refresh_progress()
+
 
 
 
