@@ -18,187 +18,241 @@ import uuid
 import sys
 import os
 #package
+from qconcurrency.widgets._sessionwidgets_._basewidgets_ import (
+    SessionWidgetBase, SessionWidgetItemBase
+)
 #external
 from Qt import QtWidgets, QtCore, QtGui
 #internal
 
 
-#!TODO: _SessionListWidget should update SessionList by signals
-#!       * when `setText` is called
-#!       * when `change_id` is called
+#!TODO: left off writing `save_changes`.
+#!      !! remember, this must be able to handle vastly different situations!!
 
-#!TODO: each item should have `is_changed` method
+class SessionList( SessionWidgetBase, QtWidgets.QWidget ):
+    def __init__(self, colours=None):
+        """
+        Args:
+            colours (dict, optional):
+                An optional dictionary, indicating colours to use
+                for QListWidgetItems based on their status.
 
-class SessionList( QtWidgets.QWidget ):
-    save_requested = QtCore.Signal()
-    def __init__(self):
-        QtWidgets.QListWidget.__init__(self)
+                Any key that is not set in the dictionary
+                uses the stylesheet's default colours for
+                :py:obj:`QListWidgetItems`
+
+                .. code-block:: python
+
+                    {
+                        'normal':  {'fg':QColor(255,255,255), 'bg':QColor(255,255,255)},
+                        'changed': {'fg':QColor(255,255,255), 'bg':QColor(255,255,255)},
+                        'new':     {'fg':QColor(255,255,255), 'bg':QColor(255,255,255)},
+                    }
+
+        """
+        SessionWidgetBase.__init__(self)
+        QtWidgets.QWidget.__init__(self)
 
         # Attributes
-        self._newitems     = set()
-        self._delitems     = set()
-        self._changeditems = set()
+        if not colours:
+            self._colours = {}
+        else:
+            self._colours = colours
 
-        self._list         = None  # QListWidget instance
-        self._items        = {}    # { id : listwidgetitem }
+        # Widgets
+        self._list = None  # the QListWidget managed by this class
 
         self._initui()
 
     def _initui(self):
+
         # Create Widgets
         layout     = QtWidgets.QVBoxLayout()
         self._list = QtWidgets.QListWidget()
 
         # Position Widgets
-        self.setLayout(layout)
+        self.setLayout( layout )
         layout.addWidget( self._list )
 
-        # Widget Attributes
-        layout.setContentsMargins( 0,0,0,0 )
+        # Widget Attrs
+        layout.setContentsMargins(0,0,0,0)
 
-    def addItem(self, text, _id=None, is_new=False ):
+        # Connections
+        self._list.itemChanged.connect( self._handle_item_changed )
+
+    def add_item(self, val, _id=None, saved_val=None ):
         """
-        Adds a single item to the list.
+        Adds a new item to the list.
 
         Args:
-            text (str):
-                The text you would like to add to the list.
+            val (object): ``(ex:  'itemA' )``
+                The item you'd like to add to the widget
 
-            _id (int, str, optional):
-                The databaseId, uuid, or other identifier
-                that is unique at least to this list.
+            _id (object, optional):
+                If the item exists and has already been assigned an Id
+                provide it here.
 
-                If this item is new, and no `_id` value is provided,
-                a uuid will be assigned to the item.
+                Or, if the item is new, but you want to assign a specific
+                Id, you may also provide an Id here.
 
-            is_new (bool, optional):
-                If True, this item will be tracked as a new item.
-                If False, this item will be tracked as an item that
-                already exists in long-term-storage (database, config, ...)
+            saved_val (object, optional):
+                If this argument is assigned a value, the item
+                will tracked as being an item that is already saved
+                to the database (or other long-term-storage).
+
+                You can test whether or not a widget's current value
+                is different from this saved value using the method
+                :py:meth:`SessionListItem.is_changed`
         """
 
-        if not _id:
-            if is_new:
-                _id = uuid.uuid4().hex
-            else:
-                raise RuntimeError(
-                    '`SessionList.addItem()` expects you to provide a value for `_id` '
-                    'when you are addint an item that is not new'
-                )
-
-        widget = _SessionListWidget( _id, text, is_new )
-        self._list.addItem( widget )
-        self._items[ _id ] = widget
-
-        if is_new:
-            self._newitems.add( _id )
-
-    def addItems(self, items):
-        """
-        Args:
-            items (dict, list):
-                If items already exist in the database, provide an OrderedDict
-                with the id as the key.
-
-                .. code-block:: python
-
-                    OrderedDict([ (123,'A)',(124,'B'),(125,'C') ])
-
-                If items do not yet exist in the database (or other long-term storage),
-                simply provide a list, and ids will be assigned to items.
-
-
-                .. code-block:: python
-
-                    [ 'A','B','C' ]
-
-        """
-        pass
-
-    def items_and_ids(self):
-        """
-        Returns a dictionary of all widgets contained within the listwidget
-        in the form of ``{ id : listwidgetitem }``.
-
-        Returns:
-
-            .. code-block::
-
-                {
-                    12345                             : <_SessionListWidget instance>,   # non new-items generally use database-ids
-                    12346                             : <_SessionListWidget instance>,
-                    'a87a8dd6e62f4a53a268afb43cac1d96': <_SessionListWidget instance>,   # new-items generally use uuids
-                }
-
-        """
-        return self._items
-
-
-
-class _SessionListWidget( QtWidgets.QListWidgetItem ):
-    """
-    Custom QListWidgetItem, stores additional info
-    """
-    def __init__(self, _id, text, is_new=False ):
-        QtWidgets.QListWidgetItem.__init__(self, str(text) )
-
-        if not isinstance( is_new, bool ):
-            raise TypeError(
-                'Expected bool for argument `is_new`, received type %s' % type(is_new)
+        if _id in self._items:
+            raise KeyError(
+                'Another item with the _id(%s) already exists in ``self._items``'
             )
 
-        self._id     = _id
-        self._is_new = is_new
+        # Create/Colour/Add Widget
+        # ========================
+        widget = SessionListItem( val, _id, saved_val )
 
-    def is_new(self):
-        """
-        Returns True/False depending on whether the data this
-        widget represents is marked as being stored in long-term-storage.
-        """
-        return bool(self._is_new)
+        # if no normal-colour is set, create it based on default
+        if 'default_brush' not in self._colours:
+            self._colours['default_brush'] = {
+                'fg': widget.foreground(),
+                'bg': widget.background(),
+            }
 
-    def id(self):
-        """
-        Returns the id of the current object (either long-term-storage id, or
-        an assigned :py:obj:`uuid`)
-        """
-        return self._id
+        self._list.addItem( widget )
 
-    def change_id(self, _id, is_new=None ):
+        # set colour
+        self._handle_item_statuschanged( widget, widget.is_new(), widget.is_changed() )
+
+
+        # internal data
+        # =============
+        if widget.is_new():
+            self._newitems.add( widget.id() )
+        elif val != saved_val:
+            self._changeditems.add( widget.id() )
+
+        self._items[ widget.id() ] = widget
+
+        # connections
+        widget.status_changed.connect( self._handle_item_statuschanged )
+
+    def remove_item(self, _id ):
         """
-        Allows you to modify the Id of the current item,
-        in addition to allowing you to change the item's `new`
-        status (whether or not the item is marked as existing
-        in long-term-storage with this id).
+        Removes a single item from the list.
 
         Args:
-            _id (int, str):
-                The databaseId, uuid, or other identifier
-                that is unique at least to this list.
-
-            is_new (bool, optional): ``(ex:  None, True, False )``
-                By default, the `new` status is left untouched,
-                but you may set it to ``True`` or ``False``.
+            _id (object, optional):
+                The `_id` of the item that you want to delete.
         """
 
-        self._id = _id
+        if _id not in self._items:
+            return
 
-        if is_new != None:
-            self._is_new == is_new
+        # manage internal data
+        widget = self._items[_id]
 
+        if widget.is_new():
+            self._newitems.remove(_id)
+
+        elif widget.is_changed():
+            self._changeditems.remove(_id)
+
+        self._delitems.add(_id)
+
+        # remove widget from list
+        row  = self._list.row(widget)
+        item = self._list.takeItem(row)
+
+    def clear(self):
+        """
+        Clears the list, and all internal data.
+        """
+        self._list.clear()
+
+        self._items        = {}
+        self._newitems     = set()
+        self._delitems     = set()
+        self._changeditems = set()
+
+    def save_changes(self):
+        """
+        Saves all new/changed/deleted items to long-term-storage,
+        and updates the widgets in the UI.
+        """
+        if not self.has_changes():
+            return
+
+        raise NotImplementedError('Unfinished...')
+
+    def _handle_item_changed(self, item):
+        """
+        Handles whenever an item's text is changed.
+        """
+        item.refresh_status()
+
+    def _handle_item_statuschanged(self, item, is_new, is_changed):
+        """
+        Handles contextual colour-changes, etc.
+        """
+        if is_new:
+            if 'new' in self._colours:
+                item.setForeground( QtGui.QBrush(self._colours['new']['fg']) )
+                item.setBackground( QtGui.QBrush(self._colours['new']['bg']) )
+
+        elif is_changed:
+            if 'changed' in self._colours:
+                item.setForeground( QtGui.QBrush(self._colours['changed']['fg']) )
+                item.setBackground( QtGui.QBrush(self._colours['changed']['bg']) )
+        else:
+            if 'normal' in self._colours:
+                item.setForeground( QtGui.QBrush(self._colours['normal']['fg']) )
+                item.setBackground( QtGui.QBrush(self._colours['normal']['bg']) )
+            else:
+                item.setForeground( self._colours['default_brush']['fg'] )
+                item.setBackground( self._colours['default_brush']['bg'] )
+
+
+
+class SessionListItem( SessionWidgetItemBase, QtCore.QObject, QtWidgets.QListWidgetItem ):
+    def __init__(self, val, _id, saved_val=None ):
+        SessionWidgetItemBase.__init__(self, val, _id, saved_val )
+        QtCore.QObject.__init__(self)
+        QtWidgets.QListWidgetItem.__init__(self, str(val) )
+
+    def get_value(self):
+        """
+        Returns the QListWidget's text.
+        """
+        return self.text()
 
 
 
 if __name__ == '__main__':
     from qconcurrency import QApplication
+    from Qt import QtGui
 
     with QApplication():
 
-        slist = SessionList()
+        colours = {
+            'changed':{
+                'fg':QtGui.QColor(30,30,30),
+                'bg':QtGui.QColor(170,70,50),
+            },
+            'new':{
+                'fg':QtGui.QColor(30,30,30),
+                'bg':QtGui.QColor(180,140,50),
+            },
+        }
+
+        slist = SessionList( colours )
         slist.show()
 
-        slist.addItem( 'A', is_new=True )
-        slist.addItem( 'B', is_new=True )
+        slist.add_item( 'A' )
+        slist.add_item( 'B' )
+        slist.add_item( 'C',  _id=3, saved_val='C' )
+        slist.add_item( 'D1', _id=4, saved_val='D' )
 
-        print( slist.items_and_ids() )
 

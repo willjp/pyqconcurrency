@@ -19,14 +19,101 @@ import sys
 import os
 #package
 #external
+from Qt import QtWidgets, QtCore, QtGui
 #internal
 
 class SessionWidgetBase( object ):
-    pass
+    """
+    BaseWidget for SessionWidgets.
+
+    SessionWidgets are collection-widgets that are designed to
+    allow the user to perform several operations, and then save
+    them all at once.
+    """
+    def __init__(self):
+
+        self._items        = {}
+        self._newitems     = set()
+        self._delitems     = set()
+        self._changeditems = set()
+
+    def has_changes(self):
+        """
+        Returns True if this widget has any unsaved changes.
+        """
+        if any([ self._newitems, self._delitems, self._changeditems ]):
+            return True
+        return False
+
+    def get_changes(self):
+        """
+        Returns a dict of unsaved changes that this
+        widget contains.
+
+        Returns:
+
+            .. code-block:: python
+
+                {
+                    'new':     { _id : widget, ... },
+                    'deleted': { _id : widget, ... },
+                    'changed': { _id : widget, ... },
+                }
+        """
+
+        newitems     = {}
+        delitems     = {}
+        changeditems = {}
+
+        for _id in self._newitems:
+            newitems[_id] = self._items[_id]
+
+        for _id in self._delitems:
+            delitems[_id] = self._items[_id]
+
+        for _id in self._changeditems:
+            changeditems[_id] = self._items[_id]
+
+        return {
+            'new':     newitems,
+            'deleted': delitems,
+            'changed': changeditems,
+        }
+
+    def save_changes(self):
+        """
+        Dummy method that should be replaced in subclasses.
+
+        This should check `self._newitems`, `self._delitems`, `self._changeditems`
+        for changes, and update each of them into long-term-storage.
+
+        Each widgetitem can be marked as saved using the method
+        :py:meth:`SessionWidgetItemBase.set_saved`.
+        """
+
+        raise NotImplementedError((
+            '%s, subclass of `SessionWidgetBase` has not implemented'
+            'the method `save_changes`') % self.__class__.__name__
+        )
+
+    def items(self):
+        """
+        Returns a dictionary in the format of ``{ _id:item }``
+        """
+        return self._items
+
 
 
 class SessionWidgetItemBase( object ):
-    def __init__(self, val, _id=None, *args, **kwds ):
+    """
+    Parent class for all SessionWidgetItems
+    (items that get added a :py:obj:`SessionWidget`
+
+    Establishes consistent variables for subclasses,
+    and provides convenience methods.
+    """
+    status_changed = QtCore.Signal( object, bool, bool )  # (self, is_new, is_changed)
+    def __init__(self, val, _id=None, saved_val=None ):
         """
         Args:
             val (object):
@@ -44,57 +131,18 @@ class SessionWidgetItemBase( object ):
                 (database, json, etc). The presence of this
         """
 
-        (is_new, saved_val) = self._get_savedval( args, kwds )
-
+        if saved_val == None:
+            is_new    = True
+            saved_val = uuid.uuid4().hex
+        else:
+            is_new = False
 
         ## Attributes
-        self._saved_val = saved_val                   # value saved in database
-        self._is_new    = is_new                      # True/False if item is entirely untracked in database
-        self._id        = self._get_id( _id, is_new ) # databaseId, or uuid for new items
-        self._val       = val                         # the current value of the widget
-
-    def _get_savedval(self, args, kwds):
-        """
-        Assigns any of the following to be the saved-val,
-        otherwise defaults to a uuid:
-
-            * the 3rd positional argument
-            * a keyword called `saved_val`
-        """
-
-        # by default, saved_val will be set to to
-        # a uuid (to prevent unintended clashing)
-        saved_val = uuid.uuid4().hex
-        is_new    = True
-
-        if len(args) and len(kwds):
-            raise TypeError(
-                '%s expects a maximum of 3x arguments. received %s' % (
-                    self.__class__.__name__, (2+len(args)+len(kwds)) )
-            )
-
-        if kwds:
-            for kwd in kwds:
-                if kwd == 'saved_val':
-                    saved_val = kwds['saved_val']
-                    is_new    = False
-                else:
-                    raise TypeError(
-                        '%s got an unexpected keyword argument \'%s\'' % (
-                            self._class__.__name__, kwd)
-                    )
-
-        elif args:
-            if len(args) == 1:
-                saved_val = args[0]
-                is_new    = False
-            else:
-                raise TypeError(
-                    '%s expects a maximum of 3x arguments. received %s' % (
-                        self.__class__.__name__, (2+len(args)+len(kwds)) )
-                )
-
-        return (is_new,saved_val)
+        self._saved_val  = saved_val                   # value saved in database
+        self._is_new     = is_new                      # True/False if item is entirely untracked in database
+        self._is_changed = bool( val != saved_val )
+        self._id         = self._get_id( _id, is_new ) # databaseId, or uuid for new items
+        self._val        = val                         # the current value of the widget
 
     def _get_id(self, _id, is_new):
         """
@@ -162,8 +210,12 @@ class SessionWidgetItemBase( object ):
         if _id != None:
             self._id = _id
 
-        self._is_new    = False
-        self._saved_val = self.get_value()
+        self._saved_val  = self.get_value()
+
+        if self._is_new or self._is_changed:
+            self._is_new     = False
+            self._is_changed = False
+            self.status_changed.emit(self, self._is_new, self._is_changed )
 
     def get_value(self):
         """
@@ -181,19 +233,22 @@ class SessionWidgetItemBase( object ):
 
     def refresh_status(self):
         """
-        A dummy method, that should be re-implmented
-        in subclasses of :py:obj:`SessionWidgetItemBase`.
-
-        This method should examine `self._is_new`, `self._saved_val`, and
-        the output of `self.get_value`, and make any required adjustments
-        to the widget (ex: perhaps a different colour is used to indicate
-        a widget that is new/changed).
+        Adjusts ``self._is_changed``, and emits :py:attr:`status_changed`
+        if it's value changes.
         """
-        raise NotImplementedError(
-            '%s has not implemented the method `refresh_status`' % (
-                self.__class__.__name__
-            )
-        )
+
+        # Check for changes
+        self._val = self.get_value
+
+        if self._val == self._saved_val:
+            is_changed = False
+        else:
+            is_changed = True
+
+        # (is_new only changes in `self.set_saved`)
+        if is_changed != self._is_changed:
+            self._is_changed = is_changed
+            self.status_changed.emit( self, self._is_new, self._is_changed )
 
     def is_changed(self):
         """
@@ -203,10 +258,23 @@ class SessionWidgetItemBase( object ):
         if self._is_new:
             return True
 
-        if self.get_value() == self._saved_value:
+        if self.get_value() == self._saved_val:
             return False
 
         return True
+
+    def is_new(self):
+        """
+        Returns True/False if the widget is new or not.
+        """
+        return self._is_new
+
+    def id(self):
+        """
+        Returns the item's Id
+        """
+        return self._id
+
 
 
 
