@@ -7,6 +7,7 @@ from   __future__    import print_function
 from ._dictmodelqcombobox_ import DictModelQComboBox
 from ._dictmodelqmenu_     import DictModelQMenu
 from ._progressbar_        import ProgressBar
+from ._sessionwidgets_     import *
 
 __all__ = [
     # _ditmodelqcombobox_
@@ -17,6 +18,10 @@ __all__ = [
 
     # _progressbar_
     'ProgressBar',
+
+    # _sessionwidgets_
+    'SessionList',
+    'SessionListItem',
 ]
 
 

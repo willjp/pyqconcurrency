@@ -30,6 +30,7 @@ class SessionWidgetBase( object ):
     allow the user to perform several operations, and then save
     them all at once.
     """
+    save_requested = QtCore.Signal( dict ) #: output of :py:meth:`get_changes`
     def __init__(self):
 
         self._items        = {}
@@ -56,7 +57,7 @@ class SessionWidgetBase( object ):
 
                 {
                     'new':     { _id : widget, ... },
-                    'deleted': { _id : widget, ... },
+                    'deleted': set([ _id, _id, ... ]),
                     'changed': { _id : widget, ... },
                 }
         """
@@ -68,33 +69,29 @@ class SessionWidgetBase( object ):
         for _id in self._newitems:
             newitems[_id] = self._items[_id]
 
-        for _id in self._delitems:
-            delitems[_id] = self._items[_id]
-
         for _id in self._changeditems:
             changeditems[_id] = self._items[_id]
 
         return {
             'new':     newitems,
-            'deleted': delitems,
+            'deleted': self._delitems,
             'changed': changeditems,
         }
 
     def save_changes(self):
         """
-        Dummy method that should be replaced in subclasses.
+        If checks for unsaved new,changed, or deleted items,
+        and if changes exist, emits :py:attr:`save_requested` signal.
 
-        This should check `self._newitems`, `self._delitems`, `self._changeditems`
-        for changes, and update each of them into long-term-storage.
-
-        Each widgetitem can be marked as saved using the method
+        It is up to the calling class/method to handle
+        the actual saving of the information, and as items
+        are saved, this widget can be updated using the method
         :py:meth:`SessionWidgetItemBase.set_saved`.
         """
+        if not self.has_changes():
+            return
 
-        raise NotImplementedError((
-            '%s, subclass of `SessionWidgetBase` has not implemented'
-            'the method `save_changes`') % self.__class__.__name__
-        )
+        self.save_requested.emit( self.get_changes() )
 
     def items(self):
         """
