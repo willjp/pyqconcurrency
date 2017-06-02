@@ -22,6 +22,7 @@ import os
 from Qt import QtWidgets, QtCore, QtGui
 #internal
 
+
 class SessionWidgetBase( object ):
     """
     BaseWidget for SessionWidgets.
@@ -109,7 +110,7 @@ class SessionWidgetItemBase( object ):
     Establishes consistent variables for subclasses,
     and provides convenience methods.
     """
-    status_changed = QtCore.Signal( object, bool, bool )  # (self, is_new, is_changed)
+    status_changed = QtCore.Signal( object, bool, bool, bool )  # (self, is_new, is_changed, is_editable )
     def __init__(self, val, _id=None, saved_val=None ):
         """
         Args:
@@ -135,11 +136,12 @@ class SessionWidgetItemBase( object ):
             is_new = False
 
         ## Attributes
-        self._saved_val  = saved_val                   # value saved in database
-        self._is_new     = is_new                      # True/False if item is entirely untracked in database
-        self._is_changed = bool( val != saved_val )
-        self._id         = self._get_id( _id, is_new ) # databaseId, or uuid for new items
-        self._val        = val                         # the current value of the widget
+        self._saved_val   = saved_val                   # value saved in database
+        self._is_new      = is_new                      # True/False if item is entirely untracked in database
+        self._is_changed  = bool( val != saved_val )
+        self._is_editable = False
+        self._id          = self._get_id( _id, is_new ) # databaseId, or uuid for new items
+        self._val         = val                         # the current value of the widget
 
     def _get_id(self, _id, is_new):
         """
@@ -212,7 +214,12 @@ class SessionWidgetItemBase( object ):
         if self._is_new or self._is_changed:
             self._is_new     = False
             self._is_changed = False
-            self.status_changed.emit(self, self._is_new, self._is_changed )
+            self.status_changed.emit(
+                self,
+                self._is_new,
+                self._is_changed,
+                self.is_editable(),
+            )
 
     def get_value(self):
         """
@@ -230,22 +237,38 @@ class SessionWidgetItemBase( object ):
 
     def refresh_status(self):
         """
-        Adjusts ``self._is_changed``, and emits :py:attr:`status_changed`
-        if it's value changes.
+        Re-Checks all status information, refreshing it's
+        internal status, and emitting :py:attr:`status_changed`
+        if it has changed.
         """
 
         # Check for changes
-        self._val = self.get_value
+        self._val = self.get_value()
 
-        if self._val == self._saved_val:
-            is_changed = False
-        else:
-            is_changed = True
+        if self._val == self._saved_val:   is_changed = False
+        else:                              is_changed = True
+
+        is_new      = self.is_new()
+
+        is_editable = self.is_editable()
 
         # (is_new only changes in `self.set_saved`)
-        if is_changed != self._is_changed:
-            self._is_changed = is_changed
-            self.status_changed.emit( self, self._is_new, self._is_changed )
+        if any([
+                is_changed    != self._is_changed,
+                self.is_new() != self._is_new,
+                is_editable   != self._is_editable,
+            ]):
+
+            self._is_changed  = is_changed
+            self._is_editable = is_editable
+            self._is_new      = is_new
+
+            self.status_changed.emit(
+                self,
+                self._is_new,
+                self._is_changed,
+                self.is_editable(),
+            )
 
     def is_changed(self):
         """
@@ -266,6 +289,38 @@ class SessionWidgetItemBase( object ):
         """
         return self._is_new
 
+    def is_editable(self):
+        """
+        Returns ``True`` if the widget is currently editable.
+        Otherwise returns ``False``.
+        """
+
+        if self.flags() & QtCore.Qt.ItemIsEditable:
+            self._is_editable = True
+            return True
+
+        self._is_editable = False
+        return False
+
+    def setFlags(self,*args,**kwds):
+        """
+        Sets the widget's flags, then checks if there is a change
+        to the editable status (emitting :py:attr:`status_changed`
+        if there is a change).
+        """
+        orig_status = self.is_editable()
+        QtWidgets.QListWidgetItem.setFlags(self,*args,**kwds)
+
+        is_editable = self.is_editable()
+
+        if is_editable != orig_status:
+            self.status_changed.emit(
+                self,
+                self._is_new,
+                self._is_changed,
+                is_editable,
+            )
+
     def id(self):
         """
         Returns the item's Id
@@ -277,3 +332,4 @@ class SessionWidgetItemBase( object ):
 
 if __name__ == '__main__':
     pass
+
