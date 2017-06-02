@@ -17,6 +17,7 @@ from   __future__    import print_function
 import uuid
 import sys
 import os
+import copy
 #package
 from qconcurrency.widgets._sessionwidgets_._basewidgets_ import (
     SessionWidgetBase, SessionWidgetItemBase
@@ -26,8 +27,8 @@ from Qt import QtWidgets, QtCore, QtGui
 #internal
 
 
+#!TODO: flag to allow deselect in empty-space
 #!TODO: Enter toggles confirm/edit selected item
-#!TODO: when editable, highlighted colour should change...
 
 class SessionList( SessionWidgetBase, QtWidgets.QWidget ):
     def __init__(self, colours=None):
@@ -55,10 +56,12 @@ class SessionList( SessionWidgetBase, QtWidgets.QWidget ):
         QtWidgets.QWidget.__init__(self)
 
         # Attributes
-        if not colours:
-            self._colours = {}
-        else:
-            self._colours = colours
+        if not colours:   self._colours = {}
+        else:             self._colours = colours
+
+        self._default_palette  = copy.copy( self.palette() )  #: the default QlistWidget palette
+        self._editable_widgets = set() #: every widget that is currently editable
+
 
         # Widgets
         self._list = None  # the QListWidget managed by this class
@@ -81,6 +84,7 @@ class SessionList( SessionWidgetBase, QtWidgets.QWidget ):
         # Connections
         self._list.itemChanged.connect( self._handle_item_changed )
         self._list.itemDoubleClicked.connect( self._handle_itemDoubleClicked )
+        self._list.itemSelectionChanged.connect( self._handle_itemSelectionChanged )
 
 
     def clear(self):
@@ -93,6 +97,8 @@ class SessionList( SessionWidgetBase, QtWidgets.QWidget ):
         self._newitems     = set()
         self._delitems     = set()
         self._changeditems = set()
+
+        self._last_selected = None
 
     def add_item(self, val, _id=None, saved_val=None ):
         """
@@ -206,7 +212,12 @@ class SessionList( SessionWidgetBase, QtWidgets.QWidget ):
 
     def _handle_item_statuschanged(self, item, is_new, is_changed, is_editable ):
         """
-        Handles contextual colour-changes, etc.
+        Runs whenever an item's status changes.
+
+        Status changes include new, changed, or editable.
+
+            * widgets colours are modified (if colours were set for the current status)
+            * internal-data is updated, keeping track of new/changed items.
         """
 
         _id = item.id()
@@ -217,10 +228,15 @@ class SessionList( SessionWidgetBase, QtWidgets.QWidget ):
             self._changeditems.add( _id )
 
         elif is_new:
-            # new-items will already be tracked
+            # new-items will already be tracked,
             pass
 
         else:
+            # if item is not new, but it is still tracked
+            # internally under self._newitems,
+            # (it's saved-data has been updated),
+            # update internal-data so that it looks like a
+            # normal item.
             if _id in self._newitems:
                 self._newitems.remove( _id )
 
@@ -232,10 +248,19 @@ class SessionList( SessionWidgetBase, QtWidgets.QWidget ):
         # ===========
         if is_editable:
             if 'editable' in self._colours:
-                item.setForeGround( QtGui.QBrush(self._colours['editable']['fg'] ) )
-                item.setForeGround( QtGui.QBrush(self._colours['editable']['bg'] ) )
+                item.setForeground( QtGui.QBrush(self._colours['editable']['fg'] ) )
+                item.setBackground( QtGui.QBrush(self._colours['editable']['bg'] ) )
+
+                # highlight should match editable colour
+                highlight_palette = copy.copy( self._default_palette )
+                highlight_palette.setColor(
+                    QtGui.QPalette.Highlight, self._colours['editable']['bg']
+                )
+                self.setPalette( highlight_palette )
+                self._editable_widgets.add( item )
                 return
 
+        self.setPalette( self._default_palette )
         if is_new:
             if 'new' in self._colours:
                 item.setForeground( QtGui.QBrush(self._colours['new']['fg']) )
@@ -260,7 +285,7 @@ class SessionList( SessionWidgetBase, QtWidgets.QWidget ):
     def _handle_itemDoubleClicked(self, item):
         """
         When an item is double-clicked, toggle
-        widget edit/save mode.
+        widget edit/normal mode.
         """
 
         # toggle widget editability
@@ -271,6 +296,21 @@ class SessionList( SessionWidgetBase, QtWidgets.QWidget ):
 
         item.refresh_status()
 
+    def _handle_itemSelectionChanged(self):
+        """
+        Whenever the selection changes in the listwidget,
+        makes all un-selected widgets *not* editable.
+
+        (this also has the effect of restoring their `normal` colour).
+        """
+        selected_items = self.selectedItems()
+
+        for widget in self._editable_widgets.copy():
+            # unset editable on all unselected widgets
+            if not any([ widget is selwidget   for selwidget in selected_items ]):
+                widget.setFlags( widget.flags() ^ QtCore.Qt.ItemIsEditable )
+                self._editable_widgets.remove( widget )
+
 
 
 class SessionListItem( SessionWidgetItemBase, QtCore.QObject, QtWidgets.QListWidgetItem ):
@@ -278,6 +318,8 @@ class SessionListItem( SessionWidgetItemBase, QtCore.QObject, QtWidgets.QListWid
         SessionWidgetItemBase.__init__(self, val, _id, saved_val )
         QtCore.QObject.__init__(self)
         QtWidgets.QListWidgetItem.__init__(self)
+
+        # load
         self.setText( str(val) )
 
     def get_value(self):

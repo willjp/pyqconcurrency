@@ -46,14 +46,18 @@ class GroceryList( QtWidgets.QWidget ):
                 'fg':QtGui.QColor(30,30,30),
                 'bg':QtGui.QColor(180,140,50),
             },
+            'editable':{
+                'fg':QtGui.QColor(30,30,30),
+                'bg':QtGui.QColor(60,120,140),
+            },
         }
 
         # Create Widgets
         layout     = QtWidgets.QVBoxLayout()
         actionbar  = QtWidgets.QHBoxLayout()
         self._list = SessionList( colours )
-        add_btn    = QtWidgets.QPushButton('+')
-        del_btn    = QtWidgets.QPushButton('-')
+        add_btn    = QtWidgets.QPushButton('+ Add Item')
+        del_btn    = QtWidgets.QPushButton('- Del Item')
         self._save_btn = QtWidgets.QPushButton('Save')
 
         # Position Widgets
