@@ -30,6 +30,9 @@ from Qt import QtWidgets, QtCore, QtGui
 #!TODO: flag to allow deselect in empty-space
 #!TODO: Enter toggles confirm/edit selected item
 
+#!NOTE: cannot create item-specific highlight colours.
+#!      ex:  lighter variation of 'new', or 'changed'
+
 class SessionList( SessionWidgetBase, QtWidgets.QWidget ):
     def __init__(self, colours=None):
         """
@@ -85,7 +88,7 @@ class SessionList( SessionWidgetBase, QtWidgets.QWidget ):
         self._list.itemChanged.connect( self._handle_item_changed )
         self._list.itemDoubleClicked.connect( self._handle_itemDoubleClicked )
         self._list.itemSelectionChanged.connect( self._handle_itemSelectionChanged )
-
+        self._list.itemDelegate().closeEditor.connect( self._handle_itemeditfinished )
 
     def clear(self):
         """
@@ -223,13 +226,15 @@ class SessionList( SessionWidgetBase, QtWidgets.QWidget ):
         selected_items = self._list.selectedItems()
         if selected_items:
 
-            # deselect all items except for the last selected
-            for i in range(len(selected_items) -1):
-                selected_items[i].set_editable(False)
-                selected_items[i].setSelected(False)
+            if event.key() == QtCore.Qt.Key_Enter  or  event.key() == QtCore.Qt.Key_Return:
 
-            # toggle editability of last item
-            selected_items[-1].toggle_editable()
+                # deselect all items except for the last selected
+                for i in range(len(selected_items) -1):
+                    selected_items[i].set_editable(False)
+                    selected_items[i].setSelected(False)
+
+                # toggle editability of last item
+                selected_items[-1].toggle_editable()
 
         QtWidgets.QWidget.keyPressEvent(self,event)
 
@@ -284,7 +289,12 @@ class SessionList( SessionWidgetBase, QtWidgets.QWidget ):
                 # highlight should match editable colour
                 highlight_palette = copy.copy( self._default_palette )
                 highlight_palette.setColor(
-                    QtGui.QPalette.Highlight, self._colours['editable']['bg']
+                    QtGui.QPalette.Highlight,
+                    self._colours['editable']['bg']
+                )
+                highlight_palette.setColor(
+                    QtGui.QPalette.HighlightedText,
+                    self._colours['editable']['fg'],
                 )
                 self.setPalette( highlight_palette )
                 self._editable_widgets.add( item )
@@ -328,11 +338,20 @@ class SessionList( SessionWidgetBase, QtWidgets.QWidget ):
         """
         selected_items = self.selectedItems()
 
+        # unset editable on all unselected widgets
         for widget in self._editable_widgets.copy():
-            # unset editable on all unselected widgets
             if not any([ widget is selwidget   for selwidget in selected_items ]):
                 widget.setFlags( widget.flags() ^ QtCore.Qt.ItemIsEditable )
                 self._editable_widgets.remove( widget )
+
+    def _handle_itemeditfinished(self, widget, modelcache ):
+        """
+        When the user finishes editing an item, refreshes it's status.
+        """
+        self._editable_widgets = set()
+
+        for widget in self.selectedItems():
+            widget.set_editable(False)
 
 
 
@@ -382,6 +401,7 @@ class SessionListItem( SessionWidgetItemBase, QtCore.QObject, QtWidgets.QListWid
 
         The status is refreshed on the widget.
         """
+
         # toggle widget editability
         if self.is_editable():
             self.set_editable(False)

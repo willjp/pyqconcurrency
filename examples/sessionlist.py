@@ -70,6 +70,11 @@ class GroceryList( QtWidgets.QWidget ):
         actionbar.addWidget( add_btn )
         actionbar.addWidget( self._save_btn )
 
+        # Widget Attrs
+        self._list.setSelectionMode(
+            QtWidgets.QAbstractItemView.ExtendedSelection
+        )
+
         # Connections
         self._list.save_requested.connect(
             self._handle_save_changes
