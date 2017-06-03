@@ -1,7 +1,24 @@
 """
 An example of `qconcurrency.widgets.SessionList`
 
+This is a heavily modified `QListWidget` that 
+facilitates storig all changes in memory until
+you want to perform a database-save operation.
 
+For example:
+
+    * load 5x items from the database
+    * change 1x item
+    * add 2x items
+    * delete 1x item
+    * save all of these changes now, back to database.
+
+
+The widget supports using colours to indicate the various
+statuses (new, changed, deleted, editable).
+
+Run this script, and play around with the widget
+to get a better understanding of this widget's intended usage.
 """
 import os
 import sys
