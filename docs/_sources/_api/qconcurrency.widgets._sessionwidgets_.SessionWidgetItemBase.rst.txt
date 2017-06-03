@@ -1,0 +1,32 @@
+
+SessionWidgetItemBase
+=====================
+
+Methods
+-------
+
+.. autosummary::
+
+   qconcurrency.widgets._sessionwidgets_.SessionWidgetItemBase.__init__
+   qconcurrency.widgets._sessionwidgets_.SessionWidgetItemBase.get_savedval
+   qconcurrency.widgets._sessionwidgets_.SessionWidgetItemBase.get_value
+   qconcurrency.widgets._sessionwidgets_.SessionWidgetItemBase.id
+   qconcurrency.widgets._sessionwidgets_.SessionWidgetItemBase.is_changed
+   qconcurrency.widgets._sessionwidgets_.SessionWidgetItemBase.is_editable
+   qconcurrency.widgets._sessionwidgets_.SessionWidgetItemBase.is_new
+   qconcurrency.widgets._sessionwidgets_.SessionWidgetItemBase.refresh_status
+   qconcurrency.widgets._sessionwidgets_.SessionWidgetItemBase.setFlags
+   qconcurrency.widgets._sessionwidgets_.SessionWidgetItemBase.set_saved
+   qconcurrency.widgets._sessionwidgets_.SessionWidgetItemBase.status_changed
+
+
+Documentation
+-------------
+
+
+.. autoclass:: qconcurrency.widgets._sessionwidgets_.SessionWidgetItemBase
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+

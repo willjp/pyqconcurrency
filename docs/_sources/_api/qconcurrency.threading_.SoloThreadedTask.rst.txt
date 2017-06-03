@@ -1,0 +1,25 @@
+
+SoloThreadedTask
+================
+
+Methods
+-------
+
+.. autosummary::
+
+   qconcurrency.threading_.SoloThreadedTask.__init__
+   qconcurrency.threading_.SoloThreadedTask.is_active
+   qconcurrency.threading_.SoloThreadedTask.start
+   qconcurrency.threading_.SoloThreadedTask.stop
+
+
+Documentation
+-------------
+
+
+.. autoclass:: qconcurrency.threading_.SoloThreadedTask
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+

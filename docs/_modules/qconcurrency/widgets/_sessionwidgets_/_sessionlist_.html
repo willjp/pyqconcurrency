@@ -1,0 +1,572 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>qconcurrency.widgets._sessionwidgets_._sessionlist_ &#8212; pyqconcurrency 0.0.a1 documentation</title>
+    
+    <link rel="stylesheet" href="../../../../_static/pyramid.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../../',
+        VERSION:     '0.0.a1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Neuton&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nobile:regular,italic,bold,bolditalic&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<!--[if lte IE 6]>
+<link rel="stylesheet" href="../../../../_static/ie6.css" type="text/css" media="screen" charset="utf-8" />
+<![endif]-->
+
+  </head>
+  <body>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pyqconcurrency 0.0.a1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../../qconcurrency.html" accesskey="U">qconcurrency</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for qconcurrency.widgets._sessionwidgets_._sessionlist_</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Name :          qconcurrency.widgets._updaterwidgets_._updaterlist_.py</span>
+<span class="sd">Created :       May 24, 2017</span>
+<span class="sd">Author :        Will Pittman</span>
+<span class="sd">Contact :       willjpittman@gmail.com</span>
+<span class="sd">________________________________________________________________________________</span>
+<span class="sd">Description :   List that manages creation,updates,deletion in a consistent</span>
+<span class="sd">                manner.</span>
+<span class="sd">________________________________________________________________________________</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="c1">#builtin</span>
+<span class="kn">from</span>   <span class="nn">__future__</span>    <span class="k">import</span> <span class="n">unicode_literals</span>
+<span class="kn">from</span>   <span class="nn">__future__</span>    <span class="k">import</span> <span class="n">absolute_import</span>
+<span class="kn">from</span>   <span class="nn">__future__</span>    <span class="k">import</span> <span class="n">division</span>
+<span class="kn">from</span>   <span class="nn">__future__</span>    <span class="k">import</span> <span class="n">print_function</span>
+<span class="kn">import</span> <span class="nn">uuid</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">copy</span>
+<span class="c1">#package</span>
+<span class="kn">from</span> <span class="nn">qconcurrency.widgets._sessionwidgets_._basewidgets_</span> <span class="k">import</span> <span class="p">(</span>
+    <span class="n">SessionWidgetBase</span><span class="p">,</span> <span class="n">SessionWidgetItemBase</span>
+<span class="p">)</span>
+<span class="c1">#external</span>
+<span class="kn">from</span> <span class="nn">Qt</span> <span class="k">import</span> <span class="n">QtWidgets</span><span class="p">,</span> <span class="n">QtCore</span><span class="p">,</span> <span class="n">QtGui</span>
+<span class="c1">#internal</span>
+
+
+<span class="c1">#!NOTE: cannot create item-specific highlight colours.</span>
+<span class="c1">#!      ex:  lighter variation of &#39;new&#39;, or &#39;changed&#39;</span>
+<span class="c1">#!</span>
+<span class="c1">#!      using transparency in QColor also does not work.</span>
+<span class="c1">#!      the colour is overlaid on top of the window, not</span>
+<span class="c1">#!      the QListWidgetItem&#39;s background.</span>
+<span class="c1">#!</span>
+<span class="c1">#!      In order to have per-listwidgetitem colours,</span>
+<span class="c1">#!      We would need to implement our own custom delegates,</span>
+<span class="c1">#!      with customized paintEvent() methods.</span>
+<span class="c1">#!</span>
+
+<div class="viewcode-block" id="SessionList"><a class="viewcode-back" href="../../../../_api/qconcurrency.widgets._sessionwidgets_.SessionList.html#qconcurrency.widgets.SessionList">[docs]</a><span class="k">class</span> <span class="nc">SessionList</span><span class="p">(</span> <span class="n">SessionWidgetBase</span><span class="p">,</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QWidget</span> <span class="p">):</span>
+    <span class="n">changes_exist</span> <span class="o">=</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">Signal</span><span class="p">(</span><span class="nb">bool</span><span class="p">)</span> <span class="c1">#: True/False if unsaved changes exist</span>
+<div class="viewcode-block" id="SessionList.__init__"><a class="viewcode-back" href="../../../../_api/qconcurrency.widgets._sessionwidgets_.SessionList.html#qconcurrency.widgets.SessionList.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">colours</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            colours (dict, optional):</span>
+<span class="sd">                An optional dictionary, indicating colours to use</span>
+<span class="sd">                for QListWidgetItems based on their status.</span>
+
+<span class="sd">                Any key that is not set in the dictionary</span>
+<span class="sd">                uses the stylesheet&#39;s default colours for</span>
+<span class="sd">                :py:obj:`QListWidgetItems`</span>
+
+<span class="sd">                .. code-block:: python</span>
+
+<span class="sd">                    {</span>
+<span class="sd">                        &#39;normal&#39;:  {&#39;fg&#39;:QColor(255,255,255), &#39;bg&#39;:QColor(255,255,255)},</span>
+<span class="sd">                        &#39;changed&#39;: {&#39;fg&#39;:QColor(255,255,255), &#39;bg&#39;:QColor(255,255,255)},</span>
+<span class="sd">                        &#39;new&#39;:     {&#39;fg&#39;:QColor(255,255,255), &#39;bg&#39;:QColor(255,255,255)},</span>
+<span class="sd">                        &#39;editable&#39;: {&#39;fg&#39;:QColor(255,255,255), &#39;bg&#39;:QColor(255,255,255)},</span>
+<span class="sd">                    }</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">SessionWidgetBase</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QWidget</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+        <span class="c1"># Attributes</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">colours</span><span class="p">:</span>   <span class="bp">self</span><span class="o">.</span><span class="n">_colours</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">else</span><span class="p">:</span>             <span class="bp">self</span><span class="o">.</span><span class="n">_colours</span> <span class="o">=</span> <span class="n">colours</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_default_palette</span>  <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">palette</span><span class="p">()</span> <span class="p">)</span>  <span class="c1">#: the default QlistWidget palette</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_editable_widgets</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span> <span class="c1">#: every widget that is currently editable</span>
+
+
+        <span class="c1"># Widgets</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_list</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># the QListWidget managed by this class</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_initui</span><span class="p">()</span></div>
+
+    <span class="k">def</span> <span class="nf">_initui</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="c1"># Create Widgets</span>
+        <span class="n">layout</span>     <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QVBoxLayout</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_list</span> <span class="o">=</span> <span class="n">_DeselectableListWidget</span><span class="p">()</span>
+
+        <span class="c1"># Position Widgets</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setLayout</span><span class="p">(</span> <span class="n">layout</span> <span class="p">)</span>
+        <span class="n">layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">_list</span> <span class="p">)</span>
+
+        <span class="c1"># Widget Attrs</span>
+        <span class="n">layout</span><span class="o">.</span><span class="n">setContentsMargins</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="c1"># Connections</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_list</span><span class="o">.</span><span class="n">itemChanged</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">_handle_item_changed</span> <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_list</span><span class="o">.</span><span class="n">itemDoubleClicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">_handle_itemDoubleClicked</span> <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_list</span><span class="o">.</span><span class="n">itemSelectionChanged</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">_handle_itemSelectionChanged</span> <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_list</span><span class="o">.</span><span class="n">itemDelegate</span><span class="p">()</span><span class="o">.</span><span class="n">closeEditor</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">_handle_itemeditfinished</span> <span class="p">)</span>
+
+<div class="viewcode-block" id="SessionList.clear"><a class="viewcode-back" href="../../../../_api/qconcurrency.widgets._sessionwidgets_.SessionList.html#qconcurrency.widgets.SessionList.clear">[docs]</a>    <span class="k">def</span> <span class="nf">clear</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Clears the list, and all internal data.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_list</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_items</span>        <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_newitems</span>     <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_delitems</span>     <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_changeditems</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_last_selected</span> <span class="o">=</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="SessionList.add_item"><a class="viewcode-back" href="../../../../_api/qconcurrency.widgets._sessionwidgets_.SessionList.html#qconcurrency.widgets.SessionList.add_item">[docs]</a>    <span class="k">def</span> <span class="nf">add_item</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">,</span> <span class="n">_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">saved_val</span><span class="o">=</span><span class="kc">None</span> <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adds a new item to the list.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            val (object): ``(ex:  &#39;itemA&#39; )``</span>
+<span class="sd">                The item you&#39;d like to add to the widget</span>
+
+<span class="sd">            _id (object, optional):</span>
+<span class="sd">                If the item exists and has already been assigned an Id</span>
+<span class="sd">                provide it here.</span>
+
+<span class="sd">                Or, if the item is new, but you want to assign a specific</span>
+<span class="sd">                Id, you may also provide an Id here.</span>
+
+<span class="sd">            saved_val (object, optional):</span>
+<span class="sd">                If this argument is assigned a value, the item</span>
+<span class="sd">                will tracked as being an item that is already saved</span>
+<span class="sd">                to the database (or other long-term-storage).</span>
+
+<span class="sd">                You can test whether or not a widget&#39;s current value</span>
+<span class="sd">                is different from this saved value using the method</span>
+<span class="sd">                :py:meth:`SessionListItem.is_changed`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">_id</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_items</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span>
+                <span class="s1">&#39;Another item with the _id(</span><span class="si">%s</span><span class="s1">) already exists in ``self._items``&#39;</span>
+            <span class="p">)</span>
+
+        <span class="c1"># Create/Colour/Add Widget</span>
+        <span class="c1"># ========================</span>
+        <span class="n">widget</span> <span class="o">=</span> <span class="n">SessionListItem</span><span class="p">(</span> <span class="n">val</span><span class="p">,</span> <span class="n">_id</span><span class="p">,</span> <span class="n">saved_val</span> <span class="p">)</span>
+
+        <span class="c1"># if no normal-colour is set, create it based on default</span>
+        <span class="k">if</span> <span class="s1">&#39;default_brush&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_colours</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_colours</span><span class="p">[</span><span class="s1">&#39;default_brush&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s1">&#39;fg&#39;</span><span class="p">:</span> <span class="n">widget</span><span class="o">.</span><span class="n">foreground</span><span class="p">(),</span>
+                <span class="s1">&#39;bg&#39;</span><span class="p">:</span> <span class="n">widget</span><span class="o">.</span><span class="n">background</span><span class="p">(),</span>
+            <span class="p">}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_list</span><span class="o">.</span><span class="n">addItem</span><span class="p">(</span> <span class="n">widget</span> <span class="p">)</span>
+
+        <span class="c1"># set colour</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_handle_item_statuschanged</span><span class="p">(</span>
+            <span class="n">widget</span><span class="p">,</span>
+            <span class="n">widget</span><span class="o">.</span><span class="n">is_new</span><span class="p">(),</span>
+            <span class="n">widget</span><span class="o">.</span><span class="n">is_changed</span><span class="p">(),</span>
+            <span class="n">widget</span><span class="o">.</span><span class="n">is_editable</span><span class="p">()</span>
+        <span class="p">)</span>
+
+
+        <span class="c1"># internal data</span>
+        <span class="c1"># =============</span>
+        <span class="k">if</span> <span class="n">widget</span><span class="o">.</span><span class="n">is_new</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_newitems</span><span class="o">.</span><span class="n">add</span><span class="p">(</span> <span class="n">widget</span><span class="o">.</span><span class="n">id</span><span class="p">()</span> <span class="p">)</span>
+        <span class="k">elif</span> <span class="n">val</span> <span class="o">!=</span> <span class="n">saved_val</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_changeditems</span><span class="o">.</span><span class="n">add</span><span class="p">(</span> <span class="n">widget</span><span class="o">.</span><span class="n">id</span><span class="p">()</span> <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_items</span><span class="p">[</span> <span class="n">widget</span><span class="o">.</span><span class="n">id</span><span class="p">()</span> <span class="p">]</span> <span class="o">=</span> <span class="n">widget</span>
+
+        <span class="c1"># connections</span>
+        <span class="n">widget</span><span class="o">.</span><span class="n">status_changed</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">_handle_item_statuschanged</span> <span class="p">)</span>
+
+        <span class="c1"># emit changes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">changes_exist</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_changes</span><span class="p">()</span> <span class="p">)</span></div>
+
+<div class="viewcode-block" id="SessionList.remove_item"><a class="viewcode-back" href="../../../../_api/qconcurrency.widgets._sessionwidgets_.SessionList.html#qconcurrency.widgets.SessionList.remove_item">[docs]</a>    <span class="k">def</span> <span class="nf">remove_item</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">_id</span> <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Removes a single item from the list.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            _id (object, optional):</span>
+<span class="sd">                The `_id` of the item that you want to delete.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">_id</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_items</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="c1"># manage internal data</span>
+        <span class="n">widget</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_items</span><span class="p">[</span><span class="n">_id</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">widget</span><span class="o">.</span><span class="n">is_new</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_newitems</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">_id</span><span class="p">)</span>
+
+        <span class="k">elif</span> <span class="n">widget</span><span class="o">.</span><span class="n">is_changed</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_changeditems</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">_id</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_delitems</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">_id</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_delitems</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">_id</span><span class="p">)</span>
+
+        <span class="c1"># remove widget from list</span>
+        <span class="n">row</span>  <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_list</span><span class="o">.</span><span class="n">row</span><span class="p">(</span><span class="n">widget</span><span class="p">)</span>
+        <span class="n">item</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_list</span><span class="o">.</span><span class="n">takeItem</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+
+        <span class="c1"># remove item from tracked items</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_items</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">_id</span><span class="p">)</span>
+
+
+        <span class="c1"># notify any widgets if we have any unsaved changes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">changes_exist</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_changes</span><span class="p">()</span> <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SessionList.setSelectionMode"><a class="viewcode-back" href="../../../../_api/qconcurrency.widgets._sessionwidgets_.SessionList.html#qconcurrency.widgets.SessionList.setSelectionMode">[docs]</a>    <span class="k">def</span> <span class="nf">setSelectionMode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">selectionMode</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Wraps :py:meth:`QListWidget.setSelectionMode`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_list</span><span class="o">.</span><span class="n">setSelectionMode</span><span class="p">(</span> <span class="n">selectionMode</span> <span class="p">)</span></div>
+
+<div class="viewcode-block" id="SessionList.setSelectionModel"><a class="viewcode-back" href="../../../../_api/qconcurrency.widgets._sessionwidgets_.SessionList.html#qconcurrency.widgets.SessionList.setSelectionModel">[docs]</a>    <span class="k">def</span> <span class="nf">setSelectionModel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">selectionModel</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Wraps :py:meth:`QListWidget.setSelectionModel`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_list</span><span class="o">.</span><span class="n">setSelectionModel</span><span class="p">(</span> <span class="n">selectionModel</span> <span class="p">)</span></div>
+
+<div class="viewcode-block" id="SessionList.selectedItems"><a class="viewcode-back" href="../../../../_api/qconcurrency.widgets._sessionwidgets_.SessionList.html#qconcurrency.widgets.SessionList.selectedItems">[docs]</a>    <span class="k">def</span> <span class="nf">selectedItems</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Wraps :py:meth:`QtWidgets.QListWidget.selectedItems` , and returns</span>
+<span class="sd">        all selected :py:obj:`SessionListItems` .</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_list</span><span class="o">.</span><span class="n">selectedItems</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="SessionList.keyPressEvent"><a class="viewcode-back" href="../../../../_api/qconcurrency.widgets._sessionwidgets_.SessionList.html#qconcurrency.widgets.SessionList.keyPressEvent">[docs]</a>    <span class="k">def</span> <span class="nf">keyPressEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        If an item is selected in the list, the last-item in the selection</span>
+<span class="sd">        is toggled between editable and normal modes.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">selected_items</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_list</span><span class="o">.</span><span class="n">selectedItems</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">selected_items</span><span class="p">:</span>
+
+            <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">key</span><span class="p">()</span> <span class="o">==</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">Key_Enter</span>  <span class="ow">or</span>  <span class="n">event</span><span class="o">.</span><span class="n">key</span><span class="p">()</span> <span class="o">==</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">Key_Return</span><span class="p">:</span>
+
+                <span class="c1"># deselect all items except for the last selected</span>
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">selected_items</span><span class="p">)</span> <span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+                    <span class="n">selected_items</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">set_editable</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+                    <span class="n">selected_items</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">setSelected</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+
+                <span class="c1"># toggle editability of last item</span>
+                <span class="n">selected_items</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">toggle_editable</span><span class="p">()</span>
+
+        <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QWidget</span><span class="o">.</span><span class="n">keyPressEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">event</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span> <span class="nf">_handle_item_changed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Handles whenever an item&#39;s text is changed.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">item</span><span class="o">.</span><span class="n">refresh_status</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_handle_item_statuschanged</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">,</span> <span class="n">is_new</span><span class="p">,</span> <span class="n">is_changed</span><span class="p">,</span> <span class="n">is_editable</span> <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Runs whenever an item&#39;s status changes.</span>
+
+<span class="sd">        Status changes include new, changed, or editable.</span>
+
+<span class="sd">            * widgets colours are modified (if colours were set for the current status)</span>
+<span class="sd">            * internal-data is updated, keeping track of new/changed items.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">_id</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">id</span><span class="p">()</span>
+
+        <span class="c1"># Update Internal Data</span>
+        <span class="c1"># ====================</span>
+        <span class="k">if</span> <span class="n">is_new</span><span class="p">:</span>
+            <span class="c1"># new-items will already be tracked,</span>
+            <span class="k">pass</span>
+
+        <span class="k">elif</span> <span class="n">is_changed</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_changeditems</span><span class="o">.</span><span class="n">add</span><span class="p">(</span> <span class="n">_id</span> <span class="p">)</span>
+
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># if item is not new, but it is still tracked</span>
+            <span class="c1"># internally under self._newitems,</span>
+            <span class="c1"># (it&#39;s saved-data has been updated),</span>
+            <span class="c1"># update internal-data so that it looks like a</span>
+            <span class="c1"># normal item.</span>
+            <span class="k">if</span> <span class="n">_id</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_newitems</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_newitems</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span> <span class="n">_id</span> <span class="p">)</span>
+
+            <span class="k">elif</span> <span class="n">_id</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_changeditems</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_changeditems</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span> <span class="n">_id</span> <span class="p">)</span>
+
+        <span class="c1"># emit changes_exist</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_changes</span><span class="p">():</span>   <span class="bp">self</span><span class="o">.</span><span class="n">changes_exist</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>                    <span class="bp">self</span><span class="o">.</span><span class="n">changes_exist</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+
+
+        <span class="c1"># Set Colours</span>
+        <span class="c1"># ===========</span>
+        <span class="k">if</span> <span class="n">is_editable</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s1">&#39;editable&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_colours</span><span class="p">:</span>
+                <span class="n">item</span><span class="o">.</span><span class="n">setForeground</span><span class="p">(</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QBrush</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_colours</span><span class="p">[</span><span class="s1">&#39;editable&#39;</span><span class="p">][</span><span class="s1">&#39;fg&#39;</span><span class="p">]</span> <span class="p">)</span> <span class="p">)</span>
+                <span class="n">item</span><span class="o">.</span><span class="n">setBackground</span><span class="p">(</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QBrush</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_colours</span><span class="p">[</span><span class="s1">&#39;editable&#39;</span><span class="p">][</span><span class="s1">&#39;bg&#39;</span><span class="p">]</span> <span class="p">)</span> <span class="p">)</span>
+
+                <span class="c1"># highlight should match editable colour</span>
+                <span class="n">highlight_palette</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">_default_palette</span> <span class="p">)</span>
+
+                <span class="n">highlight_palette</span><span class="o">.</span><span class="n">setColor</span><span class="p">(</span>
+                    <span class="n">QtGui</span><span class="o">.</span><span class="n">QPalette</span><span class="o">.</span><span class="n">Highlight</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_colours</span><span class="p">[</span><span class="s1">&#39;editable&#39;</span><span class="p">][</span><span class="s1">&#39;bg&#39;</span><span class="p">]</span>
+                <span class="p">)</span>
+                <span class="n">highlight_palette</span><span class="o">.</span><span class="n">setColor</span><span class="p">(</span>
+                    <span class="n">QtGui</span><span class="o">.</span><span class="n">QPalette</span><span class="o">.</span><span class="n">HighlightedText</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_colours</span><span class="p">[</span><span class="s1">&#39;editable&#39;</span><span class="p">][</span><span class="s1">&#39;fg&#39;</span><span class="p">],</span>
+                <span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">setPalette</span><span class="p">(</span> <span class="n">highlight_palette</span> <span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_editable_widgets</span><span class="o">.</span><span class="n">add</span><span class="p">(</span> <span class="n">item</span> <span class="p">)</span>
+                <span class="k">return</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">setPalette</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">_default_palette</span> <span class="p">)</span>
+        <span class="k">if</span> <span class="n">is_new</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s1">&#39;new&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_colours</span><span class="p">:</span>
+                <span class="n">item</span><span class="o">.</span><span class="n">setForeground</span><span class="p">(</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QBrush</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_colours</span><span class="p">[</span><span class="s1">&#39;new&#39;</span><span class="p">][</span><span class="s1">&#39;fg&#39;</span><span class="p">])</span> <span class="p">)</span>
+                <span class="n">item</span><span class="o">.</span><span class="n">setBackground</span><span class="p">(</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QBrush</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_colours</span><span class="p">[</span><span class="s1">&#39;new&#39;</span><span class="p">][</span><span class="s1">&#39;bg&#39;</span><span class="p">])</span> <span class="p">)</span>
+                <span class="k">return</span>
+
+        <span class="k">if</span> <span class="n">is_changed</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s1">&#39;changed&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_colours</span><span class="p">:</span>
+                <span class="n">item</span><span class="o">.</span><span class="n">setForeground</span><span class="p">(</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QBrush</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_colours</span><span class="p">[</span><span class="s1">&#39;changed&#39;</span><span class="p">][</span><span class="s1">&#39;fg&#39;</span><span class="p">])</span> <span class="p">)</span>
+                <span class="n">item</span><span class="o">.</span><span class="n">setBackground</span><span class="p">(</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QBrush</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_colours</span><span class="p">[</span><span class="s1">&#39;changed&#39;</span><span class="p">][</span><span class="s1">&#39;bg&#39;</span><span class="p">])</span> <span class="p">)</span>
+                <span class="k">return</span>
+
+
+        <span class="c1"># normal colours</span>
+        <span class="k">if</span> <span class="s1">&#39;normal&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_colours</span><span class="p">:</span>
+            <span class="n">item</span><span class="o">.</span><span class="n">setForeground</span><span class="p">(</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QBrush</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_colours</span><span class="p">[</span><span class="s1">&#39;normal&#39;</span><span class="p">][</span><span class="s1">&#39;fg&#39;</span><span class="p">])</span> <span class="p">)</span>
+            <span class="n">item</span><span class="o">.</span><span class="n">setBackground</span><span class="p">(</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QBrush</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_colours</span><span class="p">[</span><span class="s1">&#39;normal&#39;</span><span class="p">][</span><span class="s1">&#39;bg&#39;</span><span class="p">])</span> <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">item</span><span class="o">.</span><span class="n">setForeground</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">_colours</span><span class="p">[</span><span class="s1">&#39;default_brush&#39;</span><span class="p">][</span><span class="s1">&#39;fg&#39;</span><span class="p">]</span> <span class="p">)</span>
+            <span class="n">item</span><span class="o">.</span><span class="n">setBackground</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">_colours</span><span class="p">[</span><span class="s1">&#39;default_brush&#39;</span><span class="p">][</span><span class="s1">&#39;bg&#39;</span><span class="p">]</span> <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_handle_itemDoubleClicked</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        When an item is double-clicked, toggle</span>
+<span class="sd">        widget edit/normal mode.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">item</span><span class="o">.</span><span class="n">toggle_editable</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_handle_itemSelectionChanged</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Whenever the selection changes in the listwidget,</span>
+<span class="sd">        makes all un-selected widgets *not* editable.</span>
+
+<span class="sd">        (this also has the effect of restoring their `normal` colour).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">selected_items</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">selectedItems</span><span class="p">()</span>
+
+        <span class="c1"># unset editable on all unselected widgets</span>
+        <span class="k">for</span> <span class="n">widget</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_editable_widgets</span><span class="o">.</span><span class="n">copy</span><span class="p">():</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">([</span> <span class="n">widget</span> <span class="ow">is</span> <span class="n">selwidget</span>   <span class="k">for</span> <span class="n">selwidget</span> <span class="ow">in</span> <span class="n">selected_items</span> <span class="p">]):</span>
+                <span class="n">widget</span><span class="o">.</span><span class="n">setFlags</span><span class="p">(</span> <span class="n">widget</span><span class="o">.</span><span class="n">flags</span><span class="p">()</span> <span class="o">^</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">ItemIsEditable</span> <span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_editable_widgets</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span> <span class="n">widget</span> <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_handle_itemeditfinished</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">widget</span><span class="p">,</span> <span class="n">modelcache</span> <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        When the user finishes editing an item, refreshes it&#39;s status.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_editable_widgets</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+
+        <span class="k">for</span> <span class="n">widget</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">selectedItems</span><span class="p">():</span>
+            <span class="n">widget</span><span class="o">.</span><span class="n">set_editable</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span></div>
+
+
+
+<span class="k">class</span> <span class="nc">_DeselectableListWidget</span><span class="p">(</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QListWidget</span> <span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Customized :py:obj:`QListWidget` that deselects</span>
+<span class="sd">    all widgets whenever the user clicks empty space</span>
+<span class="sd">    in the list.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="o">*</span><span class="n">args</span><span class="p">,</span><span class="o">**</span><span class="n">kwds</span><span class="p">):</span>
+        <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QListWidget</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="o">*</span><span class="n">args</span><span class="p">,</span><span class="o">**</span><span class="n">kwds</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">mousePressEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        If no :py:obj:`QListWidgetItem` is under the cursor,</span>
+<span class="sd">        then clear the selection before handling the mousePressEvent.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># if LMB, and no widget is under cursor,</span>
+        <span class="c1"># deselect all widgets.</span>
+        <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">button</span><span class="p">()</span> <span class="ow">is</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">LeftButton</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">itemAt</span><span class="p">(</span> <span class="n">event</span><span class="o">.</span><span class="n">pos</span><span class="p">()</span> <span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">clearSelection</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QListWidget</span><span class="o">.</span><span class="n">mousePressEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">event</span><span class="p">)</span>
+
+
+
+<div class="viewcode-block" id="SessionListItem"><a class="viewcode-back" href="../../../../_api/qconcurrency.widgets._sessionwidgets_.SessionListItem.html#qconcurrency.widgets.SessionListItem">[docs]</a><span class="k">class</span> <span class="nc">SessionListItem</span><span class="p">(</span> <span class="n">SessionWidgetItemBase</span><span class="p">,</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">QObject</span><span class="p">,</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QListWidgetItem</span> <span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">,</span> <span class="n">_id</span><span class="p">,</span> <span class="n">saved_val</span><span class="o">=</span><span class="kc">None</span> <span class="p">):</span>
+        <span class="n">SessionWidgetItemBase</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">,</span> <span class="n">_id</span><span class="p">,</span> <span class="n">saved_val</span> <span class="p">)</span>
+        <span class="n">QtCore</span><span class="o">.</span><span class="n">QObject</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QListWidgetItem</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+        <span class="c1"># load</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span> <span class="nb">str</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="p">)</span>
+
+<div class="viewcode-block" id="SessionListItem.get_value"><a class="viewcode-back" href="../../../../_api/qconcurrency.widgets._sessionwidgets_.SessionListItem.html#qconcurrency.widgets.SessionListItem.get_value">[docs]</a>    <span class="k">def</span> <span class="nf">get_value</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the QListWidget&#39;s text.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">text</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="SessionListItem.toggle_editable"><a class="viewcode-back" href="../../../../_api/qconcurrency.widgets._sessionwidgets_.SessionListItem.html#qconcurrency.widgets.SessionListItem.toggle_editable">[docs]</a>    <span class="k">def</span> <span class="nf">toggle_editable</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        If the widget is currently editable,</span>
+<span class="sd">        it&#39;s value is stored, otherwise makes editable.</span>
+
+<span class="sd">        The status is refreshed on the widget.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># toggle widget editability</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_editable</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_editable</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_editable</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SessionListItem.set_editable"><a class="viewcode-back" href="../../../../_api/qconcurrency.widgets._sessionwidgets_.SessionListItem.html#qconcurrency.widgets.SessionListItem.set_editable">[docs]</a>    <span class="k">def</span> <span class="nf">set_editable</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">status</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets the widget editable/not editable,</span>
+<span class="sd">        and enters edit-mode.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">setFlags</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">flags</span><span class="p">()</span> <span class="o">|</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">ItemIsEditable</span> <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">listWidget</span><span class="p">()</span><span class="o">.</span><span class="n">editItem</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">setFlags</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">flags</span><span class="p">()</span> <span class="o">^</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">ItemIsEditable</span> <span class="p">)</span></div></div>
+
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">qconcurrency</span> <span class="k">import</span> <span class="n">QApplication</span>
+    <span class="kn">from</span> <span class="nn">Qt</span> <span class="k">import</span> <span class="n">QtGui</span>
+
+    <span class="k">with</span> <span class="n">QApplication</span><span class="p">():</span>
+
+        <span class="n">colours</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;changed&#39;</span><span class="p">:{</span>
+                <span class="s1">&#39;fg&#39;</span><span class="p">:</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QColor</span><span class="p">(</span><span class="mi">30</span><span class="p">,</span><span class="mi">30</span><span class="p">,</span><span class="mi">30</span><span class="p">),</span>
+                <span class="s1">&#39;bg&#39;</span><span class="p">:</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QColor</span><span class="p">(</span><span class="mi">170</span><span class="p">,</span><span class="mi">70</span><span class="p">,</span><span class="mi">50</span><span class="p">),</span>
+            <span class="p">},</span>
+            <span class="s1">&#39;new&#39;</span><span class="p">:{</span>
+                <span class="s1">&#39;fg&#39;</span><span class="p">:</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QColor</span><span class="p">(</span><span class="mi">30</span><span class="p">,</span><span class="mi">30</span><span class="p">,</span><span class="mi">30</span><span class="p">),</span>
+                <span class="s1">&#39;bg&#39;</span><span class="p">:</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QColor</span><span class="p">(</span><span class="mi">180</span><span class="p">,</span><span class="mi">140</span><span class="p">,</span><span class="mi">50</span><span class="p">),</span>
+            <span class="p">},</span>
+            <span class="s1">&#39;editable&#39;</span><span class="p">:{</span>
+                <span class="s1">&#39;fg&#39;</span><span class="p">:</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QColor</span><span class="p">(</span><span class="mi">30</span><span class="p">,</span><span class="mi">30</span><span class="p">,</span><span class="mi">30</span><span class="p">),</span>
+                <span class="s1">&#39;bg&#39;</span><span class="p">:</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QColor</span><span class="p">(</span><span class="mi">60</span><span class="p">,</span><span class="mi">120</span><span class="p">,</span><span class="mi">140</span><span class="p">),</span>
+            <span class="p">},</span>
+        <span class="p">}</span>
+
+        <span class="n">slist</span> <span class="o">=</span> <span class="n">SessionList</span><span class="p">(</span> <span class="n">colours</span> <span class="p">)</span>
+        <span class="n">slist</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+        <span class="n">slist</span><span class="o">.</span><span class="n">add_item</span><span class="p">(</span> <span class="s1">&#39;A&#39;</span> <span class="p">)</span>
+        <span class="n">slist</span><span class="o">.</span><span class="n">add_item</span><span class="p">(</span> <span class="s1">&#39;B&#39;</span> <span class="p">)</span>
+        <span class="n">slist</span><span class="o">.</span><span class="n">add_item</span><span class="p">(</span> <span class="s1">&#39;C&#39;</span><span class="p">,</span>  <span class="n">_id</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">saved_val</span><span class="o">=</span><span class="s1">&#39;C&#39;</span> <span class="p">)</span>
+        <span class="n">slist</span><span class="o">.</span><span class="n">add_item</span><span class="p">(</span> <span class="s1">&#39;D1&#39;</span><span class="p">,</span> <span class="n">_id</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">saved_val</span><span class="o">=</span><span class="s1">&#39;D&#39;</span> <span class="p">)</span>
+
+
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pyqconcurrency 0.0.a1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../../qconcurrency.html" >qconcurrency</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2017, Will Pittman.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.1.
+    </div>
+  </body>
+</html>

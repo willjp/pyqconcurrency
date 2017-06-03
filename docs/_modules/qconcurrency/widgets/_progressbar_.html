@@ -1,0 +1,454 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>qconcurrency.widgets._progressbar_ &#8212; pyqconcurrency 0.0.a1 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/pyramid.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '0.0.a1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Neuton&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nobile:regular,italic,bold,bolditalic&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<!--[if lte IE 6]>
+<link rel="stylesheet" href="../../../_static/ie6.css" type="text/css" media="screen" charset="utf-8" />
+<![endif]-->
+
+  </head>
+  <body>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pyqconcurrency 0.0.a1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../qconcurrency.html" accesskey="U">qconcurrency</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for qconcurrency.widgets._progressbar_</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Name :          qconcurrency.widgets._progressbar_.py</span>
+<span class="sd">Created :       Apr 17, 2017</span>
+<span class="sd">Author :        Will Pittman</span>
+<span class="sd">Contact :       willjpittman@gmail.com</span>
+<span class="sd">________________________________________________________________________________</span>
+<span class="sd">Description :   ProgressBar, that can be updated from a separate thread.</span>
+<span class="sd">________________________________________________________________________________</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="c1">#builtin</span>
+<span class="kn">from</span> <span class="nn">__future__</span>    <span class="k">import</span> <span class="n">unicode_literals</span>
+<span class="kn">from</span> <span class="nn">__future__</span>    <span class="k">import</span> <span class="n">absolute_import</span>
+<span class="kn">from</span> <span class="nn">__future__</span>    <span class="k">import</span> <span class="n">division</span>
+<span class="kn">from</span> <span class="nn">__future__</span>    <span class="k">import</span> <span class="n">print_function</span>
+<span class="kn">from</span>   <span class="nn">collections</span> <span class="k">import</span> <span class="n">Iterable</span>
+<span class="kn">import</span> <span class="nn">functools</span>
+<span class="kn">import</span> <span class="nn">uuid</span>
+<span class="kn">import</span> <span class="nn">copy</span>
+<span class="c1">#external</span>
+<span class="kn">from</span> <span class="nn">Qt</span>            <span class="k">import</span> <span class="n">QtWidgets</span>
+<span class="c1">#internal</span>
+<span class="kn">from</span> <span class="nn">qconcurrency.threading_</span>  <span class="k">import</span> <span class="n">ThreadedTask</span><span class="p">,</span> <span class="n">SoloThreadedTask</span>
+
+<span class="c1">#!TODO: http://stackoverflow.com/questions/7108715/how-to-show-hide-a-child-qwidget-with-a-motion-animation</span>
+
+
+<span class="k">class</span> <span class="nc">_ProgressSoloThreadedTask</span><span class="p">(</span> <span class="n">SoloThreadedTask</span> <span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    customized :py:obj:`qconcurrency.threading_.SoloThreadedTask` that</span>
+<span class="sd">    assigns a new jobid for each thread it starts, and each thread&#39;s progress</span>
+<span class="sd">    is measured entirely independently.</span>
+
+<span class="sd">    This way, there is no race-condition where cancelling one thread can knock out</span>
+<span class="sd">    progress on *all* threads.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">progressbar</span><span class="p">,</span> <span class="n">callback</span><span class="p">,</span> <span class="n">signals</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">connections</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mutex_expiry</span><span class="o">=</span><span class="mi">5000</span> <span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_progressbar</span> <span class="o">=</span> <span class="n">progressbar</span>
+        <span class="n">SoloThreadedTask</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+            <span class="n">callback</span>     <span class="o">=</span> <span class="n">callback</span><span class="p">,</span>
+            <span class="n">signals</span>      <span class="o">=</span> <span class="n">signals</span><span class="p">,</span>
+            <span class="n">connections</span>  <span class="o">=</span> <span class="n">connections</span><span class="p">,</span>
+            <span class="n">mutex_expiry</span> <span class="o">=</span> <span class="n">mutex_expiry</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">start</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">expiryTimeout</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">threadpool</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span> <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Wraps :py:meth:`qconcurrency.threading_.SoloThreadedTask.start` ,</span>
+<span class="sd">        adding signal-connections so that they update a progressbar.</span>
+
+<span class="sd">        See Also:</span>
+
+<span class="sd">            * :py:meth:`qconcurrency.threading_.SoloThreadedTask.start`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">jobid</span> <span class="o">=</span> <span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">()</span><span class="o">.</span><span class="n">hex</span>
+
+        <span class="n">connections</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_connections</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">connections</span><span class="p">:</span>
+            <span class="n">connections</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="n">progbar_connections</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;incr_progress&#39;</span> <span class="p">:</span> <span class="n">functools</span><span class="o">.</span><span class="n">partial</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">_progressbar</span><span class="o">.</span><span class="n">incr_progress</span><span class="p">,</span> <span class="n">jobid</span><span class="o">=</span><span class="n">jobid</span> <span class="p">),</span>
+            <span class="s1">&#39;add_progress&#39;</span>  <span class="p">:</span> <span class="n">functools</span><span class="o">.</span><span class="n">partial</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">_progressbar</span><span class="o">.</span><span class="n">add_progress</span><span class="p">,</span>  <span class="n">jobid</span><span class="o">=</span><span class="n">jobid</span> <span class="p">),</span>
+            <span class="s1">&#39;returned&#39;</span>      <span class="p">:</span> <span class="n">functools</span><span class="o">.</span><span class="n">partial</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">_progressbar</span><span class="o">.</span><span class="n">_handle_return_or_abort</span><span class="p">,</span> <span class="n">jobid</span><span class="o">=</span><span class="n">jobid</span> <span class="p">),</span>
+            <span class="s1">&#39;exception&#39;</span>     <span class="p">:</span> <span class="n">functools</span><span class="o">.</span><span class="n">partial</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">_progressbar</span><span class="o">.</span><span class="n">_handle_return_or_abort</span><span class="p">,</span> <span class="n">jobid</span><span class="o">=</span><span class="n">jobid</span> <span class="p">),</span>
+        <span class="p">}</span>
+
+        <span class="k">for</span> <span class="n">signal</span> <span class="ow">in</span> <span class="n">progbar_connections</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">signal</span> <span class="ow">in</span> <span class="n">connections</span><span class="p">:</span>
+                <span class="n">connections</span><span class="p">[</span> <span class="n">signal</span> <span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">progbar_connections</span><span class="p">[</span><span class="n">signal</span><span class="p">]</span> <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">connections</span><span class="p">[</span> <span class="n">signal</span> <span class="p">]</span> <span class="o">=</span> <span class="p">[</span> <span class="n">progbar_connections</span><span class="p">[</span><span class="n">signal</span><span class="p">]</span> <span class="p">]</span>
+
+
+        <span class="n">SoloThreadedTask</span><span class="o">.</span><span class="n">start</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                           <span class="n">expiryTimeout</span> <span class="o">=</span> <span class="n">expiryTimeout</span><span class="p">,</span>
+                           <span class="n">threadpool</span>    <span class="o">=</span> <span class="n">threadpool</span><span class="p">,</span>
+                           <span class="n">wait</span>          <span class="o">=</span> <span class="n">wait</span><span class="p">,</span>
+                           <span class="n">_connections</span>  <span class="o">=</span> <span class="n">connections</span><span class="p">,</span>
+                           <span class="o">*</span><span class="n">args</span><span class="p">,</span><span class="o">**</span><span class="n">kwds</span>
+                       <span class="p">)</span>
+
+
+
+<div class="viewcode-block" id="ProgressBar"><a class="viewcode-back" href="../../../_api/qconcurrency.widgets.ProgressBar.html#qconcurrency.widgets.ProgressBar">[docs]</a><span class="k">class</span> <span class="nc">ProgressBar</span><span class="p">(</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QWidget</span> <span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A ProgressBar designed to track progress of several threads,</span>
+<span class="sd">    that is hidden automatically whenever all threads have exited</span>
+<span class="sd">    (by unhandled exception, or return).</span>
+
+<span class="sd">    Each thread is assigned it&#39;s own `jobid`, so that it&#39;s progress</span>
+<span class="sd">    is tracked entirely independently of all other pending tasks.</span>
+<span class="sd">    (my hope is that if errors appear in total-calculated progress in the</span>
+<span class="sd">    codebase, this will lessen the appearance of an error for the user - each</span>
+<span class="sd">    thread&#39;s progress being set to 100% once it exits).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QWidget</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_progress</span> <span class="o">=</span> <span class="p">{}</span>         <span class="c1"># { jobid: {&#39;total&#39;:10, &#39;current&#39;:3} }</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cancelled_jobids</span> <span class="o">=</span> <span class="p">[]</span> <span class="c1"># rolling log of cancelled jobids (so later unhandled progress is ignored)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_progressbar</span> <span class="o">=</span> <span class="kc">None</span>    <span class="c1"># the ProgressBar Widget</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setHidden</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_initui</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_initui</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="c1"># Create Widgets</span>
+        <span class="n">layout</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QHBoxLayout</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_progressbar</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QProgressBar</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_reset_btn</span>   <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QPushButton</span><span class="p">(</span><span class="s1">&#39;reset progress&#39;</span><span class="p">)</span>
+
+        <span class="c1"># Position Widgets</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setLayout</span><span class="p">(</span> <span class="n">layout</span> <span class="p">)</span>
+        <span class="n">layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">_progressbar</span> <span class="p">)</span>
+        <span class="n">layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reset_btn</span> <span class="p">)</span>
+
+        <span class="c1"># Connections</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_reset_btn</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">reset</span> <span class="p">)</span>
+
+<div class="viewcode-block" id="ProgressBar.add_progress"><a class="viewcode-back" href="../../../_api/qconcurrency.widgets.ProgressBar.html#qconcurrency.widgets.ProgressBar.add_progress">[docs]</a>    <span class="k">def</span> <span class="nf">add_progress</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">amount</span><span class="p">,</span> <span class="n">jobid</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adds to the total number of required steps</span>
+<span class="sd">        required to complete.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">jobid</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cancelled_jobids</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="k">if</span> <span class="n">jobid</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_progress</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_progress</span><span class="p">[</span> <span class="n">jobid</span> <span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;total&#39;</span><span class="p">:</span><span class="n">amount</span><span class="p">,</span> <span class="s1">&#39;current&#39;</span><span class="p">:</span><span class="mi">0</span><span class="p">}</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_progress</span><span class="p">[</span> <span class="n">jobid</span> <span class="p">][</span><span class="s1">&#39;total&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">amount</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">refresh_progress</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setHidden</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ProgressBar.refresh_progress"><a class="viewcode-back" href="../../../_api/qconcurrency.widgets.ProgressBar.html#qconcurrency.widgets.ProgressBar.refresh_progress">[docs]</a>    <span class="k">def</span> <span class="nf">refresh_progress</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        ReCalculates current/total progress, and updates the progressbar</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">total_progress</span>   <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">current_progress</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">jobid</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_progress</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+            <span class="n">total_progress</span>   <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_progress</span><span class="p">[</span> <span class="n">jobid</span> <span class="p">][</span><span class="s1">&#39;total&#39;</span><span class="p">]</span>
+            <span class="n">current_progress</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_progress</span><span class="p">[</span> <span class="n">jobid</span> <span class="p">][</span><span class="s1">&#39;current&#39;</span><span class="p">]</span>
+
+            <span class="k">if</span> <span class="n">jobid</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cancelled_jobids</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_progress</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">jobid</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">current_progress</span> <span class="o">==</span> <span class="n">total_progress</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_progress</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">jobid</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_progressbar</span><span class="o">.</span><span class="n">setMaximum</span><span class="p">(</span> <span class="n">total_progress</span>   <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_progressbar</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span>   <span class="n">current_progress</span> <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">total_progress</span> <span class="o">&lt;=</span> <span class="n">current_progress</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">setHidden</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ProgressBar.incr_progress"><a class="viewcode-back" href="../../../_api/qconcurrency.widgets.ProgressBar.html#qconcurrency.widgets.ProgressBar.incr_progress">[docs]</a>    <span class="k">def</span> <span class="nf">incr_progress</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">amount</span><span class="p">,</span> <span class="n">jobid</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Completes a particular number of steps for</span>
+<span class="sd">        a particular jobid.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">jobid</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cancelled_jobids</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="k">if</span> <span class="n">amount</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">amount</span> <span class="o">=</span> <span class="mi">1</span>
+
+        <span class="k">if</span> <span class="n">jobid</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_progress</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_progress</span><span class="p">[</span> <span class="n">jobid</span> <span class="p">][</span><span class="s1">&#39;current&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">amount</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">refresh_progress</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="ProgressBar.reset"><a class="viewcode-back" href="../../../_api/qconcurrency.widgets.ProgressBar.html#qconcurrency.widgets.ProgressBar.reset">[docs]</a>    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">jobid</span><span class="o">=</span><span class="kc">None</span> <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        If not `jobid`, sets all required progress-steps back to 0.</span>
+<span class="sd">        Otherwise, removes all required progress associated with that</span>
+<span class="sd">        jobid.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">jobid</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_progress</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_progressbar</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">refresh_progress</span><span class="p">()</span>
+
+        <span class="k">elif</span> <span class="n">jobid</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_progress</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_progress</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span> <span class="n">jobid</span> <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">refresh_progress</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="ProgressBar.new_task"><a class="viewcode-back" href="../../../_api/qconcurrency.widgets.ProgressBar.html#qconcurrency.widgets.ProgressBar.new_task">[docs]</a>    <span class="k">def</span> <span class="nf">new_task</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">,</span> <span class="n">signals</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span> <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Creates a new :py:obj:`ThreadedTask` object, adding</span>
+<span class="sd">        signals to it so that it can update this :py:obj:`ProgressBar`.</span>
+
+<span class="sd">        :py:obj:`ThreadedTask` objects are most suitable for</span>
+<span class="sd">        producer/consumer patterns (multiple threads running at once),</span>
+<span class="sd">        and no thread depends on another.</span>
+
+<span class="sd">        See also:</span>
+<span class="sd">            * :py:obj:`ThreadedTask`</span>
+<span class="sd">            * :py:obj:`SoloThreadedTask`</span>
+<span class="sd">            * :py:meth:`ProgressBar.new_solotask`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">jobid</span> <span class="o">=</span> <span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">()</span><span class="o">.</span><span class="n">hex</span>
+
+        <span class="c1"># assign signals</span>
+        <span class="n">default_signals</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;incr_progress&#39;</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+            <span class="s1">&#39;add_progress&#39;</span><span class="p">:</span>  <span class="nb">int</span><span class="p">,</span>
+        <span class="p">}</span>
+
+        <span class="k">if</span> <span class="n">signals</span><span class="p">:</span>
+            <span class="n">default_signals</span><span class="o">.</span><span class="n">update</span><span class="p">(</span> <span class="n">signals</span> <span class="p">)</span>
+
+
+        <span class="c1"># create task</span>
+        <span class="n">task</span> <span class="o">=</span> <span class="n">ThreadedTask</span><span class="p">(</span>
+            <span class="n">callback</span> <span class="o">=</span> <span class="n">callback</span><span class="p">,</span>
+            <span class="n">signals</span>  <span class="o">=</span> <span class="n">default_signals</span><span class="p">,</span>
+            <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span>
+        <span class="p">)</span>
+
+
+        <span class="c1"># Connections</span>
+        <span class="n">task</span><span class="o">.</span><span class="n">signal</span><span class="p">(</span><span class="s1">&#39;incr_progress&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span>
+            <span class="n">functools</span><span class="o">.</span><span class="n">partial</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">incr_progress</span><span class="p">,</span> <span class="n">jobid</span><span class="o">=</span><span class="n">jobid</span> <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">task</span><span class="o">.</span><span class="n">signal</span><span class="p">(</span><span class="s1">&#39;add_progress&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span>
+            <span class="n">functools</span><span class="o">.</span><span class="n">partial</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_progress</span><span class="p">,</span> <span class="n">jobid</span><span class="o">=</span><span class="n">jobid</span> <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">task</span><span class="o">.</span><span class="n">signal</span><span class="p">(</span><span class="s1">&#39;returned&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span>
+            <span class="n">functools</span><span class="o">.</span><span class="n">partial</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">_handle_return_or_abort</span><span class="p">,</span> <span class="n">jobid</span><span class="o">=</span><span class="n">jobid</span> <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">task</span><span class="o">.</span><span class="n">signal</span><span class="p">(</span><span class="s1">&#39;exception&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span>
+            <span class="n">functools</span><span class="o">.</span><span class="n">partial</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">_handle_return_or_abort</span><span class="p">,</span> <span class="n">jobid</span><span class="o">=</span><span class="n">jobid</span> <span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">task</span></div>
+
+<div class="viewcode-block" id="ProgressBar.new_solotask"><a class="viewcode-back" href="../../../_api/qconcurrency.widgets.ProgressBar.html#qconcurrency.widgets.ProgressBar.new_solotask">[docs]</a>    <span class="k">def</span> <span class="nf">new_solotask</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">,</span> <span class="n">signals</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">connections</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mutex_expiry</span><span class="o">=</span><span class="mi">5000</span> <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Creates a new :py:obj:`SoloThreadedTask` object, adding</span>
+<span class="sd">        signals to it so that it can update this :py:obj:`ProgressBar`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">jobid</span> <span class="o">=</span> <span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">()</span><span class="o">.</span><span class="n">hex</span>
+
+        <span class="c1"># assign signals</span>
+        <span class="n">default_signals</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;incr_progress&#39;</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+            <span class="s1">&#39;add_progress&#39;</span><span class="p">:</span>  <span class="nb">int</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="n">signals</span><span class="p">:</span>
+            <span class="n">default_signals</span><span class="o">.</span><span class="n">update</span><span class="p">(</span> <span class="n">signals</span> <span class="p">)</span>
+
+        <span class="c1"># assign connections</span>
+        <span class="n">default_connections</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="n">connections</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">signal</span> <span class="ow">in</span> <span class="n">connections</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">signal</span> <span class="ow">in</span> <span class="n">default_connections</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span> <span class="n">connections</span><span class="p">[</span> <span class="n">signal</span> <span class="p">],</span> <span class="n">Iterable</span> <span class="p">):</span>
+                        <span class="k">for</span> <span class="n">_callable</span> <span class="ow">in</span> <span class="n">connections</span><span class="p">[</span> <span class="n">signal</span> <span class="p">]:</span>
+                            <span class="n">default_connections</span><span class="p">[</span> <span class="n">signal</span> <span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">_callable</span> <span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">_callable</span> <span class="o">=</span> <span class="n">connections</span><span class="p">[</span> <span class="n">signal</span> <span class="p">]</span>
+                        <span class="n">default_connections</span><span class="p">[</span> <span class="n">signal</span> <span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">_callable</span> <span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">default_connections</span><span class="p">[</span> <span class="n">signal</span> <span class="p">]</span> <span class="o">=</span> <span class="n">connections</span><span class="p">[</span> <span class="n">signal</span> <span class="p">]</span>
+
+        <span class="c1"># create task</span>
+        <span class="n">solotask</span> <span class="o">=</span> <span class="n">_ProgressSoloThreadedTask</span><span class="p">(</span>
+            <span class="n">progressbar</span>  <span class="o">=</span> <span class="bp">self</span><span class="p">,</span>
+            <span class="n">callback</span>     <span class="o">=</span> <span class="n">callback</span><span class="p">,</span>
+            <span class="n">signals</span>      <span class="o">=</span> <span class="n">default_signals</span><span class="p">,</span>
+            <span class="n">connections</span>  <span class="o">=</span> <span class="n">default_connections</span><span class="p">,</span>
+            <span class="n">mutex_expiry</span> <span class="o">=</span> <span class="n">mutex_expiry</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">solotask</span></div>
+
+    <span class="k">def</span> <span class="nf">_handle_return_or_abort</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span><span class="o">**</span><span class="n">kwds</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="s1">&#39;jobid&#39;</span> <span class="ow">in</span> <span class="n">kwds</span><span class="p">:</span>
+
+            <span class="k">if</span> <span class="s1">&#39;jobid&#39;</span> <span class="ow">in</span> <span class="n">kwds</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">reset</span><span class="p">(</span> <span class="n">jobid</span><span class="o">=</span><span class="n">kwds</span><span class="p">[</span><span class="s1">&#39;jobid&#39;</span><span class="p">]</span> <span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_cancelled_jobids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">kwds</span><span class="p">[</span><span class="s1">&#39;jobid&#39;</span><span class="p">]</span> <span class="p">)</span>
+
+            <span class="c1"># when there are more than 50x entries,</span>
+            <span class="c1"># prune the tracked jobids</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cancelled_jobids</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">50</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_cancelled_jobids</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">refresh_progress</span><span class="p">()</span></div>
+
+
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="kn">from</span>   <span class="nn">qconcurrency</span> <span class="k">import</span> <span class="n">QApplication</span><span class="p">,</span> <span class="n">Fake</span>
+    <span class="kn">from</span>   <span class="nn">Qt</span>           <span class="k">import</span> <span class="n">QtWidgets</span><span class="p">,</span> <span class="n">QtCore</span><span class="p">,</span> <span class="n">QtGui</span>
+    <span class="kn">import</span> <span class="nn">supercli.logging</span>
+    <span class="kn">import</span> <span class="nn">time</span>
+    <span class="n">supercli</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">SetLog</span><span class="p">(</span><span class="n">lv</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+
+
+    <span class="k">def</span> <span class="nf">update_progbar</span><span class="p">(</span> <span class="n">start_wait</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">signalmgr</span><span class="o">=</span><span class="kc">None</span> <span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">signalmgr</span><span class="p">:</span>
+            <span class="n">signalmgr</span> <span class="o">=</span> <span class="n">Fake</span><span class="p">()</span>
+
+        <span class="n">signalmgr</span><span class="o">.</span><span class="n">add_progress</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span> <span class="n">start_wait</span> <span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">):</span>
+            <span class="n">signalmgr</span><span class="o">.</span><span class="n">handle_if_abort</span><span class="p">()</span>
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.2</span><span class="p">)</span>
+            <span class="n">signalmgr</span><span class="o">.</span><span class="n">incr_progress</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;done&#39;</span><span class="p">)</span>
+
+
+    <span class="k">with</span> <span class="n">QApplication</span><span class="p">():</span>
+        <span class="n">win</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QWidget</span><span class="p">()</span>
+        <span class="n">lyt</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QVBoxLayout</span><span class="p">()</span>
+        <span class="n">bar</span> <span class="o">=</span> <span class="n">ProgressBar</span><span class="p">()</span>
+        <span class="n">win</span><span class="o">.</span><span class="n">setLayout</span><span class="p">(</span><span class="n">lyt</span><span class="p">)</span>
+        <span class="n">lyt</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">bar</span><span class="p">)</span>
+
+        <span class="n">win</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+        <span class="n">solotask</span> <span class="o">=</span> <span class="n">bar</span><span class="o">.</span><span class="n">new_solotask</span><span class="p">(</span>
+            <span class="n">callback</span> <span class="o">=</span> <span class="n">update_progbar</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">solotask</span><span class="o">.</span><span class="n">start</span><span class="p">(</span> <span class="n">start_wait</span><span class="o">=</span><span class="mi">0</span>   <span class="p">)</span>
+
+        <span class="c1"># wait before starting next job,</span>
+        <span class="c1"># keeping eventloop alive so progress can be seen</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">):</span>
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.2</span><span class="p">)</span>
+            <span class="n">QtCore</span><span class="o">.</span><span class="n">QCoreApplication</span><span class="o">.</span><span class="n">instance</span><span class="p">()</span><span class="o">.</span><span class="n">processEvents</span><span class="p">()</span>
+
+        <span class="n">solotask</span><span class="o">.</span><span class="n">start</span><span class="p">(</span> <span class="n">start_wait</span><span class="o">=</span><span class="mf">0.5</span> <span class="p">)</span>
+        <span class="n">solotask</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+        <span class="n">solotask</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+
+
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pyqconcurrency 0.0.a1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../qconcurrency.html" >qconcurrency</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2017, Will Pittman.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.1.
+    </div>
+  </body>
+</html>

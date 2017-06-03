@@ -1,0 +1,27 @@
+
+SessionWidgetBase
+=================
+
+Methods
+-------
+
+.. autosummary::
+
+   qconcurrency.widgets._sessionwidgets_.SessionWidgetBase.__init__
+   qconcurrency.widgets._sessionwidgets_.SessionWidgetBase.get_changes
+   qconcurrency.widgets._sessionwidgets_.SessionWidgetBase.has_changes
+   qconcurrency.widgets._sessionwidgets_.SessionWidgetBase.items
+   qconcurrency.widgets._sessionwidgets_.SessionWidgetBase.save_changes
+   qconcurrency.widgets._sessionwidgets_.SessionWidgetBase.save_requested
+
+
+Documentation
+-------------
+
+
+.. autoclass:: qconcurrency.widgets._sessionwidgets_.SessionWidgetBase
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+

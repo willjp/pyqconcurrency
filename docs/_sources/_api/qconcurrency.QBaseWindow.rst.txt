@@ -1,0 +1,34 @@
+
+QBaseWindow
+===========
+
+Attributes
+----------
+
+.. autosummary::
+
+   qconcurrency.QBaseWindow.staticMetaObject
+
+
+Methods
+-------
+
+.. autosummary::
+
+   qconcurrency.QBaseWindow.__init__
+   qconcurrency.QBaseWindow.new_solotask
+   qconcurrency.QBaseWindow.new_task
+   qconcurrency.QBaseWindow.setLayout
+   qconcurrency.QBaseWindow.staticMetaObject
+
+
+Documentation
+-------------
+
+
+.. autoclass:: qconcurrency.QBaseWindow
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+

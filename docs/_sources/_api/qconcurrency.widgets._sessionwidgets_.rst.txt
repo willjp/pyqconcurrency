@@ -1,0 +1,14 @@
+
+qconcurrency.widgets._sessionwidgets_
+=====================================
+
+.. module:: qconcurrency.widgets._sessionwidgets_
+classes
+-------
+
+   * :doc:`qconcurrency.widgets._sessionwidgets_.SessionList`
+   * :doc:`qconcurrency.widgets._sessionwidgets_.SessionListItem`
+   * :doc:`qconcurrency.widgets._sessionwidgets_.SessionWidgetBase`
+   * :doc:`qconcurrency.widgets._sessionwidgets_.SessionWidgetItemBase`
+
+

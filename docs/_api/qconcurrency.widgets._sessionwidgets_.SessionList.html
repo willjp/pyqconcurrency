@@ -1,0 +1,292 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>SessionList &#8212; pyqconcurrency 0.0.a1 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/pyramid.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.0.a1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Neuton&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nobile:regular,italic,bold,bolditalic&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<!--[if lte IE 6]>
+<link rel="stylesheet" href="../_static/ie6.css" type="text/css" media="screen" charset="utf-8" />
+<![endif]-->
+
+  </head>
+  <body>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">pyqconcurrency 0.0.a1 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="sessionlist">
+<h1>SessionList<a class="headerlink" href="#sessionlist" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="attributes">
+<h2>Attributes<a class="headerlink" href="#attributes" title="Permalink to this headline">¶</a></h2>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#qconcurrency.widgets._sessionwidgets_.SessionList.staticMetaObject" title="qconcurrency.widgets._sessionwidgets_.SessionList.staticMetaObject"><code class="xref py py-obj docutils literal"><span class="pre">qconcurrency.widgets._sessionwidgets_.SessionList.staticMetaObject</span></code></a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="methods">
+<h2>Methods<a class="headerlink" href="#methods" title="Permalink to this headline">¶</a></h2>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#qconcurrency.widgets._sessionwidgets_.SessionList.__init__" title="qconcurrency.widgets._sessionwidgets_.SessionList.__init__"><code class="xref py py-obj docutils literal"><span class="pre">qconcurrency.widgets._sessionwidgets_.SessionList.__init__</span></code></a>([…])</td>
+<td><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">param colours:</th><td class="field-body">An optional dictionary, indicating colours to use</td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#qconcurrency.widgets._sessionwidgets_.SessionList.add_item" title="qconcurrency.widgets._sessionwidgets_.SessionList.add_item"><code class="xref py py-obj docutils literal"><span class="pre">qconcurrency.widgets._sessionwidgets_.SessionList.add_item</span></code></a>(val)</td>
+<td>Adds a new item to the list.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#qconcurrency.widgets._sessionwidgets_.SessionList.changes_exist" title="qconcurrency.widgets._sessionwidgets_.SessionList.changes_exist"><code class="xref py py-obj docutils literal"><span class="pre">qconcurrency.widgets._sessionwidgets_.SessionList.changes_exist</span></code></a></td>
+<td>True/False if unsaved changes exist</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#qconcurrency.widgets._sessionwidgets_.SessionList.clear" title="qconcurrency.widgets._sessionwidgets_.SessionList.clear"><code class="xref py py-obj docutils literal"><span class="pre">qconcurrency.widgets._sessionwidgets_.SessionList.clear</span></code></a>()</td>
+<td>Clears the list, and all internal data.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#qconcurrency.widgets._sessionwidgets_.SessionList.keyPressEvent" title="qconcurrency.widgets._sessionwidgets_.SessionList.keyPressEvent"><code class="xref py py-obj docutils literal"><span class="pre">qconcurrency.widgets._sessionwidgets_.SessionList.keyPressEvent</span></code></a>(event)</td>
+<td>If an item is selected in the list, the last-item in the selection is toggled between editable and normal modes.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#qconcurrency.widgets._sessionwidgets_.SessionList.remove_item" title="qconcurrency.widgets._sessionwidgets_.SessionList.remove_item"><code class="xref py py-obj docutils literal"><span class="pre">qconcurrency.widgets._sessionwidgets_.SessionList.remove_item</span></code></a>(_id)</td>
+<td>Removes a single item from the list.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#qconcurrency.widgets._sessionwidgets_.SessionList.selectedItems" title="qconcurrency.widgets._sessionwidgets_.SessionList.selectedItems"><code class="xref py py-obj docutils literal"><span class="pre">qconcurrency.widgets._sessionwidgets_.SessionList.selectedItems</span></code></a>()</td>
+<td>Wraps <code class="xref py py-meth docutils literal"><span class="pre">QtWidgets.QListWidget.selectedItems()</span></code> , and returns all selected <code class="xref py py-obj docutils literal"><span class="pre">SessionListItems</span></code> .</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#qconcurrency.widgets._sessionwidgets_.SessionList.setSelectionMode" title="qconcurrency.widgets._sessionwidgets_.SessionList.setSelectionMode"><code class="xref py py-obj docutils literal"><span class="pre">qconcurrency.widgets._sessionwidgets_.SessionList.setSelectionMode</span></code></a>(…)</td>
+<td>Wraps <code class="xref py py-meth docutils literal"><span class="pre">QListWidget.setSelectionMode()</span></code></td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#qconcurrency.widgets._sessionwidgets_.SessionList.setSelectionModel" title="qconcurrency.widgets._sessionwidgets_.SessionList.setSelectionModel"><code class="xref py py-obj docutils literal"><span class="pre">qconcurrency.widgets._sessionwidgets_.SessionList.setSelectionModel</span></code></a>(…)</td>
+<td>Wraps <code class="xref py py-meth docutils literal"><span class="pre">QListWidget.setSelectionModel()</span></code></td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#qconcurrency.widgets._sessionwidgets_.SessionList.staticMetaObject" title="qconcurrency.widgets._sessionwidgets_.SessionList.staticMetaObject"><code class="xref py py-obj docutils literal"><span class="pre">qconcurrency.widgets._sessionwidgets_.SessionList.staticMetaObject</span></code></a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="documentation">
+<h2>Documentation<a class="headerlink" href="#documentation" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="qconcurrency.widgets._sessionwidgets_.SessionList">
+<em class="property">class </em><code class="descclassname">qconcurrency.widgets._sessionwidgets_.</code><code class="descname">SessionList</code><span class="sig-paren">(</span><em>colours=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qconcurrency/widgets/_sessionwidgets_/_sessionlist_.html#SessionList"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qconcurrency.widgets._sessionwidgets_.SessionList" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">qconcurrency.widgets._sessionwidgets_._basewidgets_.SessionWidgetBase</span></code>, <code class="xref py py-class docutils literal"><span class="pre">PySide.QtGui.QWidget</span></code></p>
+<dl class="method">
+<dt id="qconcurrency.widgets._sessionwidgets_.SessionList.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>colours=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qconcurrency/widgets/_sessionwidgets_/_sessionlist_.html#SessionList.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qconcurrency.widgets._sessionwidgets_.SessionList.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>colours</strong> (<em>dict</em><em>, </em><em>optional</em>) – <p>An optional dictionary, indicating colours to use
+for QListWidgetItems based on their status.</p>
+<p>Any key that is not set in the dictionary
+uses the stylesheet’s default colours for
+<code class="xref py py-obj docutils literal"><span class="pre">QListWidgetItems</span></code></p>
+<pre class="literal-block">
+{
+    ‘normal’:  {‘fg’:QColor(255,255,255), ‘bg’:QColor(255,255,255)},
+    ‘changed’: {‘fg’:QColor(255,255,255), ‘bg’:QColor(255,255,255)},
+    ‘new’:     {‘fg’:QColor(255,255,255), ‘bg’:QColor(255,255,255)},
+    ‘editable’: {‘fg’:QColor(255,255,255), ‘bg’:QColor(255,255,255)},
+}
+</pre>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="qconcurrency.widgets._sessionwidgets_.SessionList.add_item">
+<code class="descname">add_item</code><span class="sig-paren">(</span><em>val</em>, <em>_id=None</em>, <em>saved_val=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qconcurrency/widgets/_sessionwidgets_/_sessionlist_.html#SessionList.add_item"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qconcurrency.widgets._sessionwidgets_.SessionList.add_item" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds a new item to the list.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>val</strong> (<em>object</em>) – <code class="docutils literal"><span class="pre">(ex:</span>&#160; <span class="pre">'itemA'</span> <span class="pre">)</span></code>
+The item you’d like to add to the widget</li>
+<li><strong>_id</strong> (<em>object</em><em>, </em><em>optional</em>) – <p>If the item exists and has already been assigned an Id
+provide it here.</p>
+<p>Or, if the item is new, but you want to assign a specific
+Id, you may also provide an Id here.</p>
+</li>
+<li><strong>saved_val</strong> (<em>object</em><em>, </em><em>optional</em>) – <p>If this argument is assigned a value, the item
+will tracked as being an item that is already saved
+to the database (or other long-term-storage).</p>
+<p>You can test whether or not a widget’s current value
+is different from this saved value using the method
+<code class="xref py py-meth docutils literal"><span class="pre">SessionListItem.is_changed()</span></code></p>
+</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="qconcurrency.widgets._sessionwidgets_.SessionList.changes_exist">
+<code class="descname">changes_exist</code><em class="property"> = &lt;PySide.QtCore.Signal object&gt;</em><a class="headerlink" href="#qconcurrency.widgets._sessionwidgets_.SessionList.changes_exist" title="Permalink to this definition">¶</a></dt>
+<dd><p>True/False if unsaved changes exist</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="qconcurrency.widgets._sessionwidgets_.SessionList.clear">
+<code class="descname">clear</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qconcurrency/widgets/_sessionwidgets_/_sessionlist_.html#SessionList.clear"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qconcurrency.widgets._sessionwidgets_.SessionList.clear" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clears the list, and all internal data.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="qconcurrency.widgets._sessionwidgets_.SessionList.keyPressEvent">
+<code class="descname">keyPressEvent</code><span class="sig-paren">(</span><em>event</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qconcurrency/widgets/_sessionwidgets_/_sessionlist_.html#SessionList.keyPressEvent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qconcurrency.widgets._sessionwidgets_.SessionList.keyPressEvent" title="Permalink to this definition">¶</a></dt>
+<dd><p>If an item is selected in the list, the last-item in the selection
+is toggled between editable and normal modes.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="qconcurrency.widgets._sessionwidgets_.SessionList.remove_item">
+<code class="descname">remove_item</code><span class="sig-paren">(</span><em>_id</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qconcurrency/widgets/_sessionwidgets_/_sessionlist_.html#SessionList.remove_item"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qconcurrency.widgets._sessionwidgets_.SessionList.remove_item" title="Permalink to this definition">¶</a></dt>
+<dd><p>Removes a single item from the list.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>_id</strong> (<em>object</em><em>, </em><em>optional</em>) – The <cite>_id</cite> of the item that you want to delete.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="qconcurrency.widgets._sessionwidgets_.SessionList.selectedItems">
+<code class="descname">selectedItems</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qconcurrency/widgets/_sessionwidgets_/_sessionlist_.html#SessionList.selectedItems"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qconcurrency.widgets._sessionwidgets_.SessionList.selectedItems" title="Permalink to this definition">¶</a></dt>
+<dd><p>Wraps <code class="xref py py-meth docutils literal"><span class="pre">QtWidgets.QListWidget.selectedItems()</span></code> , and returns
+all selected <code class="xref py py-obj docutils literal"><span class="pre">SessionListItems</span></code> .</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="qconcurrency.widgets._sessionwidgets_.SessionList.setSelectionMode">
+<code class="descname">setSelectionMode</code><span class="sig-paren">(</span><em>selectionMode</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qconcurrency/widgets/_sessionwidgets_/_sessionlist_.html#SessionList.setSelectionMode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qconcurrency.widgets._sessionwidgets_.SessionList.setSelectionMode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Wraps <code class="xref py py-meth docutils literal"><span class="pre">QListWidget.setSelectionMode()</span></code></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="qconcurrency.widgets._sessionwidgets_.SessionList.setSelectionModel">
+<code class="descname">setSelectionModel</code><span class="sig-paren">(</span><em>selectionModel</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qconcurrency/widgets/_sessionwidgets_/_sessionlist_.html#SessionList.setSelectionModel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qconcurrency.widgets._sessionwidgets_.SessionList.setSelectionModel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Wraps <code class="xref py py-meth docutils literal"><span class="pre">QListWidget.setSelectionModel()</span></code></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="qconcurrency.widgets._sessionwidgets_.SessionList.staticMetaObject">
+<code class="descname">staticMetaObject</code><em class="property"> = &lt;PySide.QtCore.QMetaObject object&gt;</em><a class="headerlink" href="#qconcurrency.widgets._sessionwidgets_.SessionList.staticMetaObject" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">SessionList</a><ul>
+<li><a class="reference internal" href="#attributes">Attributes</a></li>
+<li><a class="reference internal" href="#methods">Methods</a></li>
+<li><a class="reference internal" href="#documentation">Documentation</a></li>
+</ul>
+</li>
+</ul>
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">pyqconcurrency 0.0.a1 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2017, Will Pittman.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.1.
+    </div>
+  </body>
+</html>

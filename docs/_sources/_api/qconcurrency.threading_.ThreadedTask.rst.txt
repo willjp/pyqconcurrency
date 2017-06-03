@@ -1,0 +1,27 @@
+
+ThreadedTask
+============
+
+Methods
+-------
+
+.. autosummary::
+
+   qconcurrency.threading_.ThreadedTask.__init__
+   qconcurrency.threading_.ThreadedTask.request_abort
+   qconcurrency.threading_.ThreadedTask.run
+   qconcurrency.threading_.ThreadedTask.signal
+   qconcurrency.threading_.ThreadedTask.signalmgr
+   qconcurrency.threading_.ThreadedTask.start
+
+
+Documentation
+-------------
+
+
+.. autoclass:: qconcurrency.threading_.ThreadedTask
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+

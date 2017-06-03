@@ -1,0 +1,32 @@
+
+DictModelRow
+============
+
+Methods
+-------
+
+.. autosummary::
+
+   qconcurrency.models.DictModelRow.__init__
+   qconcurrency.models.DictModelRow.add_child
+   qconcurrency.models.DictModelRow.add_row
+   qconcurrency.models.DictModelRow.columnitem
+   qconcurrency.models.DictModelRow.columnval
+   qconcurrency.models.DictModelRow.columnvals
+   qconcurrency.models.DictModelRow.delete
+   qconcurrency.models.DictModelRow.id
+   qconcurrency.models.DictModelRow.keys
+   qconcurrency.models.DictModelRow.level
+   qconcurrency.models.DictModelRow.set_columnvals
+
+
+Documentation
+-------------
+
+
+.. autoclass:: qconcurrency.models.DictModelRow
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+

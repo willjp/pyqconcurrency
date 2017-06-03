@@ -1,0 +1,199 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>SessionWidgetBase &#8212; pyqconcurrency 0.0.a1 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/pyramid.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.0.a1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Neuton&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nobile:regular,italic,bold,bolditalic&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<!--[if lte IE 6]>
+<link rel="stylesheet" href="../_static/ie6.css" type="text/css" media="screen" charset="utf-8" />
+<![endif]-->
+
+  </head>
+  <body>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">pyqconcurrency 0.0.a1 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="sessionwidgetbase">
+<h1>SessionWidgetBase<a class="headerlink" href="#sessionwidgetbase" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="methods">
+<h2>Methods<a class="headerlink" href="#methods" title="Permalink to this headline">¶</a></h2>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">qconcurrency.widgets._sessionwidgets_.SessionWidgetBase.__init__</span></code>()</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#qconcurrency.widgets._sessionwidgets_.SessionWidgetBase.get_changes" title="qconcurrency.widgets._sessionwidgets_.SessionWidgetBase.get_changes"><code class="xref py py-obj docutils literal"><span class="pre">qconcurrency.widgets._sessionwidgets_.SessionWidgetBase.get_changes</span></code></a>()</td>
+<td>Returns a dict of unsaved changes that this widget contains.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#qconcurrency.widgets._sessionwidgets_.SessionWidgetBase.has_changes" title="qconcurrency.widgets._sessionwidgets_.SessionWidgetBase.has_changes"><code class="xref py py-obj docutils literal"><span class="pre">qconcurrency.widgets._sessionwidgets_.SessionWidgetBase.has_changes</span></code></a>()</td>
+<td>Returns True if this widget has any unsaved changes.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#qconcurrency.widgets._sessionwidgets_.SessionWidgetBase.items" title="qconcurrency.widgets._sessionwidgets_.SessionWidgetBase.items"><code class="xref py py-obj docutils literal"><span class="pre">qconcurrency.widgets._sessionwidgets_.SessionWidgetBase.items</span></code></a>()</td>
+<td>Returns a dictionary in the format of <code class="docutils literal"><span class="pre">{</span> <span class="pre">_id:item</span> <span class="pre">}</span></code></td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#qconcurrency.widgets._sessionwidgets_.SessionWidgetBase.save_changes" title="qconcurrency.widgets._sessionwidgets_.SessionWidgetBase.save_changes"><code class="xref py py-obj docutils literal"><span class="pre">qconcurrency.widgets._sessionwidgets_.SessionWidgetBase.save_changes</span></code></a>()</td>
+<td>If checks for unsaved new,changed, or deleted items, and if changes exist, emits <code class="xref py py-attr docutils literal"><span class="pre">save_requested</span></code> signal.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#qconcurrency.widgets._sessionwidgets_.SessionWidgetBase.save_requested" title="qconcurrency.widgets._sessionwidgets_.SessionWidgetBase.save_requested"><code class="xref py py-obj docutils literal"><span class="pre">qconcurrency.widgets._sessionwidgets_.SessionWidgetBase.save_requested</span></code></a></td>
+<td>output of <code class="xref py py-meth docutils literal"><span class="pre">get_changes()</span></code></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="documentation">
+<h2>Documentation<a class="headerlink" href="#documentation" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="qconcurrency.widgets._sessionwidgets_.SessionWidgetBase">
+<em class="property">class </em><code class="descclassname">qconcurrency.widgets._sessionwidgets_.</code><code class="descname">SessionWidgetBase</code><a class="reference internal" href="../_modules/qconcurrency/widgets/_sessionwidgets_/_basewidgets_.html#SessionWidgetBase"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qconcurrency.widgets._sessionwidgets_.SessionWidgetBase" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>BaseWidget for SessionWidgets.</p>
+<p>SessionWidgets are collection-widgets that are designed to
+allow the user to perform several operations, and then save
+them all at once.</p>
+<dl class="method">
+<dt id="qconcurrency.widgets._sessionwidgets_.SessionWidgetBase.get_changes">
+<code class="descname">get_changes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qconcurrency/widgets/_sessionwidgets_/_basewidgets_.html#SessionWidgetBase.get_changes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qconcurrency.widgets._sessionwidgets_.SessionWidgetBase.get_changes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a dict of unsaved changes that this
+widget contains.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><pre class="literal-block">
+{
+    ‘new’:     { _id : widget, … },
+    ‘deleted’: set([ _id, _id, … ]),
+    ‘changed’: { _id : widget, … },
+}
+</pre>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="qconcurrency.widgets._sessionwidgets_.SessionWidgetBase.has_changes">
+<code class="descname">has_changes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qconcurrency/widgets/_sessionwidgets_/_basewidgets_.html#SessionWidgetBase.has_changes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qconcurrency.widgets._sessionwidgets_.SessionWidgetBase.has_changes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns True if this widget has any unsaved changes.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="qconcurrency.widgets._sessionwidgets_.SessionWidgetBase.items">
+<code class="descname">items</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qconcurrency/widgets/_sessionwidgets_/_basewidgets_.html#SessionWidgetBase.items"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qconcurrency.widgets._sessionwidgets_.SessionWidgetBase.items" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a dictionary in the format of <code class="docutils literal"><span class="pre">{</span> <span class="pre">_id:item</span> <span class="pre">}</span></code></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="qconcurrency.widgets._sessionwidgets_.SessionWidgetBase.save_changes">
+<code class="descname">save_changes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qconcurrency/widgets/_sessionwidgets_/_basewidgets_.html#SessionWidgetBase.save_changes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qconcurrency.widgets._sessionwidgets_.SessionWidgetBase.save_changes" title="Permalink to this definition">¶</a></dt>
+<dd><p>If checks for unsaved new,changed, or deleted items,
+and if changes exist, emits <code class="xref py py-attr docutils literal"><span class="pre">save_requested</span></code> signal.</p>
+<p>It is up to the calling class/method to handle
+the actual saving of the information, and as items
+are saved, this widget can be updated using the method
+<code class="xref py py-meth docutils literal"><span class="pre">SessionWidgetItemBase.set_saved()</span></code>.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="qconcurrency.widgets._sessionwidgets_.SessionWidgetBase.save_requested">
+<code class="descname">save_requested</code><em class="property"> = &lt;PySide.QtCore.Signal object&gt;</em><a class="headerlink" href="#qconcurrency.widgets._sessionwidgets_.SessionWidgetBase.save_requested" title="Permalink to this definition">¶</a></dt>
+<dd><p>output of <code class="xref py py-meth docutils literal"><span class="pre">get_changes()</span></code></p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">SessionWidgetBase</a><ul>
+<li><a class="reference internal" href="#methods">Methods</a></li>
+<li><a class="reference internal" href="#documentation">Documentation</a></li>
+</ul>
+</li>
+</ul>
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">pyqconcurrency 0.0.a1 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2017, Will Pittman.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.1.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,3 @@
+supercli
+six
+Qt.py

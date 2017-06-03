@@ -1,0 +1,39 @@
+
+SessionList
+===========
+
+Attributes
+----------
+
+.. autosummary::
+
+   qconcurrency.widgets._sessionwidgets_.SessionList.staticMetaObject
+
+
+Methods
+-------
+
+.. autosummary::
+
+   qconcurrency.widgets._sessionwidgets_.SessionList.__init__
+   qconcurrency.widgets._sessionwidgets_.SessionList.add_item
+   qconcurrency.widgets._sessionwidgets_.SessionList.changes_exist
+   qconcurrency.widgets._sessionwidgets_.SessionList.clear
+   qconcurrency.widgets._sessionwidgets_.SessionList.keyPressEvent
+   qconcurrency.widgets._sessionwidgets_.SessionList.remove_item
+   qconcurrency.widgets._sessionwidgets_.SessionList.selectedItems
+   qconcurrency.widgets._sessionwidgets_.SessionList.setSelectionMode
+   qconcurrency.widgets._sessionwidgets_.SessionList.setSelectionModel
+   qconcurrency.widgets._sessionwidgets_.SessionList.staticMetaObject
+
+
+Documentation
+-------------
+
+
+.. autoclass:: qconcurrency.widgets._sessionwidgets_.SessionList
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+

@@ -1,0 +1,34 @@
+
+SessionListItem
+===============
+
+Attributes
+----------
+
+.. autosummary::
+
+   qconcurrency.widgets._sessionwidgets_.SessionListItem.staticMetaObject
+
+
+Methods
+-------
+
+.. autosummary::
+
+   qconcurrency.widgets._sessionwidgets_.SessionListItem.__init__
+   qconcurrency.widgets._sessionwidgets_.SessionListItem.get_value
+   qconcurrency.widgets._sessionwidgets_.SessionListItem.set_editable
+   qconcurrency.widgets._sessionwidgets_.SessionListItem.staticMetaObject
+   qconcurrency.widgets._sessionwidgets_.SessionListItem.toggle_editable
+
+
+Documentation
+-------------
+
+
+.. autoclass:: qconcurrency.widgets._sessionwidgets_.SessionListItem
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+

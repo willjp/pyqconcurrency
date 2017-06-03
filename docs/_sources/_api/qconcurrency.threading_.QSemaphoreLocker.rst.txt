@@ -1,0 +1,31 @@
+
+QSemaphoreLocker
+================
+
+Attributes
+----------
+
+.. autosummary::
+
+   qconcurrency.threading_.QSemaphoreLocker.staticMetaObject
+
+
+Methods
+-------
+
+.. autosummary::
+
+   qconcurrency.threading_.QSemaphoreLocker.__init__
+   qconcurrency.threading_.QSemaphoreLocker.staticMetaObject
+
+
+Documentation
+-------------
+
+
+.. autoclass:: qconcurrency.threading_.QSemaphoreLocker
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+

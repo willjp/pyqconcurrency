@@ -1,0 +1,284 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>SessionWidgetItemBase &#8212; pyqconcurrency 0.0.a1 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/pyramid.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.0.a1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Neuton&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nobile:regular,italic,bold,bolditalic&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<!--[if lte IE 6]>
+<link rel="stylesheet" href="../_static/ie6.css" type="text/css" media="screen" charset="utf-8" />
+<![endif]-->
+
+  </head>
+  <body>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">pyqconcurrency 0.0.a1 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="sessionwidgetitembase">
+<h1>SessionWidgetItemBase<a class="headerlink" href="#sessionwidgetitembase" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="methods">
+<h2>Methods<a class="headerlink" href="#methods" title="Permalink to this headline">¶</a></h2>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#qconcurrency.widgets._sessionwidgets_.SessionWidgetItemBase.__init__" title="qconcurrency.widgets._sessionwidgets_.SessionWidgetItemBase.__init__"><code class="xref py py-obj docutils literal"><span class="pre">qconcurrency.widgets._sessionwidgets_.SessionWidgetItemBase.__init__</span></code></a>(val)</td>
+<td><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">param val:</th><td class="field-body">The value assigned to your object.</td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#qconcurrency.widgets._sessionwidgets_.SessionWidgetItemBase.get_savedval" title="qconcurrency.widgets._sessionwidgets_.SessionWidgetItemBase.get_savedval"><code class="xref py py-obj docutils literal"><span class="pre">qconcurrency.widgets._sessionwidgets_.SessionWidgetItemBase.get_savedval</span></code></a>()</td>
+<td>Returns the value that is currently saved in the database.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#qconcurrency.widgets._sessionwidgets_.SessionWidgetItemBase.get_value" title="qconcurrency.widgets._sessionwidgets_.SessionWidgetItemBase.get_value"><code class="xref py py-obj docutils literal"><span class="pre">qconcurrency.widgets._sessionwidgets_.SessionWidgetItemBase.get_value</span></code></a>()</td>
+<td>A dummy method that should be re-implemented in subclasses of <code class="xref py py-obj docutils literal"><span class="pre">SessionWidgetItemBase</span></code>.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#qconcurrency.widgets._sessionwidgets_.SessionWidgetItemBase.id" title="qconcurrency.widgets._sessionwidgets_.SessionWidgetItemBase.id"><code class="xref py py-obj docutils literal"><span class="pre">qconcurrency.widgets._sessionwidgets_.SessionWidgetItemBase.id</span></code></a>()</td>
+<td>Returns the item’s Id</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#qconcurrency.widgets._sessionwidgets_.SessionWidgetItemBase.is_changed" title="qconcurrency.widgets._sessionwidgets_.SessionWidgetItemBase.is_changed"><code class="xref py py-obj docutils literal"><span class="pre">qconcurrency.widgets._sessionwidgets_.SessionWidgetItemBase.is_changed</span></code></a>()</td>
+<td>Returns True/False if the widget’s current value is different than it’s saved-value.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#qconcurrency.widgets._sessionwidgets_.SessionWidgetItemBase.is_editable" title="qconcurrency.widgets._sessionwidgets_.SessionWidgetItemBase.is_editable"><code class="xref py py-obj docutils literal"><span class="pre">qconcurrency.widgets._sessionwidgets_.SessionWidgetItemBase.is_editable</span></code></a>()</td>
+<td>Returns <code class="docutils literal"><span class="pre">True</span></code> if the widget is currently editable.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#qconcurrency.widgets._sessionwidgets_.SessionWidgetItemBase.is_new" title="qconcurrency.widgets._sessionwidgets_.SessionWidgetItemBase.is_new"><code class="xref py py-obj docutils literal"><span class="pre">qconcurrency.widgets._sessionwidgets_.SessionWidgetItemBase.is_new</span></code></a>()</td>
+<td>Returns True/False if the widget is new or not.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#qconcurrency.widgets._sessionwidgets_.SessionWidgetItemBase.refresh_status" title="qconcurrency.widgets._sessionwidgets_.SessionWidgetItemBase.refresh_status"><code class="xref py py-obj docutils literal"><span class="pre">qconcurrency.widgets._sessionwidgets_.SessionWidgetItemBase.refresh_status</span></code></a>()</td>
+<td>Re-Checks all status information, refreshing it’s internal status, and emitting <code class="xref py py-attr docutils literal"><span class="pre">status_changed</span></code> if it has changed.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#qconcurrency.widgets._sessionwidgets_.SessionWidgetItemBase.setFlags" title="qconcurrency.widgets._sessionwidgets_.SessionWidgetItemBase.setFlags"><code class="xref py py-obj docutils literal"><span class="pre">qconcurrency.widgets._sessionwidgets_.SessionWidgetItemBase.setFlags</span></code></a>(…)</td>
+<td>Sets the widget’s flags, then checks if there is a change to the editable status (emitting <code class="xref py py-attr docutils literal"><span class="pre">status_changed</span></code> if there is a change).</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#qconcurrency.widgets._sessionwidgets_.SessionWidgetItemBase.set_saved" title="qconcurrency.widgets._sessionwidgets_.SessionWidgetItemBase.set_saved"><code class="xref py py-obj docutils literal"><span class="pre">qconcurrency.widgets._sessionwidgets_.SessionWidgetItemBase.set_saved</span></code></a>([_id])</td>
+<td>Marks the information represented by this widget as correct, and saved into long-term storage.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#qconcurrency.widgets._sessionwidgets_.SessionWidgetItemBase.status_changed" title="qconcurrency.widgets._sessionwidgets_.SessionWidgetItemBase.status_changed"><code class="xref py py-obj docutils literal"><span class="pre">qconcurrency.widgets._sessionwidgets_.SessionWidgetItemBase.status_changed</span></code></a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="documentation">
+<h2>Documentation<a class="headerlink" href="#documentation" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="qconcurrency.widgets._sessionwidgets_.SessionWidgetItemBase">
+<em class="property">class </em><code class="descclassname">qconcurrency.widgets._sessionwidgets_.</code><code class="descname">SessionWidgetItemBase</code><span class="sig-paren">(</span><em>val</em>, <em>_id=None</em>, <em>saved_val=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qconcurrency/widgets/_sessionwidgets_/_basewidgets_.html#SessionWidgetItemBase"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qconcurrency.widgets._sessionwidgets_.SessionWidgetItemBase" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Parent class for all SessionWidgetItems
+(items that get added a <code class="xref py py-obj docutils literal"><span class="pre">SessionWidget</span></code></p>
+<p>Establishes consistent variables for subclasses,
+and provides convenience methods.</p>
+<dl class="method">
+<dt id="qconcurrency.widgets._sessionwidgets_.SessionWidgetItemBase.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>val</em>, <em>_id=None</em>, <em>saved_val=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qconcurrency/widgets/_sessionwidgets_/_basewidgets_.html#SessionWidgetItemBase.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qconcurrency.widgets._sessionwidgets_.SessionWidgetItemBase.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>val</strong> (<em>object</em>) – The value assigned to your object.
+This will be displayed in the widget.</li>
+<li><strong>_id</strong> (<em>str</em><em>, </em><em>int</em><em>, </em><em>optional</em>) – An id, unique to the collection of items the main.
+If this is a new item (no saved_val is provided)
+this argument is optional, and a uuid will be assigned
+in it’s place.</li>
+<li><strong>saved_val</strong> (<em>object</em><em>, </em><em>optional</em>) – The value stored in long-term-storage.
+(database, json, etc). The presence of this</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="qconcurrency.widgets._sessionwidgets_.SessionWidgetItemBase.get_savedval">
+<code class="descname">get_savedval</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qconcurrency/widgets/_sessionwidgets_/_basewidgets_.html#SessionWidgetItemBase.get_savedval"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qconcurrency.widgets._sessionwidgets_.SessionWidgetItemBase.get_savedval" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the value that is currently saved in the database.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">If this is a new item, <code class="docutils literal"><span class="pre">None</span></code> will be returned.</p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="qconcurrency.widgets._sessionwidgets_.SessionWidgetItemBase.get_value">
+<code class="descname">get_value</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qconcurrency/widgets/_sessionwidgets_/_basewidgets_.html#SessionWidgetItemBase.get_value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qconcurrency.widgets._sessionwidgets_.SessionWidgetItemBase.get_value" title="Permalink to this definition">¶</a></dt>
+<dd><p>A dummy method that should be re-implemented in
+subclasses of <code class="xref py py-obj docutils literal"><span class="pre">SessionWidgetItemBase</span></code>.</p>
+<p>This method should retrieve the current value from
+the widget.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="qconcurrency.widgets._sessionwidgets_.SessionWidgetItemBase.id">
+<code class="descname">id</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qconcurrency/widgets/_sessionwidgets_/_basewidgets_.html#SessionWidgetItemBase.id"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qconcurrency.widgets._sessionwidgets_.SessionWidgetItemBase.id" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the item’s Id</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="qconcurrency.widgets._sessionwidgets_.SessionWidgetItemBase.is_changed">
+<code class="descname">is_changed</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qconcurrency/widgets/_sessionwidgets_/_basewidgets_.html#SessionWidgetItemBase.is_changed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qconcurrency.widgets._sessionwidgets_.SessionWidgetItemBase.is_changed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns True/False if the widget’s current value is different
+than it’s saved-value.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="qconcurrency.widgets._sessionwidgets_.SessionWidgetItemBase.is_editable">
+<code class="descname">is_editable</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qconcurrency/widgets/_sessionwidgets_/_basewidgets_.html#SessionWidgetItemBase.is_editable"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qconcurrency.widgets._sessionwidgets_.SessionWidgetItemBase.is_editable" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns <code class="docutils literal"><span class="pre">True</span></code> if the widget is currently editable.
+Otherwise returns <code class="docutils literal"><span class="pre">False</span></code>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="qconcurrency.widgets._sessionwidgets_.SessionWidgetItemBase.is_new">
+<code class="descname">is_new</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qconcurrency/widgets/_sessionwidgets_/_basewidgets_.html#SessionWidgetItemBase.is_new"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qconcurrency.widgets._sessionwidgets_.SessionWidgetItemBase.is_new" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns True/False if the widget is new or not.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="qconcurrency.widgets._sessionwidgets_.SessionWidgetItemBase.refresh_status">
+<code class="descname">refresh_status</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qconcurrency/widgets/_sessionwidgets_/_basewidgets_.html#SessionWidgetItemBase.refresh_status"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qconcurrency.widgets._sessionwidgets_.SessionWidgetItemBase.refresh_status" title="Permalink to this definition">¶</a></dt>
+<dd><p>Re-Checks all status information, refreshing it’s
+internal status, and emitting <code class="xref py py-attr docutils literal"><span class="pre">status_changed</span></code>
+if it has changed.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="qconcurrency.widgets._sessionwidgets_.SessionWidgetItemBase.setFlags">
+<code class="descname">setFlags</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwds</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qconcurrency/widgets/_sessionwidgets_/_basewidgets_.html#SessionWidgetItemBase.setFlags"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qconcurrency.widgets._sessionwidgets_.SessionWidgetItemBase.setFlags" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the widget’s flags, then checks if there is a change
+to the editable status (emitting <code class="xref py py-attr docutils literal"><span class="pre">status_changed</span></code>
+if there is a change).</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="qconcurrency.widgets._sessionwidgets_.SessionWidgetItemBase.set_saved">
+<code class="descname">set_saved</code><span class="sig-paren">(</span><em>_id=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qconcurrency/widgets/_sessionwidgets_/_basewidgets_.html#SessionWidgetItemBase.set_saved"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qconcurrency.widgets._sessionwidgets_.SessionWidgetItemBase.set_saved" title="Permalink to this definition">¶</a></dt>
+<dd><p>Marks the information represented by this widget as
+correct, and saved into long-term storage.</p>
+<blockquote>
+<div><ul class="simple">
+<li>Changes the item’s id <em>(if _id is specified )</em></li>
+<li>sets the current val to <code class="docutils literal"><span class="pre">self._saved_val</span></code></li>
+<li>calls <code class="docutils literal"><span class="pre">self.refresh_status()</span></code></li>
+</ul>
+</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>_id</strong> (<em>object</em><em>, </em><em>optional</em>) – If the long-term-storage id has changed as
+a result of this widget’s info being saved,
+you may provide a new value for <code class="docutils literal"><span class="pre">self._id</span></code></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="qconcurrency.widgets._sessionwidgets_.SessionWidgetItemBase.status_changed">
+<code class="descname">status_changed</code><em class="property"> = &lt;PySide.QtCore.Signal object&gt;</em><a class="headerlink" href="#qconcurrency.widgets._sessionwidgets_.SessionWidgetItemBase.status_changed" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">SessionWidgetItemBase</a><ul>
+<li><a class="reference internal" href="#methods">Methods</a></li>
+<li><a class="reference internal" href="#documentation">Documentation</a></li>
+</ul>
+</li>
+</ul>
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">pyqconcurrency 0.0.a1 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2017, Will Pittman.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.1.
+    </div>
+  </body>
+</html>

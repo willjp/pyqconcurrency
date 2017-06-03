@@ -1,0 +1,16 @@
+actionid: 3.6-pyqt5
+msg: installpkg
+cmdargs: ['/home/will/progs/python/projects/pyqconcurrency/.tox/3.6-pyqt5/bin/pip', 'install', '-U', '--no-deps', '/home/will/progs/python/projects/pyqconcurrency/.tox/dist/qconcurrency-0.0a2.zip']
+env: {'DBUS_SESSION_BUS_ADDRESS': 'unix:path=/run/user/1001/bus', 'DESKTOP_SESSION': 'i3', 'DESKTOP_STARTUP_ID': 'i3/st/2460-2-wintermute_TIME125246', 'DISPLAY': ':0', 'EDITOR': 'vim', 'HOME': '/home/will', 'INVOCATION_ID': '41a8cc78eafe4246898c1b4b414ca1f5', 'JOURNAL_STREAM': '8:1906', 'LANG': 'en_US.UTF-8', 'LOGNAME': 'will', 'LPDEST': 'psc_1300', 'MAIL': '/var/spool/mail/will', 'MOZ_PLUGIN_PATH': '/usr/lib/mozilla/plugins', 'OLDPWD': '/home/will/progs/python/projects/pyqconcurrency', 'PAGER': 'less -iR', 'PATH': '/home/will/progs/python/projects/pyqconcurrency/.tox/3.6-pyqt5/bin:/usr/lib/hardening-wrapper/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/usr/lib/jvm/default/bin:/usr/bin/site_perl:/usr/bin/vendor_perl:/usr/bin/core_perl:/home/will/.local/bin:/home/will/progs/python/general/bin:/home/will/.task/bin', 'PWD': '/home/will/progs/python/projects/pyqconcurrency', 'SHELL': '/usr/bin/zsh', 'SHLVL': '2', 'TERM': 'xterm-256color', 'TMUX': '/tmp/tmux-1001/default,4667,1', 'TMUX_PANE': '%6', 'TMUX_PLUGIN_MANAGER_PATH': '/home/will/.tmux/plugins/', 'USER': 'will', 'WINDOWID': '27262978', 'XAUTHORITY': '/home/will/.Xauthority', 'XDG_CURRENT_DESKTOP': 'i3', 'XDG_RUNTIME_DIR': '/run/user/1001', 'XDG_SEAT': 'seat0', 'XDG_SESSION_ID': 'c1', 'XDG_VTNR': '1', '_': '/usr/bin/tox', 'bash': '/home/will/progs/bash', 'batch': '/home/will/progs/batch', 'btsync': '/home/will/btsync', 'config': '/home/will/progs/config', 'cpp': '/home/will/progs/cpp', 'cron': '/home/cron', 'dev': '/home/will/dev', 'devenv': '/home/will/progs/devenv', 'iphone': '/home/will/progs/iphone/general', 'log': '/home/logs', 'lxc': '/var/lib/lxc', 'mayai': '/usr/autodesk/maya2015-x64', 'media': '/home/media', 'notes': '/home/will/btsync/docs/notes', 'progs': '/home/will/progs', 'python': '/home/will/progs/python', 'qbasic': '/home/will/progs/qbasic', 'saltstack': '/home/will/progs/saltstack', 'servicefiles': '/usr/lib/systemd/system', 'src': '/home/src', 'todo': '/home/will/progs/todo', 'tsync': '/home/will/tsync', 'walls': '/home/will/btsync/pers/wallpapers', 'maya': '/home/will/progs/maya/m2014', 'm2015': '/home/will/maya/2015-x64/scripts', 'm2014': '/home/will/maya/2014-x64/scripts', 'm2011': '/home/will/maya/2013-x64/scripts', 'vundle': '/home/will/.vim/bundle', 'HOSTNAME': 'wintermute', 'START': 'no', 'QT_API': 'pyqt5', 'QT_PREFERRED_BINDING': 'PyQt5', 'service': '/etc/systemd/system', 'PYTHONHASHSEED': '1161629238', 'VIRTUAL_ENV': '/home/will/progs/python/projects/pyqconcurrency/.tox/3.6-pyqt5'}
+
+Processing ./.tox/dist/qconcurrency-0.0a2.zip
+Building wheels for collected packages: qconcurrency
+  Running setup.py bdist_wheel for qconcurrency: started
+  Running setup.py bdist_wheel for qconcurrency: finished with status 'done'
+  Stored in directory: /home/will/.cache/pip/wheels/96/d7/7c/041a61493761f7712c8993b74b6538e68a7afd2ed4821484dc
+Successfully built qconcurrency
+Installing collected packages: qconcurrency
+  Found existing installation: qconcurrency 0.0a2
+    Uninstalling qconcurrency-0.0a2:
+      Successfully uninstalled qconcurrency-0.0a2
+Successfully installed qconcurrency-0.0a2

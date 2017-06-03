@@ -1,0 +1,23 @@
+
+QBaseObject
+===========
+
+Methods
+-------
+
+.. autosummary::
+
+   qconcurrency.QBaseObject.new_solotask
+   qconcurrency.QBaseObject.new_task
+
+
+Documentation
+-------------
+
+
+.. autoclass:: qconcurrency.QBaseObject
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+

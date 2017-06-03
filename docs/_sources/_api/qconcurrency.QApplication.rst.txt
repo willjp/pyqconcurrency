@@ -1,0 +1,31 @@
+
+QApplication
+============
+
+Attributes
+----------
+
+.. autosummary::
+
+   qconcurrency.QApplication.staticMetaObject
+
+
+Methods
+-------
+
+.. autosummary::
+
+   qconcurrency.QApplication.__init__
+   qconcurrency.QApplication.staticMetaObject
+
+
+Documentation
+-------------
+
+
+.. autoclass:: qconcurrency.QApplication
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+

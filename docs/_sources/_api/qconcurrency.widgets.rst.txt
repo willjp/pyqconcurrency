@@ -1,0 +1,15 @@
+
+qconcurrency.widgets
+====================
+
+.. module:: qconcurrency.widgets
+classes
+-------
+
+   * :doc:`qconcurrency.widgets.DictModelQComboBox`
+   * :doc:`qconcurrency.widgets.DictModelQMenu`
+   * :doc:`qconcurrency.widgets.ProgressBar`
+   * :doc:`qconcurrency.widgets.SessionList`
+   * :doc:`qconcurrency.widgets.SessionListItem`
+
+

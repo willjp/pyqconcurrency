@@ -1,0 +1,434 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>qconcurrency.widgets._sessionwidgets_._basewidgets_ &#8212; pyqconcurrency 0.0.a1 documentation</title>
+    
+    <link rel="stylesheet" href="../../../../_static/pyramid.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../../',
+        VERSION:     '0.0.a1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Neuton&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nobile:regular,italic,bold,bolditalic&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<!--[if lte IE 6]>
+<link rel="stylesheet" href="../../../../_static/ie6.css" type="text/css" media="screen" charset="utf-8" />
+<![endif]-->
+
+  </head>
+  <body>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pyqconcurrency 0.0.a1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../../qconcurrency.html" accesskey="U">qconcurrency</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for qconcurrency.widgets._sessionwidgets_._basewidgets_</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Name :          qconcurrency.widgets._updaterwidgets_.updaterlist_.py</span>
+<span class="sd">Created :       May 25, 2017</span>
+<span class="sd">Author :        Will Pittman</span>
+<span class="sd">Contact :       willjpittman@gmail.com</span>
+<span class="sd">________________________________________________________________________________</span>
+<span class="sd">Description :   Widgets to use as baseclasses for other widgets within this</span>
+<span class="sd">                system.</span>
+<span class="sd">________________________________________________________________________________</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="c1">#builtin</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">unicode_literals</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">absolute_import</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">division</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">print_function</span>
+<span class="kn">import</span> <span class="nn">uuid</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="c1">#package</span>
+<span class="c1">#external</span>
+<span class="kn">from</span> <span class="nn">Qt</span> <span class="k">import</span> <span class="n">QtWidgets</span><span class="p">,</span> <span class="n">QtCore</span><span class="p">,</span> <span class="n">QtGui</span>
+<span class="c1">#internal</span>
+
+
+<div class="viewcode-block" id="SessionWidgetBase"><a class="viewcode-back" href="../../../../_api/qconcurrency.widgets._sessionwidgets_.SessionWidgetBase.html#qconcurrency.widgets._sessionwidgets_.SessionWidgetBase">[docs]</a><span class="k">class</span> <span class="nc">SessionWidgetBase</span><span class="p">(</span> <span class="nb">object</span> <span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    BaseWidget for SessionWidgets.</span>
+
+<span class="sd">    SessionWidgets are collection-widgets that are designed to</span>
+<span class="sd">    allow the user to perform several operations, and then save</span>
+<span class="sd">    them all at once.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">save_requested</span> <span class="o">=</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">Signal</span><span class="p">(</span> <span class="nb">dict</span> <span class="p">)</span> <span class="c1">#: output of :py:meth:`get_changes`</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_items</span>        <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_newitems</span>     <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_delitems</span>     <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_changeditems</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+
+<div class="viewcode-block" id="SessionWidgetBase.has_changes"><a class="viewcode-back" href="../../../../_api/qconcurrency.widgets._sessionwidgets_.SessionWidgetBase.html#qconcurrency.widgets._sessionwidgets_.SessionWidgetBase.has_changes">[docs]</a>    <span class="k">def</span> <span class="nf">has_changes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns True if this widget has any unsaved changes.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">any</span><span class="p">([</span> <span class="bp">self</span><span class="o">.</span><span class="n">_newitems</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_delitems</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_changeditems</span> <span class="p">]):</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="SessionWidgetBase.get_changes"><a class="viewcode-back" href="../../../../_api/qconcurrency.widgets._sessionwidgets_.SessionWidgetBase.html#qconcurrency.widgets._sessionwidgets_.SessionWidgetBase.get_changes">[docs]</a>    <span class="k">def</span> <span class="nf">get_changes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a dict of unsaved changes that this</span>
+<span class="sd">        widget contains.</span>
+
+<span class="sd">        Returns:</span>
+
+<span class="sd">            .. code-block:: python</span>
+
+<span class="sd">                {</span>
+<span class="sd">                    &#39;new&#39;:     { _id : widget, ... },</span>
+<span class="sd">                    &#39;deleted&#39;: set([ _id, _id, ... ]),</span>
+<span class="sd">                    &#39;changed&#39;: { _id : widget, ... },</span>
+<span class="sd">                }</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">newitems</span>     <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">delitems</span>     <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">changeditems</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">for</span> <span class="n">_id</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_newitems</span><span class="p">:</span>
+            <span class="n">newitems</span><span class="p">[</span><span class="n">_id</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_items</span><span class="p">[</span><span class="n">_id</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">_id</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_changeditems</span><span class="p">:</span>
+            <span class="n">changeditems</span><span class="p">[</span><span class="n">_id</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_items</span><span class="p">[</span><span class="n">_id</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s1">&#39;new&#39;</span><span class="p">:</span>     <span class="n">newitems</span><span class="p">,</span>
+            <span class="s1">&#39;deleted&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_delitems</span><span class="p">,</span>
+            <span class="s1">&#39;changed&#39;</span><span class="p">:</span> <span class="n">changeditems</span><span class="p">,</span>
+        <span class="p">}</span></div>
+
+<div class="viewcode-block" id="SessionWidgetBase.save_changes"><a class="viewcode-back" href="../../../../_api/qconcurrency.widgets._sessionwidgets_.SessionWidgetBase.html#qconcurrency.widgets._sessionwidgets_.SessionWidgetBase.save_changes">[docs]</a>    <span class="k">def</span> <span class="nf">save_changes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        If checks for unsaved new,changed, or deleted items,</span>
+<span class="sd">        and if changes exist, emits :py:attr:`save_requested` signal.</span>
+
+<span class="sd">        It is up to the calling class/method to handle</span>
+<span class="sd">        the actual saving of the information, and as items</span>
+<span class="sd">        are saved, this widget can be updated using the method</span>
+<span class="sd">        :py:meth:`SessionWidgetItemBase.set_saved`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_changes</span><span class="p">():</span>
+            <span class="k">return</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">save_requested</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_changes</span><span class="p">()</span> <span class="p">)</span></div>
+
+<div class="viewcode-block" id="SessionWidgetBase.items"><a class="viewcode-back" href="../../../../_api/qconcurrency.widgets._sessionwidgets_.SessionWidgetBase.html#qconcurrency.widgets._sessionwidgets_.SessionWidgetBase.items">[docs]</a>    <span class="k">def</span> <span class="nf">items</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a dictionary in the format of ``{ _id:item }``</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_items</span></div></div>
+
+
+
+<div class="viewcode-block" id="SessionWidgetItemBase"><a class="viewcode-back" href="../../../../_api/qconcurrency.widgets._sessionwidgets_.SessionWidgetItemBase.html#qconcurrency.widgets._sessionwidgets_.SessionWidgetItemBase">[docs]</a><span class="k">class</span> <span class="nc">SessionWidgetItemBase</span><span class="p">(</span> <span class="nb">object</span> <span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Parent class for all SessionWidgetItems</span>
+<span class="sd">    (items that get added a :py:obj:`SessionWidget`</span>
+
+<span class="sd">    Establishes consistent variables for subclasses,</span>
+<span class="sd">    and provides convenience methods.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">status_changed</span> <span class="o">=</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">Signal</span><span class="p">(</span> <span class="nb">object</span><span class="p">,</span> <span class="nb">bool</span><span class="p">,</span> <span class="nb">bool</span><span class="p">,</span> <span class="nb">bool</span> <span class="p">)</span>  <span class="c1"># (self, is_new, is_changed, is_editable )</span>
+<div class="viewcode-block" id="SessionWidgetItemBase.__init__"><a class="viewcode-back" href="../../../../_api/qconcurrency.widgets._sessionwidgets_.SessionWidgetItemBase.html#qconcurrency.widgets._sessionwidgets_.SessionWidgetItemBase.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">,</span> <span class="n">_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">saved_val</span><span class="o">=</span><span class="kc">None</span> <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            val (object):</span>
+<span class="sd">                The value assigned to your object.</span>
+<span class="sd">                This will be displayed in the widget.</span>
+
+<span class="sd">            _id (str, int, optional):</span>
+<span class="sd">                An id, unique to the collection of items the main.</span>
+<span class="sd">                If this is a new item (no saved_val is provided)</span>
+<span class="sd">                this argument is optional, and a uuid will be assigned</span>
+<span class="sd">                in it&#39;s place.</span>
+
+<span class="sd">            saved_val (object, optional):</span>
+<span class="sd">                The value stored in long-term-storage.</span>
+<span class="sd">                (database, json, etc). The presence of this</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">saved_val</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">is_new</span>    <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">saved_val</span> <span class="o">=</span> <span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">()</span><span class="o">.</span><span class="n">hex</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">is_new</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="c1">## Attributes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_saved_val</span>   <span class="o">=</span> <span class="n">saved_val</span>                   <span class="c1"># value saved in database</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_is_new</span>      <span class="o">=</span> <span class="n">is_new</span>                      <span class="c1"># True/False if item is entirely untracked in database</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_is_changed</span>  <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span> <span class="n">val</span> <span class="o">!=</span> <span class="n">saved_val</span> <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_is_editable</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_id</span>          <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_id</span><span class="p">(</span> <span class="n">_id</span><span class="p">,</span> <span class="n">is_new</span> <span class="p">)</span> <span class="c1"># databaseId, or uuid for new items</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_val</span>         <span class="o">=</span> <span class="n">val</span>                         <span class="c1"># the current value of the widget</span></div>
+
+    <span class="k">def</span> <span class="nf">_get_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">_id</span><span class="p">,</span> <span class="n">is_new</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a value for `_id`.</span>
+
+<span class="sd">            * if the item is new and an id has been assigned to it, use that.</span>
+<span class="sd">            * if the item is new, and no Id has been assigned to it, a uuid is assigned.</span>
+<span class="sd">            * if the item is not new, and an id has been assigned to it, use that.</span>
+
+<span class="sd">            * if the item is not new, and no id has been assigned, error.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            _id (str, int, optional):</span>
+<span class="sd">                An id, unique to the collection of items the main.</span>
+<span class="sd">                If this is a new item (no saved_val is provided)</span>
+<span class="sd">                this argument is optional, and a uuid will be assigned</span>
+<span class="sd">                in it&#39;s place.</span>
+
+<span class="sd">            is_new (bool):</span>
+<span class="sd">                True/False indicating if this object represents an item</span>
+<span class="sd">                that is not saved in long-term-storage.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">_id</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">is_new</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                <span class="s1">&#39;Non New items are expected to already be assigned a value for `_id`&#39;</span>
+                <span class="s1">&#39;and ``__init__`` should be provided with it&#39;</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">_id</span><span class="p">:</span>  <span class="n">_id</span> <span class="o">=</span> <span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">()</span><span class="o">.</span><span class="n">hex</span>
+        <span class="k">else</span><span class="p">:</span>        <span class="n">_id</span> <span class="o">=</span> <span class="n">_id</span>
+
+        <span class="k">return</span> <span class="n">_id</span>
+
+<div class="viewcode-block" id="SessionWidgetItemBase.get_savedval"><a class="viewcode-back" href="../../../../_api/qconcurrency.widgets._sessionwidgets_.SessionWidgetItemBase.html#qconcurrency.widgets._sessionwidgets_.SessionWidgetItemBase.get_savedval">[docs]</a>    <span class="k">def</span> <span class="nf">get_savedval</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the value that is currently saved in the database.</span>
+
+<span class="sd">        .. note::</span>
+
+<span class="sd">            If this is a new item, ``None`` will be returned.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_new</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_saved_val</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">refresh_status</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="SessionWidgetItemBase.set_saved"><a class="viewcode-back" href="../../../../_api/qconcurrency.widgets._sessionwidgets_.SessionWidgetItemBase.html#qconcurrency.widgets._sessionwidgets_.SessionWidgetItemBase.set_saved">[docs]</a>    <span class="k">def</span> <span class="nf">set_saved</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">_id</span><span class="o">=</span><span class="kc">None</span> <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Marks the information represented by this widget as</span>
+<span class="sd">        correct, and saved into long-term storage.</span>
+
+<span class="sd">            * Changes the item&#39;s id *(if _id is specified )*</span>
+<span class="sd">            * sets the current val to ``self._saved_val``</span>
+<span class="sd">            * calls ``self.refresh_status()``</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            _id (object, optional):</span>
+<span class="sd">                If the long-term-storage id has changed as</span>
+<span class="sd">                a result of this widget&#39;s info being saved,</span>
+<span class="sd">                you may provide a new value for ``self._id``</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">_id</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_id</span> <span class="o">=</span> <span class="n">_id</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_saved_val</span>  <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_value</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_new</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_changed</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_is_new</span>     <span class="o">=</span> <span class="kc">False</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_is_changed</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">status_changed</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span>
+                <span class="bp">self</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_is_new</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_is_changed</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">is_editable</span><span class="p">(),</span>
+            <span class="p">)</span></div>
+
+<div class="viewcode-block" id="SessionWidgetItemBase.get_value"><a class="viewcode-back" href="../../../../_api/qconcurrency.widgets._sessionwidgets_.SessionWidgetItemBase.html#qconcurrency.widgets._sessionwidgets_.SessionWidgetItemBase.get_value">[docs]</a>    <span class="k">def</span> <span class="nf">get_value</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        A dummy method that should be re-implemented in</span>
+<span class="sd">        subclasses of :py:obj:`SessionWidgetItemBase`.</span>
+
+<span class="sd">        This method should retrieve the current value from</span>
+<span class="sd">        the widget.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+            <span class="s1">&#39;</span><span class="si">%s</span><span class="s1"> has not implemented the method `refresh_status`&#39;</span> <span class="o">%</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
+            <span class="p">)</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="SessionWidgetItemBase.refresh_status"><a class="viewcode-back" href="../../../../_api/qconcurrency.widgets._sessionwidgets_.SessionWidgetItemBase.html#qconcurrency.widgets._sessionwidgets_.SessionWidgetItemBase.refresh_status">[docs]</a>    <span class="k">def</span> <span class="nf">refresh_status</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Re-Checks all status information, refreshing it&#39;s</span>
+<span class="sd">        internal status, and emitting :py:attr:`status_changed`</span>
+<span class="sd">        if it has changed.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Check for changes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_val</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_value</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_val</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">_saved_val</span><span class="p">:</span>   <span class="n">is_changed</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">else</span><span class="p">:</span>                              <span class="n">is_changed</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="n">is_new</span>      <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_new</span><span class="p">()</span>
+
+        <span class="n">is_editable</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_editable</span><span class="p">()</span>
+
+        <span class="c1"># (is_new only changes in `self.set_saved`)</span>
+        <span class="k">if</span> <span class="nb">any</span><span class="p">([</span>
+                <span class="n">is_changed</span>    <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_changed</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">is_new</span><span class="p">()</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_new</span><span class="p">,</span>
+                <span class="n">is_editable</span>   <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_editable</span><span class="p">,</span>
+            <span class="p">]):</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_is_changed</span>  <span class="o">=</span> <span class="n">is_changed</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_is_editable</span> <span class="o">=</span> <span class="n">is_editable</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_is_new</span>      <span class="o">=</span> <span class="n">is_new</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">status_changed</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span>
+                <span class="bp">self</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_is_new</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_is_changed</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">is_editable</span><span class="p">(),</span>
+            <span class="p">)</span></div>
+
+<div class="viewcode-block" id="SessionWidgetItemBase.is_changed"><a class="viewcode-back" href="../../../../_api/qconcurrency.widgets._sessionwidgets_.SessionWidgetItemBase.html#qconcurrency.widgets._sessionwidgets_.SessionWidgetItemBase.is_changed">[docs]</a>    <span class="k">def</span> <span class="nf">is_changed</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns True/False if the widget&#39;s current value is different</span>
+<span class="sd">        than it&#39;s saved-value.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_new</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_value</span><span class="p">()</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">_saved_val</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="SessionWidgetItemBase.is_new"><a class="viewcode-back" href="../../../../_api/qconcurrency.widgets._sessionwidgets_.SessionWidgetItemBase.html#qconcurrency.widgets._sessionwidgets_.SessionWidgetItemBase.is_new">[docs]</a>    <span class="k">def</span> <span class="nf">is_new</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns True/False if the widget is new or not.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_new</span></div>
+
+<div class="viewcode-block" id="SessionWidgetItemBase.is_editable"><a class="viewcode-back" href="../../../../_api/qconcurrency.widgets._sessionwidgets_.SessionWidgetItemBase.html#qconcurrency.widgets._sessionwidgets_.SessionWidgetItemBase.is_editable">[docs]</a>    <span class="k">def</span> <span class="nf">is_editable</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns ``True`` if the widget is currently editable.</span>
+<span class="sd">        Otherwise returns ``False``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">flags</span><span class="p">()</span> <span class="o">&amp;</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">ItemIsEditable</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_is_editable</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">return</span> <span class="kc">True</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_is_editable</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="SessionWidgetItemBase.setFlags"><a class="viewcode-back" href="../../../../_api/qconcurrency.widgets._sessionwidgets_.SessionWidgetItemBase.html#qconcurrency.widgets._sessionwidgets_.SessionWidgetItemBase.setFlags">[docs]</a>    <span class="k">def</span> <span class="nf">setFlags</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="o">*</span><span class="n">args</span><span class="p">,</span><span class="o">**</span><span class="n">kwds</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets the widget&#39;s flags, then checks if there is a change</span>
+<span class="sd">        to the editable status (emitting :py:attr:`status_changed`</span>
+<span class="sd">        if there is a change).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">orig_status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_editable</span><span class="p">()</span>
+        <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QListWidgetItem</span><span class="o">.</span><span class="n">setFlags</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="o">*</span><span class="n">args</span><span class="p">,</span><span class="o">**</span><span class="n">kwds</span><span class="p">)</span>
+
+        <span class="n">is_editable</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_editable</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">is_editable</span> <span class="o">!=</span> <span class="n">orig_status</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">status_changed</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span>
+                <span class="bp">self</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_is_new</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_is_changed</span><span class="p">,</span>
+                <span class="n">is_editable</span><span class="p">,</span>
+            <span class="p">)</span></div>
+
+<div class="viewcode-block" id="SessionWidgetItemBase.id"><a class="viewcode-back" href="../../../../_api/qconcurrency.widgets._sessionwidgets_.SessionWidgetItemBase.html#qconcurrency.widgets._sessionwidgets_.SessionWidgetItemBase.id">[docs]</a>    <span class="k">def</span> <span class="nf">id</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the item&#39;s Id</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_id</span></div></div>
+
+
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="k">pass</span>
+
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pyqconcurrency 0.0.a1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../../qconcurrency.html" >qconcurrency</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2017, Will Pittman.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.1.
+    </div>
+  </body>
+</html>
