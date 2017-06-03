@@ -1,6 +1,6 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
@@ -33,7 +33,7 @@
 <![endif]-->
 
   </head>
-  <body role="document">
+  <body>
 
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
@@ -81,7 +81,8 @@
 <span class="kn">import</span> <span class="nn">six</span>
 <span class="c1">#internal</span>
 <span class="kn">from</span>   <span class="nn">qconcurrency.exceptions_</span>   <span class="k">import</span> <span class="o">*</span>
-<span class="kn">from</span>   <span class="nn">qconcurrency._qbasewindow_</span> <span class="k">import</span> <span class="n">QBaseWindow</span>
+<span class="kn">from</span>   <span class="nn">qconcurrency._qbasewindow_</span> <span class="k">import</span> <span class="n">QBaseWindow</span><span class="p">,</span> <span class="n">QBaseObject</span>
+<span class="kn">from</span>   <span class="nn">qconcurrency._fake_</span>        <span class="k">import</span> <span class="o">*</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 <span class="n">loc</span>    <span class="o">=</span> <span class="nb">locals</span>
@@ -90,52 +91,8 @@
     <span class="s1">&#39;Fake&#39;</span><span class="p">,</span>
     <span class="s1">&#39;QApplication&#39;</span><span class="p">,</span>
     <span class="s1">&#39;QBaseWindow&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;QBaseObject&#39;</span><span class="p">,</span>
 <span class="p">]</span>
-
-<div class="viewcode-block" id="Fake"><a class="viewcode-back" href="../_api/qconcurrency.Fake.html#qconcurrency.Fake">[docs]</a><span class="k">class</span> <span class="nc">Fake</span><span class="p">(</span> <span class="nb">object</span> <span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    A fake standin object, that allows you to get/call non-existant</span>
-<span class="sd">    attributes on it. Like :py:obj:`mock.Mock`, but more portable</span>
-<span class="sd">    and less utilitarian (this will work, for example in cx_freeze_).</span>
-
-<span class="sd">    .. _cx_freeze: https://anthony-tuininga.github.io/cx_Freeze/</span>
-
-<span class="sd">    This exists in this library so that you may define</span>
-<span class="sd">    methods that can be used within :py:obj:`ThreadedTask` ,</span>
-<span class="sd">    but can also be called outside of a thread (simply ignoring all signals)</span>
-
-<span class="sd">    Example:</span>
-
-<span class="sd">        .. code-block:: python</span>
-
-<span class="sd">            Fake()</span>
-<span class="sd">            &gt;&gt;&gt; &lt;qconcurrency.Fake object at 0x7fef27891c10&gt;</span>
-
-<span class="sd">            Fake().fake.fake.fake</span>
-<span class="sd">            &gt;&gt;&gt; &lt;qconcurrency.Fake object at 0x7fef27774450&gt;</span>
-
-<span class="sd">            Fake().fake.fake.fake( &#39;cool&#39;, &#39;you get the point&#39; )</span>
-<span class="sd">            &gt;&gt;&gt; &lt;qconcurrency.Fake object at 0x7fef277123c0&gt;</span>
-
-
-<span class="sd">    &quot;&quot;&quot;</span>
-<div class="viewcode-block" id="Fake.__init__"><a class="viewcode-back" href="../_api/qconcurrency.Fake.html#qconcurrency.Fake.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span> <span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Accepts/ignores any number of parameters</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="nb">object</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
-
-    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="o">*</span><span class="n">args</span><span class="p">,</span><span class="o">**</span><span class="n">kwds</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">Fake</span><span class="p">()</span>
-
-    <span class="k">def</span> <span class="nf">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">yield</span> <span class="n">Fake</span><span class="p">()</span>
-
-    <span class="k">def</span> <span class="nf">__getattribute__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Accepts/ignores any request for an attribute</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">Fake</span><span class="p">()</span></div>
 
 
 
@@ -208,16 +165,6 @@
     <span class="kn">import</span> <span class="nn">supercli.logging</span>
     <span class="n">supercli</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">SetLog</span><span class="p">(</span><span class="n">lv</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">test_fake</span><span class="p">():</span>
-        <span class="n">fake</span> <span class="o">=</span> <span class="n">Fake</span><span class="p">()</span>
-        <span class="nb">print</span><span class="p">(</span> <span class="n">fake</span><span class="o">.</span><span class="n">fake</span><span class="o">.</span><span class="n">fake</span> <span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">runtests</span><span class="p">():</span>
-        <span class="c1">#test_fake()</span>
-        <span class="n">test_qbasewindow</span><span class="p">()</span>
-
-    <span class="n">runtests</span><span class="p">()</span>
-
 </pre></div>
 
           </div>
@@ -254,7 +201,7 @@
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2017, Will Pittman.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.5.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.1.
     </div>
   </body>
 </html>

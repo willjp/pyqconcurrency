@@ -1,6 +1,6 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
@@ -33,7 +33,7 @@
 <![endif]-->
 
   </head>
-  <body role="document">
+  <body>
 
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
@@ -68,17 +68,21 @@
 <span class="sd">________________________________________________________________________________</span>
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="c1">#builtin</span>
-<span class="kn">from</span> <span class="nn">__future__</span>    <span class="k">import</span> <span class="n">unicode_literals</span>
-<span class="kn">from</span> <span class="nn">__future__</span>    <span class="k">import</span> <span class="n">absolute_import</span>
-<span class="kn">from</span> <span class="nn">__future__</span>    <span class="k">import</span> <span class="n">division</span>
-<span class="kn">from</span> <span class="nn">__future__</span>    <span class="k">import</span> <span class="n">print_function</span>
+<span class="kn">from</span>   <span class="nn">__future__</span>    <span class="k">import</span> <span class="n">unicode_literals</span>
+<span class="kn">from</span>   <span class="nn">__future__</span>    <span class="k">import</span> <span class="n">absolute_import</span>
+<span class="kn">from</span>   <span class="nn">__future__</span>    <span class="k">import</span> <span class="n">division</span>
+<span class="kn">from</span>   <span class="nn">__future__</span>    <span class="k">import</span> <span class="n">print_function</span>
+<span class="kn">from</span>   <span class="nn">collections</span>   <span class="k">import</span> <span class="n">Iterable</span>
+<span class="kn">import</span> <span class="nn">uuid</span>
+<span class="kn">import</span> <span class="nn">functools</span>
 <span class="c1">#external</span>
 <span class="kn">from</span>   <span class="nn">Qt</span> <span class="k">import</span> <span class="n">QtCore</span><span class="p">,</span> <span class="n">QtWidgets</span>
 <span class="kn">import</span> <span class="nn">six</span>
 <span class="c1">#internal</span>
-<span class="kn">from</span>   <span class="nn">qconcurrency.exceptions_</span>  <span class="k">import</span> <span class="o">*</span>
+<span class="kn">from</span>   <span class="nn">qconcurrency.exceptions_</span>   <span class="k">import</span> <span class="o">*</span>
 <span class="kn">from</span>   <span class="nn">qconcurrency.threading_</span>    <span class="k">import</span> <span class="n">ThreadedTask</span><span class="p">,</span> <span class="n">SoloThreadedTask</span>
-<span class="kn">from</span>   <span class="nn">qconcurrency.widgets</span>      <span class="k">import</span> <span class="n">ProgressBar</span>
+<span class="kn">from</span>   <span class="nn">qconcurrency.widgets</span>       <span class="k">import</span> <span class="n">ProgressBar</span>
+<span class="kn">from</span>   <span class="nn">qconcurrency._fake_</span>        <span class="k">import</span> <span class="n">Fake</span>
 
 <span class="c1">#!TODO: handle request-abort</span>
 
@@ -88,9 +92,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_title</span>  <span class="o">=</span> <span class="n">title</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_layout</span> <span class="o">=</span> <span class="kc">None</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_initui</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="nf">_initui</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># Build Widgets</span>
         <span class="c1"># =============</span>
         <span class="n">layout</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QVBoxLayout</span><span class="p">()</span>
@@ -122,13 +124,154 @@
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">task</span></div>
 
-<div class="viewcode-block" id="QBaseWindow.new_solotask"><a class="viewcode-back" href="../../_api/qconcurrency.QBaseWindow.html#qconcurrency.QBaseWindow.new_solotask">[docs]</a>    <span class="k">def</span> <span class="nf">new_solotask</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">,</span> <span class="n">signals</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mutex_expiry</span><span class="o">=</span><span class="mi">5000</span><span class="p">):</span>
+<div class="viewcode-block" id="QBaseWindow.new_solotask"><a class="viewcode-back" href="../../_api/qconcurrency.QBaseWindow.html#qconcurrency.QBaseWindow.new_solotask">[docs]</a>    <span class="k">def</span> <span class="nf">new_solotask</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">,</span> <span class="n">signals</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">connections</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mutex_expiry</span><span class="o">=</span><span class="mi">5000</span><span class="p">):</span>
+
         <span class="n">solotask</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_progressbar</span><span class="o">.</span><span class="n">new_solotask</span><span class="p">(</span>
             <span class="n">callback</span>     <span class="o">=</span> <span class="n">callback</span><span class="p">,</span>
             <span class="n">signals</span>      <span class="o">=</span> <span class="n">signals</span><span class="p">,</span>
+            <span class="n">connections</span>  <span class="o">=</span> <span class="n">connections</span><span class="p">,</span>
             <span class="n">mutex_expiry</span> <span class="o">=</span> <span class="n">mutex_expiry</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">solotask</span></div></div>
+
+
+
+<span class="k">class</span> <span class="nc">_ProgressSoloThreadedTask_QBaseObject</span><span class="p">(</span> <span class="n">SoloThreadedTask</span> <span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    SoloThreadedTask subclass that fakes an interface to a progressbar</span>
+<span class="sd">    for a QBaseObject. If a progressbar is not available in the parent-widget-hierarchy</span>
+<span class="sd">    of the QBaseObject (if it is even a widget), then the signals will not be</span>
+<span class="sd">    connected to anything.</span>
+
+
+<span class="sd">    QBaseObjects do not necessarily become widgets, and even</span>
+<span class="sd">    if they do they are not necessarily always going to be parented to</span>
+<span class="sd">    a :py:obj:`QBaseWindow`.</span>
+
+<span class="sd">    Whenever a SoloThreadedTask is started from here, it checks</span>
+<span class="sd">    to see if the :py:obj:`QBaseObject` has a parent, and if that parent</span>
+<span class="sd">    has a `progressbar` method. If all of the stars line up, that window&#39;s</span>
+<span class="sd">    progressbar will be used by the `add_progress` and `incr_progress` signals</span>
+<span class="sd">    available on the :py:obj:`SoloThreadedTask` s :py:obj:`SignalManager`.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qbaseobject</span><span class="p">,</span> <span class="n">callback</span><span class="p">,</span> <span class="n">signals</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">connections</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mutex_expiry</span><span class="o">=</span><span class="mi">5000</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            qbaseobject (QBaseObject):</span>
+<span class="sd">                The QBaseObject instance this is attached to. Whenever the task</span>
+<span class="sd">                is started, it will be checked for a parent window/progressbar.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_qbaseobject</span> <span class="o">=</span> <span class="n">qbaseobject</span>
+        <span class="n">SoloThreadedTask</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+            <span class="n">callback</span>     <span class="o">=</span> <span class="n">callback</span><span class="p">,</span>
+            <span class="n">signals</span>      <span class="o">=</span> <span class="n">signals</span><span class="p">,</span>
+            <span class="n">connections</span>  <span class="o">=</span> <span class="n">connections</span><span class="p">,</span>
+            <span class="n">mutex_expiry</span> <span class="o">=</span> <span class="n">mutex_expiry</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">start</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">expiryTimeout</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">threadpool</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span> <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Looks for/connects the progressbar.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">jobid</span> <span class="o">=</span> <span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">()</span><span class="o">.</span><span class="n">hex</span>
+
+        <span class="c1"># check if this QBaseObject has a parent window,</span>
+        <span class="c1"># and if that window has a method called `progressbar`</span>
+        <span class="c1"># (presumably yielding a progressbar)</span>
+        <span class="n">progressbar</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">_qbaseobject</span><span class="p">,</span> <span class="s1">&#39;window&#39;</span> <span class="p">):</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">_qbaseobject</span><span class="o">.</span><span class="n">window</span><span class="p">(),</span> <span class="s1">&#39;progressbar&#39;</span> <span class="p">):</span>
+                <span class="n">progressbar</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_qbaseobject</span><span class="o">.</span><span class="n">window</span><span class="p">()</span><span class="o">.</span><span class="n">progressbar</span><span class="p">()</span>
+
+
+        <span class="c1"># default arguments</span>
+        <span class="n">connections</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_connections</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">connections</span><span class="p">:</span>
+            <span class="n">connections</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">if</span> <span class="n">progressbar</span><span class="p">:</span>
+            <span class="n">progbar_connections</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s1">&#39;incr_progress&#39;</span> <span class="p">:</span> <span class="n">functools</span><span class="o">.</span><span class="n">partial</span><span class="p">(</span> <span class="n">progressbar</span><span class="o">.</span><span class="n">incr_progress</span><span class="p">,</span> <span class="n">jobid</span><span class="o">=</span><span class="n">jobid</span> <span class="p">),</span>
+                <span class="s1">&#39;add_progress&#39;</span>  <span class="p">:</span> <span class="n">functools</span><span class="o">.</span><span class="n">partial</span><span class="p">(</span> <span class="n">progressbar</span><span class="o">.</span><span class="n">add_progress</span><span class="p">,</span>  <span class="n">jobid</span><span class="o">=</span><span class="n">jobid</span> <span class="p">),</span>
+                <span class="s1">&#39;returned&#39;</span>      <span class="p">:</span> <span class="n">functools</span><span class="o">.</span><span class="n">partial</span><span class="p">(</span> <span class="n">progressbar</span><span class="o">.</span><span class="n">_handle_return_or_abort</span><span class="p">,</span> <span class="n">jobid</span><span class="o">=</span><span class="n">jobid</span> <span class="p">),</span>
+                <span class="s1">&#39;exception&#39;</span>     <span class="p">:</span> <span class="n">functools</span><span class="o">.</span><span class="n">partial</span><span class="p">(</span> <span class="n">progressbar</span><span class="o">.</span><span class="n">_handle_return_or_abort</span><span class="p">,</span> <span class="n">jobid</span><span class="o">=</span><span class="n">jobid</span> <span class="p">),</span>
+            <span class="p">}</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">progbar_connections</span> <span class="o">=</span> <span class="p">{}</span>
+
+
+        <span class="k">for</span> <span class="n">signal</span> <span class="ow">in</span> <span class="n">progbar_connections</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">signal</span> <span class="ow">in</span> <span class="n">connections</span><span class="p">:</span>
+                <span class="n">connections</span><span class="p">[</span> <span class="n">signal</span> <span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">progbar_connections</span><span class="p">[</span><span class="n">signal</span><span class="p">]</span> <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">connections</span><span class="p">[</span> <span class="n">signal</span> <span class="p">]</span> <span class="o">=</span> <span class="p">[</span> <span class="n">progbar_connections</span><span class="p">[</span><span class="n">signal</span><span class="p">]</span> <span class="p">]</span>
+
+
+        <span class="n">SoloThreadedTask</span><span class="o">.</span><span class="n">start</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                           <span class="n">expiryTimeout</span> <span class="o">=</span> <span class="n">expiryTimeout</span><span class="p">,</span>
+                           <span class="n">threadpool</span>    <span class="o">=</span> <span class="n">threadpool</span><span class="p">,</span>
+                           <span class="n">wait</span>          <span class="o">=</span> <span class="n">wait</span><span class="p">,</span>
+                           <span class="n">_connections</span>  <span class="o">=</span> <span class="n">connections</span><span class="p">,</span>
+                           <span class="o">*</span><span class="n">args</span><span class="p">,</span><span class="o">**</span><span class="n">kwds</span>
+                       <span class="p">)</span>
+
+
+
+<div class="viewcode-block" id="QBaseObject"><a class="viewcode-back" href="../../_api/qconcurrency.QBaseObject.html#qconcurrency.QBaseObject">[docs]</a><span class="k">class</span> <span class="nc">QBaseObject</span><span class="p">(</span> <span class="nb">object</span> <span class="p">):</span>
+<div class="viewcode-block" id="QBaseObject.new_task"><a class="viewcode-back" href="../../_api/qconcurrency.QBaseObject.html#qconcurrency.QBaseObject.new_task">[docs]</a>    <span class="k">def</span> <span class="nf">new_task</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">,</span> <span class="n">signals</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span><span class="p">):</span>
+
+        <span class="c1"># assign signals</span>
+        <span class="n">default_signals</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;incr_progress&#39;</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+            <span class="s1">&#39;add_progress&#39;</span><span class="p">:</span>  <span class="nb">int</span><span class="p">,</span>
+        <span class="p">}</span>
+
+        <span class="k">if</span> <span class="n">signals</span><span class="p">:</span>
+            <span class="n">default_signals</span><span class="o">.</span><span class="n">update</span><span class="p">(</span> <span class="n">signals</span> <span class="p">)</span>
+
+        <span class="n">task</span> <span class="o">=</span> <span class="n">ThreadedTask</span><span class="p">(</span>
+            <span class="n">callback</span> <span class="o">=</span> <span class="n">callback</span><span class="p">,</span>
+            <span class="n">signals</span>  <span class="o">=</span> <span class="n">default_signals</span><span class="p">,</span>
+            <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">task</span></div>
+
+<div class="viewcode-block" id="QBaseObject.new_solotask"><a class="viewcode-back" href="../../_api/qconcurrency.QBaseObject.html#qconcurrency.QBaseObject.new_solotask">[docs]</a>    <span class="k">def</span> <span class="nf">new_solotask</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">,</span> <span class="n">signals</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">connections</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mutex_expiry</span><span class="o">=</span><span class="mi">5000</span><span class="p">):</span>
+
+        <span class="c1"># assign signals</span>
+        <span class="n">default_signals</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;incr_progress&#39;</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+            <span class="s1">&#39;add_progress&#39;</span><span class="p">:</span>  <span class="nb">int</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="n">default_connections</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">if</span> <span class="n">signals</span><span class="p">:</span>
+            <span class="n">default_signals</span><span class="o">.</span><span class="n">update</span><span class="p">(</span> <span class="n">signals</span> <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">connections</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">signal</span> <span class="ow">in</span> <span class="n">connections</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">signal</span> <span class="ow">in</span> <span class="n">default_connections</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span> <span class="n">connections</span><span class="p">[</span><span class="n">signal</span><span class="p">],</span> <span class="n">Iterable</span> <span class="p">):</span>
+                        <span class="n">default_connections</span><span class="p">[</span> <span class="n">signal</span> <span class="p">]</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span> <span class="n">connections</span><span class="p">[</span><span class="n">signal</span><span class="p">]</span> <span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">default_connections</span><span class="p">[</span> <span class="n">signal</span> <span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">connections</span><span class="p">[</span><span class="n">signal</span><span class="p">]</span> <span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">default_connections</span><span class="p">[</span> <span class="n">signal</span> <span class="p">]</span> <span class="o">=</span> <span class="n">connections</span><span class="p">[</span><span class="n">signal</span><span class="p">]</span>
+
+
+        <span class="n">solotask</span> <span class="o">=</span> <span class="n">_ProgressSoloThreadedTask_QBaseObject</span><span class="p">(</span>
+            <span class="n">qbaseobject</span>  <span class="o">=</span> <span class="bp">self</span><span class="p">,</span>
+            <span class="n">callback</span>     <span class="o">=</span> <span class="n">callback</span><span class="p">,</span>
+            <span class="n">signals</span>      <span class="o">=</span> <span class="n">default_signals</span><span class="p">,</span>
+            <span class="n">connections</span>  <span class="o">=</span> <span class="n">default_connections</span><span class="p">,</span>
+            <span class="n">mutex_expiry</span> <span class="o">=</span> <span class="n">mutex_expiry</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">solotask</span></div></div>
+
 
 
 
@@ -219,7 +362,7 @@
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2017, Will Pittman.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.5.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.1.
     </div>
   </body>
 </html>

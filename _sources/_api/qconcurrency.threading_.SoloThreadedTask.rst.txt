@@ -2,14 +2,6 @@
 SoloThreadedTask
 ================
 
-Attributes
-----------
-
-.. autosummary::
-
-   qconcurrency.threading_.SoloThreadedTask.staticMetaObject
-
-
 Methods
 -------
 
@@ -18,7 +10,6 @@ Methods
    qconcurrency.threading_.SoloThreadedTask.__init__
    qconcurrency.threading_.SoloThreadedTask.is_active
    qconcurrency.threading_.SoloThreadedTask.start
-   qconcurrency.threading_.SoloThreadedTask.staticMetaObject
    qconcurrency.threading_.SoloThreadedTask.stop
 
 

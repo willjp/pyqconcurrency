@@ -1,6 +1,6 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
@@ -33,7 +33,7 @@
 <![endif]-->
 
   </head>
-  <body role="document">
+  <body>
 
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
@@ -83,13 +83,13 @@
 <tr class="row-even"><td><a class="reference internal" href="#qconcurrency.widgets.ProgressBar.add_progress" title="qconcurrency.widgets.ProgressBar.add_progress"><code class="xref py py-obj docutils literal"><span class="pre">qconcurrency.widgets.ProgressBar.add_progress</span></code></a>(amount)</td>
 <td>Adds to the total number of required steps required to complete.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#qconcurrency.widgets.ProgressBar.incr_progress" title="qconcurrency.widgets.ProgressBar.incr_progress"><code class="xref py py-obj docutils literal"><span class="pre">qconcurrency.widgets.ProgressBar.incr_progress</span></code></a>(...)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#qconcurrency.widgets.ProgressBar.incr_progress" title="qconcurrency.widgets.ProgressBar.incr_progress"><code class="xref py py-obj docutils literal"><span class="pre">qconcurrency.widgets.ProgressBar.incr_progress</span></code></a>(…)</td>
 <td>Completes a particular number of steps for a particular jobid.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#qconcurrency.widgets.ProgressBar.new_solotask" title="qconcurrency.widgets.ProgressBar.new_solotask"><code class="xref py py-obj docutils literal"><span class="pre">qconcurrency.widgets.ProgressBar.new_solotask</span></code></a>(...)</td>
+<tr class="row-even"><td><a class="reference internal" href="#qconcurrency.widgets.ProgressBar.new_solotask" title="qconcurrency.widgets.ProgressBar.new_solotask"><code class="xref py py-obj docutils literal"><span class="pre">qconcurrency.widgets.ProgressBar.new_solotask</span></code></a>(…)</td>
 <td>Creates a new <code class="xref py py-obj docutils literal"><span class="pre">SoloThreadedTask</span></code> object, adding signals to it so that it can update this <code class="xref py py-obj docutils literal"><span class="pre">ProgressBar</span></code>.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#qconcurrency.widgets.ProgressBar.new_task" title="qconcurrency.widgets.ProgressBar.new_task"><code class="xref py py-obj docutils literal"><span class="pre">qconcurrency.widgets.ProgressBar.new_task</span></code></a>(...)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#qconcurrency.widgets.ProgressBar.new_task" title="qconcurrency.widgets.ProgressBar.new_task"><code class="xref py py-obj docutils literal"><span class="pre">qconcurrency.widgets.ProgressBar.new_task</span></code></a>(…)</td>
 <td>Creates a new <code class="xref py py-obj docutils literal"><span class="pre">ThreadedTask</span></code> object, adding signals to it so that it can update this <code class="xref py py-obj docutils literal"><span class="pre">ProgressBar</span></code>.</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="#qconcurrency.widgets.ProgressBar.refresh_progress" title="qconcurrency.widgets.ProgressBar.refresh_progress"><code class="xref py py-obj docutils literal"><span class="pre">qconcurrency.widgets.ProgressBar.refresh_progress</span></code></a>()</td>
@@ -109,7 +109,15 @@
 <dl class="class">
 <dt id="qconcurrency.widgets.ProgressBar">
 <em class="property">class </em><code class="descclassname">qconcurrency.widgets.</code><code class="descname">ProgressBar</code><a class="reference internal" href="../_modules/qconcurrency/widgets/_progressbar_.html#ProgressBar"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qconcurrency.widgets.ProgressBar" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">PySide.QtGui.QProgressBar</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">PySide.QtGui.QWidget</span></code></p>
+<p>A ProgressBar designed to track progress of several threads,
+that is hidden automatically whenever all threads have exited
+(by unhandled exception, or return).</p>
+<p>Each thread is assigned it’s own <cite>jobid</cite>, so that it’s progress
+is tracked entirely independently of all other pending tasks.
+(my hope is that if errors appear in total-calculated progress in the
+codebase, this will lessen the appearance of an error for the user - each
+thread’s progress being set to 100% once it exits).</p>
 <dl class="method">
 <dt id="qconcurrency.widgets.ProgressBar.add_progress">
 <code class="descname">add_progress</code><span class="sig-paren">(</span><em>amount</em>, <em>jobid=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qconcurrency/widgets/_progressbar_.html#ProgressBar.add_progress"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qconcurrency.widgets.ProgressBar.add_progress" title="Permalink to this definition">¶</a></dt>
@@ -126,7 +134,7 @@ a particular jobid.</p>
 
 <dl class="method">
 <dt id="qconcurrency.widgets.ProgressBar.new_solotask">
-<code class="descname">new_solotask</code><span class="sig-paren">(</span><em>callback</em>, <em>signals=None</em>, <em>mutex_expiry=5000</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qconcurrency/widgets/_progressbar_.html#ProgressBar.new_solotask"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qconcurrency.widgets.ProgressBar.new_solotask" title="Permalink to this definition">¶</a></dt>
+<code class="descname">new_solotask</code><span class="sig-paren">(</span><em>callback</em>, <em>signals=None</em>, <em>connections=None</em>, <em>mutex_expiry=5000</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qconcurrency/widgets/_progressbar_.html#ProgressBar.new_solotask"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qconcurrency.widgets.ProgressBar.new_solotask" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates a new <code class="xref py py-obj docutils literal"><span class="pre">SoloThreadedTask</span></code> object, adding
 signals to it so that it can update this <code class="xref py py-obj docutils literal"><span class="pre">ProgressBar</span></code>.</p>
 </dd></dl>
@@ -217,7 +225,7 @@ jobid.</p>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2017, Will Pittman.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.5.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.1.
     </div>
   </body>
 </html>

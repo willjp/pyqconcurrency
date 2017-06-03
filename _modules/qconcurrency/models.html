@@ -1,6 +1,6 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
@@ -33,7 +33,7 @@
 <![endif]-->
 
   </head>
-  <body role="document">
+  <body>
 
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
@@ -221,11 +221,22 @@
 <span class="sd">                If `hierarchy` is not set, this must be a list of column-names,</span>
 <span class="sd">                and they will be applicable to any level of table-nesting.</span>
 
+<span class="sd">                .. code-block:: python</span>
 
-<span class="sd">            hierarchy (list, optional):  ``(ex:  (&#39;department_type&#39;,&#39;department&#39;)  )``</span>
+<span class="sd">                    {</span>
+<span class="sd">                        &#39;jedi_class&#39;: (&#39;class&#39;,),</span>
+<span class="sd">                        &#39;user&#39;:       (&#39;firstname&#39;,&#39;lastname&#39;),</span>
+<span class="sd">                    }</span>
+
+
+<span class="sd">            hierarchy (dict, optional):  ``(ex:  (&#39;department_type&#39;,&#39;department&#39;)  )``</span>
 <span class="sd">                A list that labels what type of data is stored at each</span>
 <span class="sd">                level of table-nesting in this :py:obj:`qconcurrency.models.DictModel`. Each item</span>
 <span class="sd">                indicates another level of nesting.</span>
+
+<span class="sd">                .. code-block:: python</span>
+
+<span class="sd">                    hierarchy = (&#39;jedi_class&#39;,&#39;user&#39;),</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">QtGui</span><span class="o">.</span><span class="n">QStandardItemModel</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
@@ -279,7 +290,7 @@
 
             <span class="k">for</span> <span class="n">level</span> <span class="ow">in</span> <span class="n">hierarchy</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_defaultcolumnvals</span><span class="p">[</span> <span class="n">level</span> <span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
-                <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">columns</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">columns</span><span class="p">[</span><span class="n">level</span><span class="p">]:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">_defaultcolumnvals</span><span class="p">[</span> <span class="n">level</span> <span class="p">][</span> <span class="n">key</span> <span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 
 
@@ -319,7 +330,13 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">set_columnvals</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_defaultcolumnvals</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-        <span class="n">set_columnvals</span><span class="o">.</span><span class="n">update</span><span class="p">(</span> <span class="n">columnvals</span> <span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hierarchy</span><span class="p">:</span>
+            <span class="n">set_columnvals</span> <span class="o">=</span> <span class="n">set_columnvals</span><span class="p">[</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hierarchy</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="p">]</span>
+
+
+        <span class="k">if</span> <span class="n">columnvals</span><span class="p">:</span>
+            <span class="n">set_columnvals</span><span class="o">.</span><span class="n">update</span><span class="p">(</span> <span class="n">columnvals</span> <span class="p">)</span>
+
         <span class="n">item</span> <span class="o">=</span> <span class="n">DictModelRow</span><span class="p">(</span> <span class="n">parent</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">key</span><span class="p">,</span> <span class="n">columnvals</span><span class="o">=</span><span class="n">set_columnvals</span><span class="p">)</span>
 
         <span class="c1"># NOTE: this step should not be necessary,</span>
@@ -374,7 +391,9 @@
             <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s1">&#39;unknown level: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">level</span> <span class="p">)</span>
 
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_columns</span></div>
+            <span class="n">columns</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_columns</span><span class="p">[:])</span>
+            <span class="n">columns</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;id&#39;</span> <span class="p">)</span>
+            <span class="k">return</span> <span class="n">columns</span></div>
 
 <div class="viewcode-block" id="DictModel.column_index"><a class="viewcode-back" href="../../_api/qconcurrency.models.DictModel.html#qconcurrency.models.DictModel.column_index">[docs]</a>    <span class="k">def</span> <span class="nf">column_index</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="kc">None</span> <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -554,10 +573,6 @@
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
-        <span class="c1">#keys = []</span>
-        <span class="c1">#for i in range(self.rowCount()):</span>
-        <span class="c1">#    keys.append( self.item(i,0).id() )</span>
-        <span class="c1">#return keys</span>
 
 
 <div class="viewcode-block" id="DictModel.removeRow"><a class="viewcode-back" href="../../_api/qconcurrency.models.DictModel.html#qconcurrency.models.DictModel.removeRow">[docs]</a>    <span class="k">def</span> <span class="nf">removeRow</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
@@ -718,7 +733,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">hierarchy</span> <span class="o">=</span> <span class="n">parent</span><span class="o">.</span><span class="n">model</span><span class="p">()</span><span class="o">.</span><span class="n">hierarchy</span><span class="p">()</span>
             <span class="k">if</span> <span class="n">hierarchy</span><span class="p">:</span>
-                <span class="n">index</span> <span class="o">=</span> <span class="n">hierarchy</span><span class="o">.</span><span class="n">index</span><span class="p">(</span> <span class="n">parent</span><span class="o">.</span><span class="n">level</span><span class="p">()</span> <span class="p">)</span> <span class="o">+</span><span class="mi">1</span>
+                <span class="n">index</span> <span class="o">=</span> <span class="n">hierarchy</span><span class="o">.</span><span class="n">index</span><span class="p">(</span> <span class="n">parent</span><span class="o">.</span><span class="n">level</span><span class="p">()</span> <span class="p">)</span><span class="o">+</span><span class="mi">1</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_level</span> <span class="o">=</span> <span class="n">hierarchy</span><span class="p">[</span> <span class="n">index</span> <span class="p">]</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_level</span> <span class="o">=</span> <span class="n">parent</span><span class="o">.</span><span class="n">level</span><span class="p">()</span> <span class="o">+</span><span class="mi">1</span>
@@ -726,7 +741,8 @@
             <span class="n">parent</span><span class="o">.</span><span class="n">setChild</span><span class="p">(</span> <span class="n">parent</span><span class="o">.</span><span class="n">rowCount</span><span class="p">(),</span> <span class="mi">0</span><span class="p">,</span> <span class="bp">self</span> <span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span> <span class="nb">str</span><span class="p">(</span><span class="n">key</span><span class="p">)</span> <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_columnvals</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">()</span><span class="o">.</span><span class="n">default_columnvals</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_level</span><span class="p">)</span> <span class="p">)</span>
+        <span class="n">default_columnvals</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">()</span><span class="o">.</span><span class="n">default_columnvals</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_level</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_columnvals</span><span class="p">(</span> <span class="n">default_columnvals</span> <span class="p">)</span>
         <span class="k">if</span> <span class="n">columnvals</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">set_columnvals</span><span class="p">(</span> <span class="n">columnvals</span> <span class="p">)</span></div>
 
@@ -829,16 +845,21 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="c1"># validation</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">()</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">()</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;Cannot set columnvals until item has been added to a model&#39;</span><span class="p">)</span>
 
-        <span class="n">columns</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">()</span><span class="o">.</span><span class="n">columns</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">_level</span> <span class="p">)</span>
+        <span class="n">columns</span>   <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">()</span><span class="o">.</span><span class="n">columns</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">_level</span> <span class="p">)</span>
 
         <span class="c1"># set columnvals</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">columns</span><span class="p">)):</span>
             <span class="n">column</span> <span class="o">=</span> <span class="n">columns</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
 
+
             <span class="k">if</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">columnvals</span><span class="p">:</span>
+
+                <span class="k">if</span> <span class="n">columnvals</span><span class="p">[</span><span class="n">column</span><span class="p">]</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">columnvals</span><span class="p">[</span><span class="n">column</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">()</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">()</span><span class="o">.</span><span class="n">setChild</span><span class="p">(</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">()</span><span class="o">.</span><span class="n">row</span><span class="p">(),</span>                            <span class="c1"># row</span>
@@ -905,9 +926,13 @@
             <span class="n">column</span> <span class="o">=</span> <span class="n">columns</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
             <span class="k">if</span> <span class="n">column</span> <span class="o">==</span> <span class="n">name</span><span class="p">:</span>
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">()</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">()</span><span class="o">.</span><span class="n">child</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">row</span><span class="p">(),</span> <span class="n">i</span><span class="o">+</span><span class="mi">1</span> <span class="p">)</span><span class="o">.</span><span class="n">text</span><span class="p">()</span>
+                    <span class="n">modelitem</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">()</span><span class="o">.</span><span class="n">child</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">row</span><span class="p">(),</span> <span class="n">i</span> <span class="p">)</span>
+                    <span class="k">if</span> <span class="n">modelitem</span><span class="p">:</span>
+                        <span class="k">return</span> <span class="n">modelitem</span><span class="o">.</span><span class="n">text</span><span class="p">()</span>
                 <span class="k">else</span><span class="p">:</span>
-                    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">row</span><span class="p">(),</span> <span class="n">i</span><span class="o">+</span><span class="mi">1</span> <span class="p">)</span><span class="o">.</span><span class="n">text</span><span class="p">()</span>
+                    <span class="n">modelitem</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">row</span><span class="p">(),</span> <span class="n">i</span> <span class="p">)</span>
+                    <span class="k">if</span> <span class="n">modelitem</span><span class="p">:</span>
+                        <span class="k">return</span> <span class="n">modelitem</span><span class="o">.</span><span class="n">text</span><span class="p">()</span>
 
         <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span>
             <span class="s1">&#39;Unable to find a column named: &quot;</span><span class="si">%s</span><span class="s1">&quot; in </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">columns</span><span class="p">))</span>
@@ -934,9 +959,9 @@
 <span class="sd">        Removes this *row* from the model.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">()</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">()</span><span class="o">.</span><span class="n">removeRow</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">()</span><span class="o">.</span><span class="n">row</span><span class="p">()</span> <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">()</span><span class="o">.</span><span class="n">removeRow</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">()</span> <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">()</span><span class="o">.</span><span class="n">removeRow</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">()</span><span class="o">.</span><span class="n">row</span><span class="p">()</span> <span class="p">)</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">()</span><span class="o">.</span><span class="n">removeRow</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">()</span> <span class="p">)</span></div>
 
     <span class="k">def</span> <span class="nf">_get_sibling_row</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1130,7 +1155,7 @@
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2017, Will Pittman.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.5.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.1.
     </div>
   </body>
 </html>

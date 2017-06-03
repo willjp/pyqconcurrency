@@ -1,6 +1,6 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
@@ -33,7 +33,7 @@
 <![endif]-->
 
   </head>
-  <body role="document">
+  <body>
 
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
@@ -82,20 +82,20 @@ which checks the value of <cite>self._abort_requested</cite></p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>signals</strong> (<em>dict</em><em>, </em><em>optional</em>) &#8211; <p><code class="docutils literal"><span class="pre">(ex:</span> <span class="pre">{signal_name:emitted</span> <span class="pre">datatype(s)}</span> <span class="pre">)</span></code></p>
+<li><strong>signals</strong> (<em>dict</em><em>, </em><em>optional</em>) – <p><code class="docutils literal"><span class="pre">(ex:</span> <span class="pre">{signal_name:emitted</span> <span class="pre">datatype(s)}</span> <span class="pre">)</span></code></p>
 <p>A dictionary of signal-names, and the datatypes
 they will emit.</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="p">{</span>
-    <span class="s1">&#39;update_status&#39;</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span>        <span class="c1"># update_status = QtCore.Signal()</span>
-    <span class="s1">&#39;log_message&#39;</span><span class="p">:</span>  <span class="nb">str</span><span class="p">,</span>          <span class="c1"># log_message   = QtCore.Signal(str)</span>
-    <span class="s1">&#39;add_item&#39;</span><span class="p">:</span>     <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span>   <span class="c1"># add_item      = QtCore.Signal(int, str)</span>
-<span class="p">}</span>
-</pre></div>
-</div>
+<pre class="literal-block">
+{
+    ‘update_status’: None,        # update_status = QtCore.Signal()
+    ‘log_message’:  str,          # log_message   = QtCore.Signal(str)
+    ‘add_item’:     (int, str),   # add_item      = QtCore.Signal(int, str)
+}
+</pre>
 </li>
-<li><strong>queue_stop</strong> (<em>queue.Queue</em><em>, </em><em>optional</em>) &#8211; A queue that handles request-aborts. When
+<li><strong>queue_stop</strong> (<em>queue.Queue</em><em>, </em><em>optional</em>) – A queue that handles request-aborts. When
 <code class="xref py py-obj docutils literal"><span class="pre">SignalManager.handle_if_abort</span></code> is run,
-if the queue contains this thread&#8217;s assigned id,
+if the queue contains this thread’s assigned id,
 then this thread will be stopped.</li>
 </ul>
 </td>
@@ -149,7 +149,7 @@ then this thread will be stopped.</li>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2017, Will Pittman.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.5.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.1.
     </div>
   </body>
 </html>

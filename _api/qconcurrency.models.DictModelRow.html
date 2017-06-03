@@ -1,6 +1,6 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
@@ -33,7 +33,7 @@
 <![endif]-->
 
   </head>
-  <body role="document">
+  <body>
 
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
@@ -63,7 +63,7 @@
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="#qconcurrency.models.DictModelRow.__init__" title="qconcurrency.models.DictModelRow.__init__"><code class="xref py py-obj docutils literal"><span class="pre">qconcurrency.models.DictModelRow.__init__</span></code></a>(...)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#qconcurrency.models.DictModelRow.__init__" title="qconcurrency.models.DictModelRow.__init__"><code class="xref py py-obj docutils literal"><span class="pre">qconcurrency.models.DictModelRow.__init__</span></code></a>(…)</td>
 <td><table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -87,7 +87,7 @@
 <td>Retrieve a single column-value only.</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="#qconcurrency.models.DictModelRow.columnvals" title="qconcurrency.models.DictModelRow.columnvals"><code class="xref py py-obj docutils literal"><span class="pre">qconcurrency.models.DictModelRow.columnvals</span></code></a>()</td>
-<td>Returns a dictionary of this item&#8217;s columnvals from the Model.</td>
+<td>Returns a dictionary of this item’s columnvals from the Model.</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="#qconcurrency.models.DictModelRow.delete" title="qconcurrency.models.DictModelRow.delete"><code class="xref py py-obj docutils literal"><span class="pre">qconcurrency.models.DictModelRow.delete</span></code></a>()</td>
 <td>Removes this <em>row</em> from the model.</td>
@@ -101,7 +101,7 @@
 <tr class="row-even"><td><a class="reference internal" href="#qconcurrency.models.DictModelRow.level" title="qconcurrency.models.DictModelRow.level"><code class="xref py py-obj docutils literal"><span class="pre">qconcurrency.models.DictModelRow.level</span></code></a>()</td>
 <td>Returns either a label (if <a class="reference internal" href="qconcurrency.models.DictModel.html#qconcurrency.models.DictModel.__init__" title="qconcurrency.models.DictModel.__init__"><code class="xref py py-meth docutils literal"><span class="pre">qconcurrency.models.DictModel.__init__()</span></code></a> was passed a <cite>hierarchy</cite> argument), or an integer representing the nesting-depth.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#qconcurrency.models.DictModelRow.set_columnvals" title="qconcurrency.models.DictModelRow.set_columnvals"><code class="xref py py-obj docutils literal"><span class="pre">qconcurrency.models.DictModelRow.set_columnvals</span></code></a>(...)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#qconcurrency.models.DictModelRow.set_columnvals" title="qconcurrency.models.DictModelRow.set_columnvals"><code class="xref py py-obj docutils literal"><span class="pre">qconcurrency.models.DictModelRow.set_columnvals</span></code></a>(…)</td>
 <td>Set columnvals on a key of this <a class="reference internal" href="qconcurrency.models.DictModel.html#qconcurrency.models.DictModel" title="qconcurrency.models.DictModel"><code class="xref py py-obj docutils literal"><span class="pre">qconcurrency.models.DictModel</span></code></a></td>
 </tr>
 </tbody>
@@ -114,7 +114,7 @@
 <em class="property">class </em><code class="descclassname">qconcurrency.models.</code><code class="descname">DictModelRow</code><span class="sig-paren">(</span><em>parent</em>, <em>key</em>, <em>columnvals=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qconcurrency/models.html#DictModelRow"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qconcurrency.models.DictModelRow" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">PySide.QtGui.QStandardItem</span></code></p>
 <p>A DictModelRow is a <code class="xref py py-obj docutils literal"><span class="pre">QtGui.QStandardItem</span></code> that holds
-an item&#8217;s key (usually database-Id) within a <a class="reference internal" href="qconcurrency.models.DictModel.html#qconcurrency.models.DictModel" title="qconcurrency.models.DictModel"><code class="xref py py-obj docutils literal"><span class="pre">qconcurrency.models.DictModel</span></code></a>.
+an item’s key (usually database-Id) within a <a class="reference internal" href="qconcurrency.models.DictModel.html#qconcurrency.models.DictModel" title="qconcurrency.models.DictModel"><code class="xref py py-obj docutils literal"><span class="pre">qconcurrency.models.DictModel</span></code></a>.
 It is always added to a <a class="reference internal" href="qconcurrency.models.DictModel.html#qconcurrency.models.DictModel" title="qconcurrency.models.DictModel"><code class="xref py py-obj docutils literal"><span class="pre">qconcurrency.models.DictModel</span></code></a> at the column-index <code class="docutils literal"><span class="pre">0</span></code>.
 When setting columnvals, they are added to the same parent <a class="reference internal" href="qconcurrency.models.DictModel.html#qconcurrency.models.DictModel" title="qconcurrency.models.DictModel"><code class="xref py py-obj docutils literal"><span class="pre">qconcurrency.models.DictModel</span></code></a>
 or <a class="reference internal" href="#qconcurrency.models.DictModelRow" title="qconcurrency.models.DictModelRow"><code class="xref py py-obj docutils literal"><span class="pre">qconcurrency.models.DictModelRow</span></code></a>, but at different column-indexes.</p>
@@ -142,14 +142,14 @@ DictModelRow     _id  <span class="p">|</span> class <span class="p">|</span>  <
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>parent</strong> (<em>QtGui.QStandardItem</em><em>, </em><em>QtGui.QStandardItemModel</em>) &#8211; <p>Another QStandardItem that has already
+<li><strong>parent</strong> (<em>QtGui.QStandardItem</em><em>, </em><em>QtGui.QStandardItemModel</em>) – <p>Another QStandardItem that has already
 been added to the model, or a model itself.</p>
-<p>It will be used to access the model&#8217;s info,
+<p>It will be used to access the model’s info,
 and this widget will be added to it.</p>
 </li>
-<li><strong>key</strong> (<em>obj</em>) &#8211; A hashable python object that will be
-used to represent this object&#8217;s databaseId.</li>
-<li><strong>columnvals</strong> (<em>dict</em><em>, </em><em>optional</em>) &#8211; A dictionary of columns, and assignments to store
+<li><strong>key</strong> (<em>obj</em>) – A hashable python object that will be
+used to represent this object’s databaseId.</li>
+<li><strong>columnvals</strong> (<em>dict</em><em>, </em><em>optional</em>) – A dictionary of columns, and assignments to store
 in the view.</li>
 </ul>
 </td>
@@ -183,11 +183,11 @@ henceforth referred to by the key <cite>key</cite>.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>key</strong> (<em>obj</em>) &#8211; Key is the id you will use to refer to this object.
+<li><strong>key</strong> (<em>obj</em>) – Key is the id you will use to refer to this object.
 Generally it will be a databaseId. This object must be
 hashable.</li>
-<li><strong>columnvals</strong> (<em>dict</em><em>, </em><em>optional</em>) &#8211; Optionally, you may provide a dictionary of column-val assignments
-(appropriate to this item&#8217;s table-level) as determined by the <cite>columns</cite>
+<li><strong>columnvals</strong> (<em>dict</em><em>, </em><em>optional</em>) – Optionally, you may provide a dictionary of column-val assignments
+(appropriate to this item’s table-level) as determined by the <cite>columns</cite>
 argument to <a class="reference internal" href="qconcurrency.models.DictModel.html#qconcurrency.models.DictModel.__init__" title="qconcurrency.models.DictModel.__init__"><code class="xref py py-meth docutils literal"><span class="pre">qconcurrency.models.DictModel.__init__()</span></code></a></li>
 </ul>
 </td>
@@ -226,11 +226,11 @@ henceforth referred to by the key <cite>key</cite>.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>key</strong> (<em>obj</em>) &#8211; Key is the id you will use to refer to this object.
+<li><strong>key</strong> (<em>obj</em>) – Key is the id you will use to refer to this object.
 Generally it will be a databaseId. This object must be
 hashable.</li>
-<li><strong>columnvals</strong> (<em>dict</em><em>, </em><em>optional</em>) &#8211; Optionally, you may provide a dictionary of column-val assignments
-(appropriate to this item&#8217;s table-level) as determined by the <cite>columns</cite>
+<li><strong>columnvals</strong> (<em>dict</em><em>, </em><em>optional</em>) – Optionally, you may provide a dictionary of column-val assignments
+(appropriate to this item’s table-level) as determined by the <cite>columns</cite>
 argument to <a class="reference internal" href="qconcurrency.models.DictModel.html#qconcurrency.models.DictModel.__init__" title="qconcurrency.models.DictModel.__init__"><code class="xref py py-meth docutils literal"><span class="pre">qconcurrency.models.DictModel.__init__()</span></code></a></li>
 </ul>
 </td>
@@ -264,7 +264,7 @@ argument to <a class="reference internal" href="qconcurrency.models.DictModel.ht
 <dl class="method">
 <dt id="qconcurrency.models.DictModelRow.columnvals">
 <code class="descname">columnvals</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qconcurrency/models.html#DictModelRow.columnvals"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qconcurrency.models.DictModelRow.columnvals" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns a dictionary of this item&#8217;s columnvals from the Model.
+<dd><p>Returns a dictionary of this item’s columnvals from the Model.
 A column <cite>_id</cite> will be added to the list of columns, which will
 be the <cite>key</cite> value of this row.</p>
 </dd></dl>
@@ -279,7 +279,7 @@ be the <cite>key</cite> value of this row.</p>
 <dt id="qconcurrency.models.DictModelRow.id">
 <code class="descname">id</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qconcurrency/models.html#DictModelRow.id"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#qconcurrency.models.DictModelRow.id" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the <cite>key</cite> this row represents.
-(It&#8217;s value depends on the value passed to <a class="reference internal" href="#qconcurrency.models.DictModelRow.add_row" title="qconcurrency.models.DictModelRow.add_row"><code class="xref py py-meth docutils literal"><span class="pre">qconcurrency.models.DictModelRow.add_row()</span></code></a>
+(It’s value depends on the value passed to <a class="reference internal" href="#qconcurrency.models.DictModelRow.add_row" title="qconcurrency.models.DictModelRow.add_row"><code class="xref py py-meth docutils literal"><span class="pre">qconcurrency.models.DictModelRow.add_row()</span></code></a>
 or <a class="reference internal" href="#qconcurrency.models.DictModelRow.add_child" title="qconcurrency.models.DictModelRow.add_child"><code class="xref py py-meth docutils literal"><span class="pre">qconcurrency.models.DictModelRow.add_child()</span></code></a> ).</p>
 </dd></dl>
 
@@ -353,7 +353,7 @@ that this item is in.</p>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2017, Will Pittman.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.5.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.1.
     </div>
   </body>
 </html>
