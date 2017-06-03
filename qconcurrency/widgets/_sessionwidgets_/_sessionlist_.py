@@ -72,7 +72,7 @@ class SessionList( SessionWidgetBase, QtWidgets.QWidget ):
 
         # Create Widgets
         layout     = QtWidgets.QVBoxLayout()
-        self._list = QtWidgets.QListWidget()
+        self._list = _DeselectableListWidget()
 
         # Position Widgets
         self.setLayout( layout )
@@ -203,6 +203,24 @@ class SessionList( SessionWidgetBase, QtWidgets.QWidget ):
         """
         return self._list.selectedItems()
 
+    def keyPressEvent(self, event):
+        """
+        If an item is selected in the list, the last-item in the selection
+        is toggled between editable and normal modes.
+        """
+        selected_items = self._list.selectedItems()
+        if selected_items:
+
+            # deselect all items except for the last selected
+            for i in range(len(selected_items) -1):
+                selected_items[i].set_editable(False)
+                selected_items[i].setSelected(False)
+
+            # toggle editability of last item
+            selected_items[-1].toggle_editable()
+
+        QtWidgets.QWidget.keyPressEvent(self,event)
+
 
     def _handle_item_changed(self, item):
         """
@@ -287,14 +305,7 @@ class SessionList( SessionWidgetBase, QtWidgets.QWidget ):
         When an item is double-clicked, toggle
         widget edit/normal mode.
         """
-
-        # toggle widget editability
-        if item.is_editable():
-            item.setFlags( item.flags() ^ QtCore.Qt.ItemIsEditable )
-        else:
-            item.setFlags( item.flags() | QtCore.Qt.ItemIsEditable )
-
-        item.refresh_status()
+        item.toggle_editable()
 
     def _handle_itemSelectionChanged(self):
         """
@@ -313,6 +324,30 @@ class SessionList( SessionWidgetBase, QtWidgets.QWidget ):
 
 
 
+class _DeselectableListWidget( QtWidgets.QListWidget ):
+    """
+    Customized :py:obj:`QListWidget` that deselects
+    all widgets whenever the user clicks empty space
+    in the list.
+    """
+    def __init__(self,*args,**kwds):
+        QtWidgets.QListWidget.__init__(self,*args,**kwds)
+
+    def mousePressEvent(self, event):
+        """
+        If no :py:obj:`QListWidgetItem` is under the cursor,
+        then clear the selection before handling the mousePressEvent.
+        """
+        # if LMB, and no widget is under cursor,
+        # deselect all widgets.
+        if event.button() is QtCore.Qt.LeftButton:
+            if not self.itemAt( event.pos() ):
+                self.clearSelection()
+
+        return QtWidgets.QListWidget.mousePressEvent(self,event)
+
+
+
 class SessionListItem( SessionWidgetItemBase, QtCore.QObject, QtWidgets.QListWidgetItem ):
     def __init__(self, val, _id, saved_val=None ):
         SessionWidgetItemBase.__init__(self, val, _id, saved_val )
@@ -327,6 +362,30 @@ class SessionListItem( SessionWidgetItemBase, QtCore.QObject, QtWidgets.QListWid
         Returns the QListWidget's text.
         """
         return self.text()
+
+    def toggle_editable(self):
+        """
+        If the widget is currently editable,
+        it's value is stored, otherwise makes editable.
+
+        The status is refreshed on the widget.
+        """
+        # toggle widget editability
+        if self.is_editable():
+            self.set_editable(False)
+        else:
+            self.set_editable(True)
+
+    def set_editable(self, status):
+        """
+        Sets the widget editable/not editable,
+        and enters edit-mode.
+        """
+        if status:
+            self.setFlags( self.flags() | QtCore.Qt.ItemIsEditable )
+            self.listWidget().editItem(self)
+        else:
+            self.setFlags( self.flags() ^ QtCore.Qt.ItemIsEditable )
 
 
 
