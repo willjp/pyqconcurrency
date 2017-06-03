@@ -196,6 +196,18 @@ class SessionList( SessionWidgetBase, QtWidgets.QWidget ):
         self._items.pop(_id)
 
 
+    def setSelectionMode(self, selectionMode):
+        """
+        Wraps :py:meth:`QListWidget.setSelectionMode`
+        """
+        return self._list.setSelectionMode( selectionMode )
+
+    def setSelectionModel(self, selectionModel):
+        """
+        Wraps :py:meth:`QListWidget.setSelectionModel`
+        """
+        return self._list.setSelectionModel( selectionModel )
+
     def selectedItems(self):
         """
         Wraps :py:meth:`QtWidgets.QListWidget.selectedItems` , and returns
