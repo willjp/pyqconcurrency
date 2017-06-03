@@ -89,6 +89,10 @@ class GroceryList( QtWidgets.QWidget ):
             self._handle_save
         )
 
+        self._list.changes_exist.connect(
+            self._handle_changes_exist
+        )
+
     def load(self):
         """
         Loads 3x items, representing saved data
@@ -104,6 +108,7 @@ class GroceryList( QtWidgets.QWidget ):
         for _id in fake_database_items:
             text = fake_database_items[ _id ]
             self._list.add_item( text, _id=_id, saved_val=text )
+
 
     def _handle_save_changes(self, changes):
         """
@@ -175,6 +180,16 @@ class GroceryList( QtWidgets.QWidget ):
 
     def _handle_save(self):
         self._list.save_changes()
+
+    def _handle_changes_exist(self, status):
+        """
+        Enables/Disables the `Save` button
+        based on whether or not there are unsaved changes
+        """
+        if status:
+            self._save_btn.setEnabled(True)
+        else:
+            self._save_btn.setEnabled(False)
 
 
 

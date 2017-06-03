@@ -27,13 +27,20 @@ from Qt import QtWidgets, QtCore, QtGui
 #internal
 
 
-#!TODO: flag to allow deselect in empty-space
-#!TODO: Enter toggles confirm/edit selected item
-
 #!NOTE: cannot create item-specific highlight colours.
 #!      ex:  lighter variation of 'new', or 'changed'
+#!
+#!      using transparency in QColor also does not work.
+#!      the colour is overlaid on top of the window, not
+#!      the QListWidgetItem's background.
+#!
+#!      In order to have per-listwidgetitem colours,
+#!      We would need to implement our own custom delegates,
+#!      with customized paintEvent() methods.
+#!
 
 class SessionList( SessionWidgetBase, QtWidgets.QWidget ):
+    changes_exist = QtCore.Signal(bool) #: True/False if unsaved changes exist
     def __init__(self, colours=None):
         """
         Args:
@@ -167,6 +174,9 @@ class SessionList( SessionWidgetBase, QtWidgets.QWidget ):
         # connections
         widget.status_changed.connect( self._handle_item_statuschanged )
 
+        # emit changes
+        self.changes_exist.emit( self.has_changes() )
+
     def remove_item(self, _id ):
         """
         Removes a single item from the list.
@@ -197,6 +207,10 @@ class SessionList( SessionWidgetBase, QtWidgets.QWidget ):
 
         # remove item from tracked items
         self._items.pop(_id)
+
+
+        # notify any widgets if we have any unsaved changes
+        self.changes_exist.emit( self.has_changes() )
 
 
     def setSelectionMode(self, selectionMode):
@@ -259,12 +273,13 @@ class SessionList( SessionWidgetBase, QtWidgets.QWidget ):
 
         # Update Internal Data
         # ====================
-        if is_changed:
-            self._changeditems.add( _id )
-
-        elif is_new:
+        if is_new:
             # new-items will already be tracked,
             pass
+
+        elif is_changed:
+            self._changeditems.add( _id )
+
 
         else:
             # if item is not new, but it is still tracked
@@ -278,6 +293,10 @@ class SessionList( SessionWidgetBase, QtWidgets.QWidget ):
             elif _id in self._changeditems:
                 self._changeditems.remove( _id )
 
+        # emit changes_exist
+        if self.has_changes():   self.changes_exist.emit(True)
+        else:                    self.changes_exist.emit(False)
+
 
         # Set Colours
         # ===========
@@ -288,6 +307,7 @@ class SessionList( SessionWidgetBase, QtWidgets.QWidget ):
 
                 # highlight should match editable colour
                 highlight_palette = copy.copy( self._default_palette )
+
                 highlight_palette.setColor(
                     QtGui.QPalette.Highlight,
                     self._colours['editable']['bg']
