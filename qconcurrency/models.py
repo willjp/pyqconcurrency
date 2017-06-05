@@ -829,24 +829,24 @@ class DictModelRow( QtGui.QStandardItem ):
 
             # nested-modelitem
             if self.parent() is not None:
-                modelitem = self.parent().child( self.row(), i+1 )
+                modelitem = self.parent().child( self.row(), i )
                 if modelitem is not None:
                     columnvals[ column ] = modelitem.text()
                 else:
                     raise RuntimeError(
                         'item at level "%s" in column "%s" (%s,%s) is None. Expected QtCore.QStandardItem' % (
-                            self._level, column, self.row(), i+1)
+                            self._level, column, self.row(), i)
                     )
 
             # root-modelitems
             else:
-                modelitem = self.model().item( self.row(), i+1 )
+                modelitem = self.model().item( self.row(), i )
                 if modelitem is not None:
                     columnvals[ column ] = modelitem.text()
                 else:
                     raise RuntimeError(
                         'item at level "%s" in column "%s" (%s,%s) is None. Expected QtCore.QStandardItem' % (
-                            self._level, column, self.row(), i+1)
+                            self._level, column, self.row(), i)
                     )
         columnvals['_id'] = self._key
 
