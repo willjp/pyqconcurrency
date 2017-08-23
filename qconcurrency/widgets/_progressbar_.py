@@ -17,12 +17,16 @@ from   collections import Iterable
 import functools
 import uuid
 import copy
+import logging
+import threading
 #external
 from Qt            import QtWidgets
 #internal
 from qconcurrency.threading_  import ThreadedTask, SoloThreadedTask
 
 #!TODO: http://stackoverflow.com/questions/7108715/how-to-show-hide-a-child-qwidget-with-a-motion-animation
+
+logger = logging.getLogger(__name__)
 
 
 class _ProgressSoloThreadedTask( SoloThreadedTask ):
@@ -127,39 +131,44 @@ class ProgressBar( QtWidgets.QWidget ):
         required to complete.
         """
 
-        if jobid in self._cancelled_jobids:
-            return
+        with threading.Lock():
+            if jobid in self._cancelled_jobids:
+                return
 
-        if jobid not in self._progress:
-            self._progress[ jobid ] = {'total':amount, 'current':0}
-        else:
-            self._progress[ jobid ]['total'] += amount
+            if jobid not in self._progress:
+                self._progress[ jobid ] = {'total':amount, 'current':0}
+            else:
+                self._progress[ jobid ]['total'] += amount
 
-        self.refresh_progress()
-        self.setHidden(False)
+            self.refresh_progress()
+            self.setHidden(False)
 
     def refresh_progress(self):
         """
         ReCalculates current/total progress, and updates the progressbar
         """
 
-        total_progress   = 0
-        current_progress = 0
-        for jobid in list(self._progress.keys()):
-            total_progress   += self._progress[ jobid ]['total']
-            current_progress += self._progress[ jobid ]['current']
+        with threading.Lock():
+            total_progress   = 0
+            current_progress = 0
+            for jobid in list(self._progress.keys()):
+                job_progress = self._progress[ jobid ]
 
-            if jobid in self._cancelled_jobids:
-                self._progress.pop(jobid)
+                if   jobid in self._cancelled_jobids:
+                    self._progress.pop(jobid)
 
-            if current_progress == total_progress:
-                self._progress.pop(jobid)
+                elif job_progress['current'] == job_progress['total']:
+                    self._progress.pop(jobid)
 
-        self._progressbar.setMaximum( total_progress   )
-        self._progressbar.setValue(   current_progress )
+                else:
+                    total_progress   += self._progress[ jobid ]['total']
+                    current_progress += self._progress[ jobid ]['current']
 
-        if total_progress <= current_progress:
-            self.setHidden(True)
+            self._progressbar.setMaximum( total_progress   )
+            self._progressbar.setValue(   current_progress )
+
+            if total_progress <= current_progress:
+                self.setHidden(True)
 
     def incr_progress(self, amount, jobid):
         """
@@ -167,17 +176,18 @@ class ProgressBar( QtWidgets.QWidget ):
         a particular jobid.
         """
 
-        if jobid in self._cancelled_jobids:
-            return
+        with threading.Lock():
+            if jobid in self._cancelled_jobids:
+                return
 
-        if amount == None:
-            amount = 1
+            if amount == None:
+                amount = 1
 
-        if jobid not in self._progress:
-            return
+            if jobid not in self._progress:
+                return
 
-        self._progress[ jobid ]['current'] += amount
-        self.refresh_progress()
+            self._progress[ jobid ]['current'] += amount
+            self.refresh_progress()
 
     def reset(self, jobid=None ):
         """
@@ -186,13 +196,14 @@ class ProgressBar( QtWidgets.QWidget ):
         jobid.
         """
 
-        if not jobid:
-            self._progress = {}
-            self._progressbar.reset()
-            self.refresh_progress()
+        with threading.Lock():
+            if not jobid:
+                self._progress = {}
+                self._progressbar.reset()
 
-        elif jobid in self._progress:
-            self._progress.pop( jobid )
+            elif jobid in self._progress:
+                self._progress.pop( jobid )
+
             self.refresh_progress()
 
     def new_task(self, callback, signals=None, *args, **kwds ):
@@ -288,18 +299,19 @@ class ProgressBar( QtWidgets.QWidget ):
         return solotask
 
     def _handle_return_or_abort(self, *args,**kwds):
-
-        if 'jobid' in kwds:
+        with threading.Lock():
 
             if 'jobid' in kwds:
-                self.reset( jobid=kwds['jobid'] )
 
-            self._cancelled_jobids.append( kwds['jobid'] )
+                if kwds['jobid']:
+                    self.reset( jobid=kwds['jobid'] )
 
-            # when there are more than 50x entries,
-            # prune the tracked jobids
-            if len(self._cancelled_jobids) > 50:
-                self._cancelled_jobids.pop(0)
+                self._cancelled_jobids.append( kwds['jobid'] )
+
+                # when there are more than 50x entries,
+                # prune the tracked jobids
+                if len(self._cancelled_jobids) > 50:
+                    self._cancelled_jobids.pop(0)
 
             self.refresh_progress()
 

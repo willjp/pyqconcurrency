@@ -16,8 +16,8 @@ Version History
 * DictModelQMenu
 
 
-0.0.a2
-------
+0.0.a2 (unreleased)
+-------------------
 
 * improved docs
 * logged unhandled exceptions when occurred in ThreadedTask/SoloThreadedTask
@@ -27,5 +27,6 @@ Version History
 * corrected __all__ in various packages
 * example
 * unittests for `qconcurrency.threading_`
+* corrections to progressbar handling in soloThreadedTask
 
 

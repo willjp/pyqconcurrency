@@ -17,6 +17,8 @@ from   __future__    import print_function
 from   collections   import Iterable
 import uuid
 import functools
+import logging
+import threading
 #external
 from   Qt import QtCore, QtWidgets
 import six
@@ -26,7 +28,8 @@ from   qconcurrency.threading_    import ThreadedTask, SoloThreadedTask
 from   qconcurrency.widgets       import ProgressBar
 from   qconcurrency._fake_        import Fake
 
-#!TODO: handle request-abort
+logger = logging.getLogger(__name__)
+
 
 class QBaseWindow( QtWidgets.QWidget ):
     def __init__(self, title=None ):

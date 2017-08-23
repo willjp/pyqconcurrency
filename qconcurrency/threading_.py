@@ -23,6 +23,7 @@ import time
 import importlib
 import functools
 import traceback
+import threading
 #package
 #external
 from   Qt import QtCore, QtWidgets
@@ -713,71 +714,72 @@ class SoloThreadedTask( object ):
                 run from it's separate thread.
         """
 
-        threadId = uuid.uuid4().hex
+        with threading.Lock():
+            threadId = uuid.uuid4().hex
 
-        task = ThreadedTask(
-            callback = self._run,
-            signals  = self._signals,
+            task = ThreadedTask(
+                callback = self._run,
+                signals  = self._signals,
 
-            # args/kwds
-            threadId = threadId,
-            *args, **kwds
-        )
-        self._active_threads[ threadId ] = task.request_abort
+                # args/kwds
+                threadId = threadId,
+                *args, **kwds
+            )
+            self._active_threads[ threadId ] = task.request_abort
 
-        if not _connections:
-            _connections = self._connections
-
-
-        # setup all user-defined connections
-        if _connections:
-            for signal_name in _connections:
-                if isinstance( _connections[ signal_name ], Iterable ):
-                    for callback in _connections[ signal_name ]:
-                        task.signal( signal_name ).connect( callback )
-                else:
-                    task.signal( signal_name ).connect(
-                        _connections[signal_name]
-                    )
-
-        task.signal('thread_acquired_mutex').connect(
-            self._set_active_threadId
-        )
-        task.signal('_thread_exit_').connect(
-            self._set_complete_threadId,
-            QtCore.Qt.DirectConnection
-        )
-
-        if not wait:
-            task.start( expiryTimeout=expiryTimeout, threadpool=threadpool )
-            logger.debug('created threadId: %s' % threadId)
-
-        else:
-            elapsed = 0
-            # wait for thread to lock
-            while self._mutex_loading.tryLock(0)   and   threadId in self._active_threads:
-                if elapsed == 0:
-                    task.start( expiryTimeout=expiryTimeout, threadpool=threadpool )
-                    logger.debug('created threadId: %s' % threadId)
-                self._mutex_loading.unlock()
-                time.sleep(0.05)
-                elapsed += 0.05
-            logger.debug( 'locked by thread' )
+            if not _connections:
+                _connections = self._connections
 
 
-            # wait for thread to unlock
-            while threadId  in  self._active_threads  and  self._active_threads:
-                if wait not in (True,False):
-                    if elapsed >= wait:
-                        raise TimedOut(
-                            'waited %ss for job to complete without success' % elapsed
+            # setup all user-defined connections
+            if _connections:
+                for signal_name in _connections:
+                    if isinstance( _connections[ signal_name ], Iterable ):
+                        for callback in _connections[ signal_name ]:
+                            task.signal( signal_name ).connect( callback )
+                    else:
+                        task.signal( signal_name ).connect(
+                            _connections[signal_name]
                         )
 
-                time.sleep(0.05)
-                elapsed += 0.05
-                QtCore.QCoreApplication.instance().processEvents()
+            task.signal('thread_acquired_mutex').connect(
+                self._set_active_threadId
+            )
+            task.signal('_thread_exit_').connect(
+                self._set_complete_threadId,
+                QtCore.Qt.DirectConnection
+            )
 
-            self._mutex_loading.unlock()
+            if not wait:
+                task.start( expiryTimeout=expiryTimeout, threadpool=threadpool )
+                logger.debug('created threadId: %s' % threadId)
+
+            else:
+                elapsed = 0
+                # wait for thread to lock
+                while self._mutex_loading.tryLock(0)   and   threadId in self._active_threads:
+                    if elapsed == 0:
+                        task.start( expiryTimeout=expiryTimeout, threadpool=threadpool )
+                        logger.debug('created threadId: %s' % threadId)
+                    self._mutex_loading.unlock()
+                    time.sleep(0.05)
+                    elapsed += 0.05
+                logger.debug( 'locked by thread' )
+
+
+                # wait for thread to unlock
+                while threadId  in  self._active_threads  and  self._active_threads:
+                    if wait not in (True,False):
+                        if elapsed >= wait:
+                            raise TimedOut(
+                                'waited %ss for job to complete without success' % elapsed
+                            )
+
+                    time.sleep(0.05)
+                    elapsed += 0.05
+                    QtCore.QCoreApplication.instance().processEvents()
+
+                self._mutex_loading.unlock()
 
     def _run(self, threadId=None, signalmgr=None, *args, **kwds ):
         """
