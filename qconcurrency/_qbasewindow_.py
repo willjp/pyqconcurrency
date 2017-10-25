@@ -120,47 +120,48 @@ class _ProgressSoloThreadedTask_QBaseObject( SoloThreadedTask ):
         Looks for/connects the progressbar.
         """
 
-        jobid = uuid.uuid4().hex
+        with threading.Lock():
+            jobid = uuid.uuid4().hex
 
-        # check if this QBaseObject has a parent window,
-        # and if that window has a method called `progressbar`
-        # (presumably yielding a progressbar)
-        progressbar = None
-        if hasattr( self._qbaseobject, 'window' ):
-            if hasattr( self._qbaseobject.window(), 'progressbar' ):
-                progressbar = self._qbaseobject.window().progressbar()
-
-
-        # default arguments
-        connections = self._connections.copy()
-        if not connections:
-            connections = {}
-
-        if progressbar:
-            progbar_connections = {
-                'incr_progress' : functools.partial( progressbar.incr_progress, jobid=jobid ),
-                'add_progress'  : functools.partial( progressbar.add_progress,  jobid=jobid ),
-                'returned'      : functools.partial( progressbar._handle_return_or_abort, jobid=jobid ),
-                'exception'     : functools.partial( progressbar._handle_return_or_abort, jobid=jobid ),
-            }
-        else:
-            progbar_connections = {}
+            # check if this QBaseObject has a parent window,
+            # and if that window has a method called `progressbar`
+            # (presumably yielding a progressbar)
+            progressbar = None
+            if hasattr( self._qbaseobject, 'window' ):
+                if hasattr( self._qbaseobject.window(), 'progressbar' ):
+                    progressbar = self._qbaseobject.window().progressbar()
 
 
-        for signal in progbar_connections:
-            if signal in connections:
-                connections[ signal ].append( progbar_connections[signal] )
+            # default arguments
+            connections = self._connections.copy()
+            if not connections:
+                connections = {}
+
+            if progressbar:
+                progbar_connections = {
+                    'incr_progress' : functools.partial( progressbar.incr_progress, jobid=jobid ),
+                    'add_progress'  : functools.partial( progressbar.add_progress,  jobid=jobid ),
+                    'returned'      : functools.partial( progressbar._handle_return_or_abort, jobid=jobid ),
+                    'exception'     : functools.partial( progressbar._handle_return_or_abort, jobid=jobid ),
+                }
             else:
-                connections[ signal ] = [ progbar_connections[signal] ]
+                progbar_connections = {}
 
 
-        SoloThreadedTask.start(self,
-                           expiryTimeout = expiryTimeout,
-                           threadpool    = threadpool,
-                           wait          = wait,
-                           _connections  = connections,
-                           *args,**kwds
-                       )
+            for signal in progbar_connections:
+                if signal in connections:
+                    connections[ signal ].append( progbar_connections[signal] )
+                else:
+                    connections[ signal ] = [ progbar_connections[signal] ]
+
+
+            SoloThreadedTask.start(self,
+                               expiryTimeout = expiryTimeout,
+                               threadpool    = threadpool,
+                               wait          = wait,
+                               _connections  = connections,
+                               *args,**kwds
+                           )
 
 
 
