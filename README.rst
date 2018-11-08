@@ -18,8 +18,8 @@ See Sphinx documentation_ for more details.
 
 
 
-Warning
--------
+!!Warning!!
+------------
 
 **This library was founded on a bad idea**. Instead, I've been reusing `QThread` s with worker `QObject` s. It is simpler,
 more predictable, and better communicates what code is executing where. 
