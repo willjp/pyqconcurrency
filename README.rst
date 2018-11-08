@@ -18,6 +18,60 @@ See Sphinx documentation_ for more details.
 
 
 
+Warning
+-------
+
+This library was a bad idea. Instead, I've been reusing `QThread` s with worker `QObject` s. It is simpler,
+more predictable, and better communicates what code is executing where. 
+
+Note that when working this way, calling a worker method directly will cause the job to run in a separate thread, 
+but the UI thread will hang while waiting for it to complete. If you call it with a signal instead, 
+it will run truly asynchronously.
+
+
+Here is an example:
+
+.. code-block:: python
+
+    from Qt import QtWidgets, QtCore
+
+    class MyWorker(QtCore.QObject):
+        """ any method on this worker-object will run in a separate thread """
+        success = QtCore.Signal(str)
+        fail = QtCore.Signal(str)
+
+        def download(self, url):
+            pass
+        def upload(self, filepath, url):
+            pass
+
+    class MyWidget(QtWidgets.QWidget):
+        """ our widget, which starts a qthread, and moves our worker to the thread """
+        def __init__(self):
+            super(MyWidget, self).__init__()
+
+            self.thread = QtCore.QThread()
+            self.worker = MyWorker()
+            self.worker.moveToThread(self.thread)
+
+            self.worker.success.connect(self.print_message)
+            self.worker.fail.connect(self.print_message)
+
+            self._initui()
+
+        def _initui(self):
+            # create widgets
+            layout = QtWidgets.QVBoxLayout()
+            download_btn = QtWidgets.QPushButton('download')
+            upload_btn = QtWidgets.QPushButton('upload')
+
+            # position widgets
+            self.setLayout(layout)
+            layout.addWidget(download_btn)
+            layout.addWidget(upload_btn)
+
+        def print_message(self, message):
+            print(message)
 
 
 Notes
