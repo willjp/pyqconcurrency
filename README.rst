@@ -21,7 +21,7 @@ See Sphinx documentation_ for more details.
 Warning
 -------
 
-This library was a bad idea. Instead, I've been reusing `QThread` s with worker `QObject` s. It is simpler,
+**This library was founded on a bad idea**. Instead, I've been reusing `QThread` s with worker `QObject` s. It is simpler,
 more predictable, and better communicates what code is executing where. 
 
 Note that when working this way, calling a worker method directly will cause the job to run in a separate thread, 
